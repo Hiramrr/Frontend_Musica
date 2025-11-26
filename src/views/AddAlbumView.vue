@@ -19,6 +19,7 @@ const form = ref({
   artista_id: '',
   anio_salida: '',
   duracion: '',
+  total_canciones: '',
   descripcion: ''
 })
 
@@ -42,7 +43,7 @@ const onFileChange = (event) => {
 
 // Acciones del formulario
 const limpiarCampos = () => {
-  form.value = { titulo: '', artista_id: '', anio_salida: '', duracion: '', descripcion: '' }
+  form.value = { titulo: '', artista_id: '', anio_salida: '', duracion: '', total_canciones: '', descripcion: '' }
   imagenPreview.value = null
   imagenArchivo.value = null
   if (fileInput.value) fileInput.value.value = ''
@@ -116,6 +117,18 @@ const registrarAlbum = () => {
                     type="text"
                     class="input"
                     placeholder="Ej: 45:30 min"
+                  />
+                </div>
+
+                <div class="input-group">
+                  <label class="label">Total de Canciones</label>
+                  <input
+                    v-model="form.total_canciones"
+                    type="number"
+                    min="1"
+                    required
+                    class="input"
+                    placeholder="Ej: 10"
                   />
                 </div>
               </div>
