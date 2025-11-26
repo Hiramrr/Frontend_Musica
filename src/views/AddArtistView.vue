@@ -4,314 +4,449 @@ import { useRouter } from 'vue-router'
 
 const router = useRouter()
 
-// Modelo de datos para el formulario
+// Referencias a elementos del DOM
+const fileInput = ref(null)
+
+// Estado del formulario
 const form = ref({
   nombre: '',
-  imagen: '',
   fecha_inicio: '',
   fecha_fin: '',
   fecha_nacimiento: '',
   bibliografia: ''
 })
 
-// Función simulada de guardado
-const guardarArtista = () => {
-  // Aquí conectarás con tu backend/base de datos
-  console.log("Datos a enviar:", form.value)
-  alert(`¡Artista "${form.value.nombre}" agregado con éxito!`)
-  
-  // Redirigir al home o limpiar formulario
-  router.push('/') 
+// Estado para la imagen
+const imagenPreview = ref(null)
+const imagenArchivo = ref(null)
+
+// Métodos de navegación
+const goToPanel = () => {
+  router.push('/')
 }
 
-const cancelar = () => {
-  router.go(-1) // Regresar a la página anterior
+// Métodos para manejo de Imagen
+const triggerFileInput = () => {
+  fileInput.value.click()
+}
+
+const onFileChange = (event) => {
+  const file = event.target.files[0]
+  if (file) {
+    imagenArchivo.value = file
+    // Crear URL temporal para previsualizar
+    imagenPreview.value = URL.createObjectURL(file)
+  }
+}
+
+// Métodos del formulario
+const limpiarCampos = () => {
+  form.value = {
+    nombre: '',
+    fecha_inicio: '',
+    fecha_fin: '',
+    fecha_nacimiento: '',
+    bibliografia: ''
+  }
+  imagenPreview.value = null
+  imagenArchivo.value = null
+  if (fileInput.value) fileInput.value.value = ''
+}
+
+const registrarArtista = () => {
+  // Aquí iría la lógica para enviar 'form' e 'imagenArchivo' a tu backend/Cloudinary
+  console.log("Registrando Artista:", { ...form.value, imagen: imagenArchivo.value })
+  alert("Artista registrado correctamente (Simulación)")
+  router.push('/')
 }
 </script>
 
 <template>
-  <main class="contenedor-admin">
-    <div class="tarjeta-formulario">
-      
-      <header class="encabezado-form">
-        <h1 class="titulo-pagina">Nuevo Artista</h1>
-        <p class="subtitulo">Ingresa los datos del solista o banda</p>
+  <div class="vender-container">
+    <header class="header">
       </header>
 
-      <form @submit.prevent="guardarArtista" class="formulario">
+    <div class="content">
+      <div class="form-wrapper">
         
-        <div class="seccion-inputs">
-          <div class="grupo-input">
-            <label for="nombre">Nombre Artístico</label>
-            <input 
-              id="nombre" 
-              v-model="form.nombre" 
-              type="text" 
-              placeholder="Ej. Luis Miguel, Queen..." 
-              required 
-              class="input-oscuro"
-            />
-          </div>
+        <div class="top-bar">
+          <button class="btn btn-outline-sm" @click="goToPanel">← Regresar</button>
+        </div>
 
-          <div class="grupo-input">
-            <label for="imagen">URL de la Foto (Perfil)</label>
-            <input 
-              id="imagen" 
-              v-model="form.imagen" 
-              type="url" 
-              placeholder="https://ejemplo.com/foto.jpg" 
-              class="input-oscuro"
-            />
-            <div v-if="form.imagen" class="preview-imagen">
-              <img :src="form.imagen" alt="Vista previa" />
-              <span>Vista previa</span>
+        <div class="title-section">
+          <h1 class="title">Agregar Artista</h1>
+          <p class="subtitle">Completa la información para añadir un nuevo solista o banda a la base de datos</p>
+        </div>
+
+        <form class="form" @submit.prevent="registrarArtista">
+          <div class="form-grid">
+            
+            <div class="form-section">
+              
+              <div class="input-group">
+                <label class="label">Nombre Artístico</label>
+                <input
+                  v-model="form.nombre"
+                  type="text"
+                  required
+                  class="input"
+                  placeholder="Ej: Luis Miguel, The Beatles..."
+                />
+              </div>
+
+              <div class="input-row">
+                <div class="input-group">
+                  <label class="label">Fecha Inicio / Formación</label>
+                  <input
+                    v-model="form.fecha_inicio"
+                    type="date"
+                    required
+                    class="input"
+                  />
+                </div>
+
+                <div class="input-group">
+                  <label class="label">Fecha Fin (Opcional)</label>
+                  <input
+                    v-model="form.fecha_fin"
+                    type="date"
+                    class="input"
+                  />
+                  <span class="hint">Deja vacío si sigue activo</span>
+                </div>
+              </div>
+
+              <div class="input-group">
+                <label class="label">Fecha de Nacimiento (Solo solistas)</label>
+                <input
+                  v-model="form.fecha_nacimiento"
+                  type="date"
+                  class="input"
+                />
+              </div>
+
+              <div class="input-group">
+                <label class="label">Biografía</label>
+                <textarea
+                  v-model="form.bibliografia"
+                  rows="6"
+                  required
+                  class="input textarea"
+                  placeholder="Escribe la historia, origen y datos relevantes del artista..."
+                ></textarea>
+              </div>
             </div>
+
+            <div class="form-section image-section">
+              <div class="input-group">
+                <label class="label">Foto del Artista</label>
+                
+                <div 
+                  class="image-upload-area" 
+                  :class="{ 'has-image': imagenPreview }"
+                  @click="triggerFileInput"
+                >
+                  
+                  <div v-if="imagenPreview" class="image-preview">
+                    <img :src="imagenPreview" alt="Preview" />
+                    <div class="image-overlay">
+                      <span>Cambiar imagen</span>
+                    </div>
+                  </div>
+
+                  <div v-else class="image-placeholder">
+                    <svg width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
+                    </svg>
+                    <p class="upload-text">Haz clic para subir foto</p>
+                    <p class="upload-hint">JPG, PNG (Max 10MB)</p>
+                  </div>
+
+                </div>
+                
+                <input
+                  ref="fileInput"
+                  type="file"
+                  @change="onFileChange"
+                  accept="image/*"
+                  style="display: none"
+                />
+              </div>
+            </div>
+
           </div>
-        </div>
 
-        <div class="fila-doble">
-          <div class="grupo-input">
-            <label>Fecha Inicio / Formación</label>
-            <input 
-              v-model="form.fecha_inicio" 
-              type="date" 
-              required 
-              class="input-oscuro"
-            />
+          <div class="actions">
+            <button type="button" class="btn btn-secondary" @click="limpiarCampos">
+              Limpiar
+            </button>
+            <button type="button" class="btn btn-outline" @click="goToPanel">
+              Cancelar
+            </button>
+            <button type="submit" class="btn btn-primary">
+              Registrar Artista →
+            </button>
           </div>
-          
-          <div class="grupo-input">
-            <label>Fecha Fin (Opcional)</label>
-            <input 
-              v-model="form.fecha_fin" 
-              type="date" 
-              class="input-oscuro"
-            />
-            <span class="nota-input">Deja vacío si sigue activo</span>
-          </div>
-        </div>
-
-         <div class="grupo-input">
-            <label>Fecha de Nacimiento (Solo solistas)</label>
-            <input 
-              v-model="form.fecha_nacimiento" 
-              type="date" 
-              class="input-oscuro"
-            />
-          </div>
-
-        <div class="grupo-input">
-          <label for="bio">Biografía</label>
-          <textarea 
-            id="bio" 
-            v-model="form.bibliografia" 
-            rows="5" 
-            placeholder="Escribe una breve historia del artista..."
-            class="input-oscuro area-texto"
-          ></textarea>
-        </div>
-
-        <div class="acciones">
-          <button type="button" @click="cancelar" class="boton-cancelar">
-            Cancelar
-          </button>
-          <button type="submit" class="boton-guardar">
-            Guardar Artista
-          </button>
-        </div>
-
-      </form>
+        </form>
+      </div>
     </div>
-  </main>
+  </div>
 </template>
 
 <style scoped>
-/* =========================================
-   ESTILOS BASE (Coinciden con HomeView)
-   ========================================= */
-
-.contenedor-admin {
-  background-color: #0b152b; /* Mismo fondo azul oscuro del Home */
+/* Contenedor Principal */
+.vender-container {
   min-height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center; /* Centra la tarjeta verticalmente */
+  background-color: #0b152b; /* Fondo principal oscuro */
+  color: #fff;
   padding: 2rem;
   font-family: 'Inter', sans-serif;
-  color: #ffffff;
 }
 
-/* Tarjeta central flotante */
-.tarjeta-formulario {
-  background-color: #12203e; /* Fondo de tarjeta (igual que filas de álbum) */
-  width: 100%;
-  max-width: 600px;
-  padding: 2.5rem;
+.content {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Tarjeta del Formulario */
+.form-wrapper {
+  background-color: #12203e; /* Fondo tarjeta */
   border-radius: 12px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  padding: 2.5rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
   border: 1px solid #1c2e52;
 }
 
-/* =========================================
-   TYPOGRAPHY
-   ========================================= */
-
-.encabezado-form {
-  text-align: center;
-  margin-bottom: 2rem;
-}
-
-.titulo-pagina {
-  font-size: 2rem;
-  font-weight: 700;
-  color: #ffffff;
-  margin-bottom: 0.5rem;
-}
-
-.subtitulo {
-  color: #8fa3bf; /* Color de texto secundario del Home */
-  font-size: 0.95rem;
-}
-
-/* =========================================
-   INPUTS Y LABELS
-   ========================================= */
-
-.grupo-input {
-  display: flex;
-  flex-direction: column;
+.top-bar {
   margin-bottom: 1.5rem;
 }
 
-label {
-  font-weight: 600;
-  font-size: 0.9rem;
-  color: #a4c2f4; /* Azul claro para etiquetas (destaca sobre oscuro) */
-  margin-bottom: 0.5rem;
-  display: block;
+/* Títulos */
+.title-section {
+  margin-bottom: 2.5rem;
+  border-bottom: 1px solid #1c2e52;
+  padding-bottom: 1.5rem;
 }
 
-.input-oscuro {
-  background-color: #1c2e52; /* Un tono más claro que el fondo de tarjeta */
-  border: 1px solid #2c3e50;
-  border-radius: 6px;
-  padding: 0.9rem 1rem;
-  font-size: 1rem;
+.title {
+  font-size: 1.8rem;
+  font-weight: 700;
   color: #ffffff;
-  transition: all 0.3s ease;
-  outline: none;
+  margin-bottom: 0.5rem;
 }
 
-.input-oscuro:focus {
-  border-color: #648bc4; /* Color de énfasis al escribir */
-  background-color: #24345e;
-  box-shadow: 0 0 0 3px rgba(100, 139, 196, 0.2);
-}
-
-.input-oscuro::placeholder {
-  color: #5c6b7f;
-}
-
-.area-texto {
-  resize: vertical; /* Permite estirar solo hacia abajo */
-  line-height: 1.5;
-}
-
-.nota-input {
-  font-size: 0.75rem;
-  color: #5c6b7f;
-  margin-top: 4px;
-}
-
-/* Grid para fechas */
-.fila-doble {
-  display: flex;
-  gap: 1.5rem;
-}
-
-.fila-doble > div {
-  flex: 1;
-}
-
-/* Preview de imagen */
-.preview-imagen {
-  margin-top: 10px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 0.8rem;
+.subtitle {
   color: #8fa3bf;
+  font-size: 0.95rem;
 }
 
-.preview-imagen img {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 2px solid #a4c2f4;
+/* Grid del Formulario */
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+  margin-bottom: 2rem;
 }
 
-/* =========================================
-   BOTONES
-   ========================================= */
+@media (min-width: 768px) {
+  .form-grid {
+    grid-template-columns: 2fr 1fr; /* 2 partes info, 1 parte imagen */
+  }
+}
 
-.acciones {
+/* Inputs y Labels */
+.input-group {
+  margin-bottom: 1.25rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.input-row {
   display: flex;
   gap: 1rem;
-  margin-top: 2rem;
 }
-
-.boton-guardar {
-  flex: 2;
-  background-color: #2c3e50; /* Base */
-  background-image: linear-gradient(to right, #648bc4, #4a6fa5); /* Degradado sutil azul */
-  color: white;
-  border: none;
-  padding: 1rem;
-  border-radius: 6px;
-  font-size: 1rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
-}
-
-.boton-guardar:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(100, 139, 196, 0.4);
-}
-
-.boton-cancelar {
+.input-row > .input-group {
   flex: 1;
-  background-color: transparent;
-  border: 1px solid #2c3e50;
-  color: #8fa3bf;
-  padding: 1rem;
-  border-radius: 6px;
+}
+
+.label {
+  font-size: 0.9rem;
   font-weight: 600;
-  cursor: pointer;
+  color: #a4c2f4;
+  margin-bottom: 0.5rem;
+}
+
+.input {
+  background-color: #1c2e52;
+  border: 1px solid #2c3e50;
+  border-radius: 8px;
+  padding: 0.8rem 1rem;
+  color: white;
+  font-size: 0.95rem;
   transition: all 0.2s;
 }
 
-.boton-cancelar:hover {
-  border-color: #8fa3bf;
-  color: #fff;
+.input:focus {
+  outline: none;
+  border-color: #648bc4;
+  box-shadow: 0 0 0 3px rgba(100, 139, 196, 0.15);
 }
 
-/* =========================================
-   RESPONSIVE (Móvil)
-   ========================================= */
+.input::placeholder {
+  color: #5c6b7f;
+}
+
+.textarea {
+  resize: vertical;
+  min-height: 120px;
+}
+
+.hint {
+  font-size: 0.75rem;
+  color: #5c6b7f;
+  margin-top: 0.3rem;
+}
+
+/* Área de Imagen (Upload) */
+.image-upload-area {
+  border: 2px dashed #2c3e50;
+  border-radius: 12px;
+  min-height: 250px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  background-color: #162645;
+  transition: all 0.3s;
+  overflow: hidden;
+  position: relative;
+}
+
+.image-upload-area:hover {
+  border-color: #648bc4;
+  background-color: #1c2e52;
+}
+
+.image-placeholder {
+  text-align: center;
+  color: #8fa3bf;
+}
+
+.upload-text {
+  font-weight: 600;
+  margin-top: 1rem;
+}
+
+.upload-hint {
+  font-size: 0.8rem;
+  color: #5c6b7f;
+}
+
+.image-preview {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+.image-preview img {
+  width: 100%;
+  height: 250px; /* Altura fija para la caja */
+  object-fit: cover;
+  display: block;
+}
+
+.image-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.image-upload-area:hover .image-overlay {
+  opacity: 1;
+}
+
+.image-overlay span {
+  color: white;
+  font-weight: 600;
+  border: 1px solid white;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+}
+
+/* Botones */
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #1c2e52;
+}
+
+.btn {
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+}
+
+.btn-primary {
+  background-color: hsla(160, 100%, 37%, 1); /* Tu color verde/teal principal */
+  color: white;
+}
+.btn-primary:hover {
+  background-color: hsla(160, 100%, 32%, 1);
+  transform: translateY(-1px);
+}
+
+.btn-secondary {
+  background-color: transparent;
+  color: #8fa3bf;
+}
+.btn-secondary:hover {
+  color: white;
+  text-decoration: underline;
+}
+
+.btn-outline {
+  background-color: transparent;
+  border: 1px solid #2c3e50;
+  color: #e0e0e0;
+}
+.btn-outline:hover {
+  border-color: #8fa3bf;
+  background-color: rgba(255,255,255,0.05);
+}
+
+.btn-outline-sm {
+  background: none;
+  border: none;
+  color: #8fa3bf;
+  cursor: pointer;
+  font-size: 0.9rem;
+  padding: 0;
+}
+.btn-outline-sm:hover {
+  color: white;
+}
+
+/* Responsive */
 @media (max-width: 600px) {
-  .contenedor-admin {
-    padding: 1rem;
-  }
-  
-  .tarjeta-formulario {
-    padding: 1.5rem;
-  }
-  
-  .fila-doble {
-    flex-direction: column;
-    gap: 0;
-  }
+  .vender-container { padding: 1rem; }
+  .form-wrapper { padding: 1.5rem; }
+  .input-row { flex-direction: column; }
+  .actions { flex-direction: column-reverse; }
+  .btn { width: 100%; }
 }
 </style>
