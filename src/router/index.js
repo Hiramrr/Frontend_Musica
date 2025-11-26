@@ -26,6 +26,11 @@ const router = createRouter({
       path: '/agregar-album',
       name: 'add-album',
       component: () => import('../views/AddAlbumView.vue'),
+    },
+    {
+      path: '/agregar-cancion',
+      name: 'add-song',
+      component: () => import('../views/AddSongView.vue'),
     }
   ],
 })

@@ -3,11 +3,9 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
-
-// Referencias a elementos del DOM
 const fileInput = ref(null)
 
-// Estado del formulario
+// estado del formulario
 const form = ref({
   nombre: '',
   fecha_inicio: '',
@@ -20,7 +18,6 @@ const form = ref({
 const imagenPreview = ref(null)
 const imagenArchivo = ref(null)
 
-// Métodos de navegación
 const goToPanel = () => {
   router.push('/')
 }
@@ -39,7 +36,7 @@ const onFileChange = (event) => {
   }
 }
 
-// Métodos del formulario
+// metodo para limpiar campos
 const limpiarCampos = () => {
   form.value = {
     nombre: '',
@@ -250,7 +247,7 @@ const registrarArtista = () => {
 
 @media (min-width: 768px) {
   .form-grid {
-    grid-template-columns: 2fr 1fr; /* 2 partes info, 1 parte imagen */
+    grid-template-columns: 2fr 1fr;
   }
 }
 
