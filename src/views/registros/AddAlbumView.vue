@@ -87,7 +87,7 @@ const registrarAlbum = () => {
               </div>
 
               <div class="input-group">
-                <label class="label">Artista Principal</label>
+                <label class="label">Artista o artistas (colaboración) </label>
                 <select v-model="form.artista_id" required class="input select">
                   <option value="" disabled>Selecciona un artista</option>
                   <option v-for="artista in listaArtistas" :key="artista.id" :value="artista.id">
