@@ -199,10 +199,6 @@ const registrarAlbum = () => {
 </template>
 
 <style scoped>
-/* ==========================================
-   ESTILOS REUTILIZADOS (Igual que ArtistView)
-   ========================================== */
-
 .agregar-album-container {
   min-height: 100vh;
   background-color: #0b152b;
@@ -309,7 +305,7 @@ const registrarAlbum = () => {
 .image-upload-area {
   border: 2px dashed #2c3e50;
   border-radius: 12px;
-  min-height: 300px; /* Un poco más alto para portadas */
+  min-height: 300px; 
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -334,7 +330,7 @@ const registrarAlbum = () => {
 .image-preview img {
   width: 100%;
   height: 300px;
-  object-fit: cover; /* o 'contain' si quieres ver toda la portada sin recortes */
+  object-fit: cover;
   display: block;
 }
 
