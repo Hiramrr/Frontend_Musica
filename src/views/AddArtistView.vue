@@ -351,7 +351,7 @@ const registrarArtista = () => {
 
 .image-preview img {
   width: 100%;
-  height: 250px; /* Altura fija para la caja */
+  height: 400px; /* Altura fija para la caja */
   object-fit: cover;
   display: block;
 }
