@@ -206,12 +206,32 @@ const registrarCancion = () => {
 </template>
 
 <style scoped>
+:root {
+  --header-image: url('https://sadhost.neocities.org/images/layouts/wp.jpeg');
+  --body-bg-image: url('https://sadhost.neocities.org/images/tiles/bk024.gif');
+  --content-bg: #e6f0fa;
+  --azul-textos: #2b7de9;
+  --gris-azul: #c2d6ea;
+  --text-color: #0f2d52;
+}
+
+@font-face {
+  font-family: Nunito;
+  src: url('https://sadhost.neocities.org/fonts/Nunito-Regular.ttf');
+}
+@font-face {
+  font-family: Nunito;
+  src: url('https://sadhost.neocities.org/fonts/Nunito-Bold.ttf');
+  font-weight: bold;
+}
+
 .agregar-song-container {
   min-height: 100vh;
-  background-color: #0b152b;
-  color: #fff;
+  background-color: var(--content-bg);
+  color: var(--text-color);
   padding: 2rem;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Nunito', sans-serif;
+  background-image: var(--body-bg-image);
 }
 
 .content {
@@ -220,31 +240,35 @@ const registrarCancion = () => {
 }
 
 .form-wrapper {
-  background-color: #12203e;
+  background-color: var(--gris-azul);
   border-radius: 12px;
   padding: 2.5rem;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-  border: 1px solid #1c2e52;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--azul-textos);
 }
 
-.top-bar { margin-bottom: 1.5rem; }
+.top-bar {
+  margin-bottom: 1.5rem;
+}
 
 .title-section {
   margin-bottom: 2.5rem;
-  border-bottom: 1px solid #1c2e52;
+  border-bottom: 1px dashed var(--azul-textos);
   padding-bottom: 1.5rem;
 }
 
 .title {
   font-size: 1.8rem;
   font-weight: 700;
-  color: #ffffff;
+  color: var(--azul-textos);
   margin-bottom: 0.5rem;
 }
 
-.subtitle { color: #8fa3bf; font-size: 0.95rem; }
+.subtitle {
+  color: #0f2d52;
+  font-size: 0.95rem;
+}
 
-/* Grid */
 .form-grid {
   display: grid;
   grid-template-columns: 1fr;
@@ -258,7 +282,6 @@ const registrarCancion = () => {
   }
 }
 
-/* Inputs */
 .input-group {
   margin-bottom: 1.25rem;
   display: flex;
@@ -269,43 +292,51 @@ const registrarCancion = () => {
   display: flex;
   gap: 1rem;
 }
-.input-row > .input-group { flex: 1; }
+.input-row > .input-group {
+  flex: 1;
+}
 
 .label {
   font-size: 0.9rem;
   font-weight: 600;
-  color: #a4c2f4;
+  color: var(--azul-textos);
   margin-bottom: 0.5rem;
 }
 
 .input {
-  background-color: #1c2e52;
-  border: 1px solid #2c3e50;
+  background-color: #e6f0fa;
+  border: 1px solid var(--azul-textos);
   border-radius: 8px;
   padding: 0.8rem 1rem;
-  color: white;
+  color: var(--text-color);
   font-size: 0.95rem;
   transition: all 0.2s;
 }
 
 .input:focus {
   outline: none;
-  border-color: #648bc4;
-  box-shadow: 0 0 0 3px rgba(100, 139, 196, 0.15);
+  border-color: #2b7de9;
+  box-shadow: 0 0 0 3px rgba(43, 125, 233, 0.15);
 }
 
-.input::placeholder { color: #5c6b7f; }
+.input::placeholder {
+  color: #5c6b7f;
+}
 
 .select {
   appearance: none;
-  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%232b7de9' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
   background-repeat: no-repeat;
   background-position: right 1rem center;
   background-size: 1em;
   cursor: pointer;
+  color: var(--text-color);
 }
 
-.textarea { resize: vertical; min-height: 120px; }
+.textarea {
+  resize: vertical;
+  min-height: 120px;
+}
 
 .hint {
   font-size: 0.75rem;
@@ -313,9 +344,8 @@ const registrarCancion = () => {
   margin-top: 0.3rem;
 }
 
-/* Imagen */
 .image-upload-area {
-  border: 2px dashed #2c3e50;
+  border: 2px dashed var(--azul-textos);
   border-radius: 12px;
   min-height: 250px;
   display: flex;
@@ -323,49 +353,80 @@ const registrarCancion = () => {
   justify-content: center;
   align-items: center;
   cursor: pointer;
-  background-color: #162645;
+  background-color: #e6f0fa;
   transition: all 0.3s;
   overflow: hidden;
   position: relative;
 }
 
 .image-upload-area:hover {
-  border-color: #648bc4;
-  background-color: #1c2e52;
+  border-color: #345d91;
+  background-color: #c2d6ea;
 }
 
-.image-placeholder { text-align: center; color: #8fa3bf; }
-.upload-text { font-weight: 600; margin-top: 1rem; }
-.upload-hint { font-size: 0.8rem; color: #5c6b7f; }
+.image-placeholder {
+  text-align: center;
+  color: #0f2d52;
+}
 
-.image-preview { width: 100%; height: 100%; position: relative; }
+.upload-text {
+  font-weight: 600;
+  margin-top: 1rem;
+}
+
+.upload-hint {
+  font-size: 0.8rem;
+  color: #5c6b7f;
+}
+
+.image-preview {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
 .image-preview img {
   width: 100%;
   height: 250px;
   object-fit: cover;
   display: block;
+  border-radius: 8px;
+  border: 1px solid var(--azul-textos);
 }
 
 .image-overlay {
   position: absolute;
-  top: 0; left: 0; width: 100%; height: 100%;
-  background: rgba(0, 0, 0, 0.6);
-  display: flex; justify-content: center; align-items: center;
-  opacity: 0; transition: opacity 0.2s;
-}
-.image-upload-area:hover .image-overlay { opacity: 1; }
-.image-overlay span {
-  color: white; font-weight: 600; border: 1px solid white;
-  padding: 0.5rem 1rem; border-radius: 4px;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(43, 125, 233, 0.2);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  transition: opacity 0.2s;
 }
 
-/* Botones */
+.image-upload-area:hover .image-overlay {
+  opacity: 1;
+}
+
+.image-overlay span {
+  color: var(--azul-textos);
+  font-weight: 600;
+  border: 1px solid var(--azul-textos);
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  background: #e6f0fa;
+}
+
 .actions {
   display: flex;
   justify-content: flex-end;
   gap: 1rem;
   padding-top: 1.5rem;
-  border-top: 1px solid #1c2e52;
+  border-top: 1px dashed var(--azul-textos);
 }
 
 .btn {
@@ -379,29 +440,44 @@ const registrarCancion = () => {
 }
 
 .btn-primary {
-  background-color: hsla(160, 100%, 37%, 1);
+  background-color: var(--azul-textos);
   color: white;
 }
 .btn-primary:hover {
-  background-color: hsla(160, 100%, 32%, 1);
+  background-color: #345d91;
   transform: translateY(-1px);
 }
 
-.btn-secondary { background-color: transparent; color: #8fa3bf; }
-.btn-secondary:hover { color: white; text-decoration: underline; }
+.btn-secondary {
+  background-color: transparent;
+  color: var(--azul-textos);
+}
+.btn-secondary:hover {
+  color: #345d91;
+  text-decoration: underline;
+}
 
 .btn-outline {
-  background-color: transparent; border: 1px solid #2c3e50; color: #e0e0e0;
+  background-color: transparent;
+  border: 1px solid var(--azul-textos);
+  color: var(--text-color);
 }
 .btn-outline:hover {
-  border-color: #8fa3bf; background-color: rgba(255,255,255,0.05);
+  border-color: #345d91;
+  background-color: #e6f0fa;
 }
 
 .btn-outline-sm {
-  background: none; border: none; color: #8fa3bf;
-  cursor: pointer; font-size: 0.9rem; padding: 0;
+  background: none;
+  border: none;
+  color: var(--azul-textos);
+  cursor: pointer;
+  font-size: 0.9rem;
+  padding: 0;
 }
-.btn-outline-sm:hover { color: white; }
+.btn-outline-sm:hover {
+  color: #345d91;
+}
 
 @media (max-width: 600px) {
   .agregar-song-container { padding: 1rem; }
