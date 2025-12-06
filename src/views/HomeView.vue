@@ -186,7 +186,7 @@ const masEscuchados = ref([
 body {
   font-family: 'Nunito', sans-serif;
   margin: 0;
-  background-color: #08031a;
+  background-color: #e6f0fa;
   background-size: 65px;
   color: var(--text-color);
   background-image: var(--body-bg-image);
