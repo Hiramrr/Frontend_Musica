@@ -1,6 +1,6 @@
 <script setup>
 import { ref } from 'vue'
-
+import { RouterLink } from 'vue-router'
 const nuevosLanzamientos = ref([
   {
     id: 1,
@@ -76,7 +76,7 @@ const masEscuchados = ref([
       <nav id="navbar">
         <ul>
           <li><a href="#">Inicio</a></li>
-          <li><a href="#">Artistas</a></li>
+          <li><RouterLink to="/artistas">Artistas</RouterLink></li>
           <li><a href="#">Albums</a></li>
           <li><a href="#">Musica</a></li>
           <li><a href="#">Perfil</a></li>

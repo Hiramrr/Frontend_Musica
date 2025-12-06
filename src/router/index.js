@@ -31,6 +31,11 @@ const router = createRouter({
       path: '/agregar-cancion',
       name: 'add-song',
       component: () => import('../views/registros/AddSongView.vue'),
+    },
+    {
+      path: '/artistas',
+      name: 'artistas',
+      component: () => import('../views/catalogo/ArtistsView.vue'),
     }
   ],
 })
