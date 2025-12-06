@@ -191,27 +191,45 @@ const registrarArtista = () => {
 </template>
 
 <style scoped>
-/* Contenedor Principal */
+:root {
+  --header-image: url('https://sadhost.neocities.org/images/layouts/wp.jpeg');
+  --body-bg-image: url('https://sadhost.neocities.org/images/tiles/bk024.gif');
+  --content-bg: #e6f0fa;
+  --azul-textos: #2b7de9;
+  --gris-azul: #c2d6ea;
+  --text-color: #0f2d52;
+}
+
+@font-face {
+  font-family: Nunito;
+  src: url('https://sadhost.neocities.org/fonts/Nunito-Regular.ttf');
+}
+@font-face {
+  font-family: Nunito;
+  src: url('https://sadhost.neocities.org/fonts/Nunito-Bold.ttf');
+  font-weight: bold;
+}
+
 .agregar-artista-container {
   min-height: 100vh;
-  background-color: #0b152b; /* Fondo principal oscuro */
-  color: #fff;
+  background-color: var(--content-bg);
+  color: var(--text-color);
   padding: 2rem;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Nunito', sans-serif;
+  background-image: var(--body-bg-image);
 }
 
 .content {
-  max-width: 1200px;
+  max-width: 900px;
   margin: 0 auto;
 }
 
-/* Tarjeta del Formulario */
 .form-wrapper {
-  background-color: #12203e; /* Fondo tarjeta */
+  background-color: var(--gris-azul);
   border-radius: 12px;
   padding: 2.5rem;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-  border: 1px solid #1c2e52;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--azul-textos);
 }
 
 .top-bar {
@@ -221,23 +239,22 @@ const registrarArtista = () => {
 /* Títulos */
 .title-section {
   margin-bottom: 2.5rem;
-  border-bottom: 1px solid #1c2e52;
+  border-bottom: 1px dashed var(--azul-textos);
   padding-bottom: 1.5rem;
 }
 
 .title {
   font-size: 1.8rem;
   font-weight: 700;
-  color: #ffffff;
+  color: var(--azul-textos);
   margin-bottom: 0.5rem;
 }
 
 .subtitle {
-  color: #8fa3bf;
+  color: #0f2d52;
   font-size: 0.95rem;
 }
 
-/* Grid del Formulario */
 .form-grid {
   display: grid;
   grid-template-columns: 1fr;
@@ -269,24 +286,24 @@ const registrarArtista = () => {
 .label {
   font-size: 0.9rem;
   font-weight: 600;
-  color: #a4c2f4;
+  color: var(--azul-textos);
   margin-bottom: 0.5rem;
 }
 
 .input {
-  background-color: #1c2e52;
-  border: 1px solid #2c3e50;
+  background-color: #e6f0fa;
+  border: 1px solid var(--azul-textos);
   border-radius: 8px;
   padding: 0.8rem 1rem;
-  color: white;
+  color: var(--text-color);
   font-size: 0.95rem;
   transition: all 0.2s;
 }
 
 .input:focus {
   outline: none;
-  border-color: #648bc4;
-  box-shadow: 0 0 0 3px rgba(100, 139, 196, 0.15);
+  border-color: #2b7de9;
+  box-shadow: 0 0 0 3px rgba(43, 125, 233, 0.15);
 }
 
 .input::placeholder {
@@ -306,7 +323,7 @@ const registrarArtista = () => {
 
 /* Área de Imagen (Upload) */
 .image-upload-area {
-  border: 2px dashed #2c3e50;
+  border: 2px dashed var(--azul-textos);
   border-radius: 12px;
   min-height: 250px;
   display: flex;
@@ -314,20 +331,20 @@ const registrarArtista = () => {
   justify-content: center;
   align-items: center;
   cursor: pointer;
-  background-color: #162645;
+  background-color: #e6f0fa;
   transition: all 0.3s;
   overflow: hidden;
   position: relative;
 }
 
 .image-upload-area:hover {
-  border-color: #648bc4;
-  background-color: #1c2e52;
+  border-color: #345d91;
+  background-color: #c2d6ea;
 }
 
 .image-placeholder {
   text-align: center;
-  color: #8fa3bf;
+  color: #0f2d52;
 }
 
 .upload-text {
@@ -348,9 +365,11 @@ const registrarArtista = () => {
 
 .image-preview img {
   width: 100%;
-  height: 400px; /* Altura fija para la caja */
+  height: 250px;
   object-fit: cover;
   display: block;
+  border-radius: 8px;
+  border: 1px solid var(--azul-textos);
 }
 
 .image-overlay {
@@ -359,7 +378,7 @@ const registrarArtista = () => {
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.6);
+  background: rgba(43, 125, 233, 0.2);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -372,20 +391,20 @@ const registrarArtista = () => {
 }
 
 .image-overlay span {
-  color: white;
+  color: var(--azul-textos);
   font-weight: 600;
-  border: 1px solid white;
+  border: 1px solid var(--azul-textos);
   padding: 0.5rem 1rem;
   border-radius: 4px;
+  background: #e6f0fa;
 }
 
-/* Botones */
 .actions {
   display: flex;
   justify-content: flex-end;
   gap: 1rem;
   padding-top: 1.5rem;
-  border-top: 1px solid #1c2e52;
+  border-top: 1px dashed var(--azul-textos);
 }
 
 .btn {
@@ -399,46 +418,45 @@ const registrarArtista = () => {
 }
 
 .btn-primary {
-  background-color: hsla(160, 100%, 37%, 1); /* Tu color verde/teal principal */
+  background-color: var(--azul-textos);
   color: white;
 }
 .btn-primary:hover {
-  background-color: hsla(160, 100%, 32%, 1);
+  background-color: #345d91;
   transform: translateY(-1px);
 }
 
 .btn-secondary {
   background-color: transparent;
-  color: #8fa3bf;
+  color: var(--azul-textos);
 }
 .btn-secondary:hover {
-  color: white;
+  color: #345d91;
   text-decoration: underline;
 }
 
 .btn-outline {
   background-color: transparent;
-  border: 1px solid #2c3e50;
-  color: #e0e0e0;
+  border: 1px solid var(--azul-textos);
+  color: var(--text-color);
 }
 .btn-outline:hover {
-  border-color: #8fa3bf;
-  background-color: rgba(255,255,255,0.05);
+  border-color: #345d91;
+  background-color: #e6f0fa;
 }
 
 .btn-outline-sm {
   background: none;
   border: none;
-  color: #8fa3bf;
+  color: var(--azul-textos);
   cursor: pointer;
   font-size: 0.9rem;
   padding: 0;
 }
 .btn-outline-sm:hover {
-  color: white;
+  color: #345d91;
 }
 
-/* Responsive */
 @media (max-width: 600px) {
   .agregar-artista-container { padding: 1rem; }
   .form-wrapper { padding: 1.5rem; }
