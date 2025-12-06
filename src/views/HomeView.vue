@@ -1,19 +1,17 @@
 <script setup>
 import { ref } from 'vue'
 
-//creamos una lista array llamada nuevosLanzamientos con objetos que representan los álbumes
-//id: para identificar al album, titulo: el nombre del album, artista: el nombre del cantante, fecha: cuando salio, generos: lista de los estilos musicales, promedio: la calificacion o estrellas, votos: la gente que voto y deseados: es cuanta gente quiere escucharlo
 const nuevosLanzamientos = ref([
   {
     id: 1,
-    titulo: 'Navidades',          
+    titulo: 'Navidades',
     artista: 'Luis Miguel',
     fecha: '14 de Noviembre de 2006',
     generos: ['Villancicos', 'Jazz Pop'],
     promedio: '4.20',
     votos: '15,600',
     deseados: '4,100',
-    imagen: 'https://placehold.co/100x100/c0392b/FFF?text=Sarah'
+    imagen: 'https://placehold.co/100x100/c0392b/FFF?text=LM',
   },
   {
     id: 2,
@@ -24,7 +22,7 @@ const nuevosLanzamientos = ref([
     promedio: '4.90',
     votos: '30,150',
     deseados: '5,000',
-    imagen: 'https://placehold.co/100x100/8e44ad/FFF?text=Hola'
+    imagen: 'https://placehold.co/100x100/8e44ad/FFF?text=JG',
   },
   {
     id: 3,
@@ -35,7 +33,7 @@ const nuevosLanzamientos = ref([
     promedio: '4.85',
     votos: '25,420',
     deseados: '3,200',
-    imagen: 'https://placehold.co/100x100/2c3e50/FFF?text=Prueba'
+    imagen: 'https://placehold.co/100x100/2c3e50/FFF?text=Romance',
   },
   {
     id: 4,
@@ -46,7 +44,7 @@ const nuevosLanzamientos = ref([
     promedio: '5.00',
     votos: '45,000',
     deseados: '8,500',
-    imagen: 'https://placehold.co/100x100/d35400/FFF?text=img'
+    imagen: 'https://placehold.co/100x100/d35400/FFF?text=Bellas+Artes',
   },
   {
     id: 5,
@@ -57,339 +55,352 @@ const nuevosLanzamientos = ref([
     promedio: '4.75',
     votos: '18,300',
     deseados: '2,100',
-    imagen: 'https://placehold.co/100x100/f39c12/FFF?text=No se'
-  }
+    imagen: 'https://placehold.co/100x100/f39c12/FFF?text=Aries',
+  },
 ])
 
-//esta es otra lista pero es para la barra lateral pequena que son los mas escuchados
 const masEscuchados = ref([
-  { id: 1, titulo: 'Santa Claus Llegó a La Ciudad', artista: 'Luis Miguel', oyentes: 1500 }, 
-  { id: 2, titulo: 'Querida', artista: 'Juan Gabriel', oyentes: 1450 }, 
-  { id: 3, titulo: 'No Sé Tú', artista: 'Luis Miguel', oyentes: 1320 }, 
-  { id: 4, titulo: 'Amor Eterno (En Vivo)', artista: 'Juan Gabriel', oyentes: 1280 }, 
-  { id: 5, titulo: 'Suave', artista: 'Luis Miguel', oyentes: 1100 }, 
+  { id: 1, titulo: 'Santa Claus Llegó a La Ciudad', artista: 'Luis Miguel', oyentes: 1500 },
+  { id: 2, titulo: 'Querida', artista: 'Juan Gabriel', oyentes: 1450 },
+  { id: 3, titulo: 'No Sé Tú', artista: 'Luis Miguel', oyentes: 1320 },
+  { id: 4, titulo: 'Amor Eterno (En Vivo)', artista: 'Juan Gabriel', oyentes: 1280 },
+  { id: 5, titulo: 'Suave', artista: 'Luis Miguel', oyentes: 1100 },
 ])
 </script>
 
 <template>
-  <main class="contenedor-inicio">
-    <div class="envoltura-contenido">
-      
-      <section class="columna-principal">
-        <h1 class="titulo-seccion">Nuevos Lanzamientos</h1>
-        
+  <div id="container">
+    <div id="headerArea">
+      <div id="header"></div>
+
+      <nav id="navbar">
+        <ul>
+          <li><a href="#">Inicio</a></li>
+          <li><a href="#">Artistas</a></li>
+          <li><a href="#">Albums</a></li>
+          <li><a href="#">Musica</a></li>
+          <li><a href="#">Perfil</a></li>
+        </ul>
+      </nav>
+    </div>
+
+    <div id="flex">
+      <main>
+        <h1>Nuevos Lanzamientos</h1>
+
         <div class="pestanas">
-          <span class="pestana activa">Todos los Lanzamientos</span>
-          <span class="pestana">Mis Lanzamientos</span>
+          <span class="pestana activa">Todos</span>
+          <span class="pestana">Albums</span>
+          <span class="pestana">Canciones</span>
         </div>
 
-        <div class="encabezado-lista">
-          <span>Ordenar por: recomendado | fecha</span>
-          <div class="encabezado-estadisticas">
-            <span>Promedio</span>
-            <span>Votos</span>
-            <span>Deseados</span>
+        <p class="intro-text">
+          <strong>Canciones más populares</strong>
+        </p>
+
+        <div v-for="album in nuevosLanzamientos" :key="album.id" class="box fila-album">
+          <div class="portada-album">
+            <img :src="album.imagen" :alt="album.titulo" />
+          </div>
+
+          <div class="detalles-album">
+            <h2>
+              <a href="#">{{ album.titulo }}</a>
+            </h2>
+            <div class="artista-album">
+              de <strong>{{ album.artista }}</strong>
+            </div>
+            <div class="meta-album">Lanzado: {{ album.fecha }}</div>
+
+            <div class="generos-album">
+              <span v-for="(genero, indice) in album.generos" :key="indice">
+                [{{ genero }}]{{ indice < album.generos.length - 1 ? ' ' : '' }}
+              </span>
+            </div>
+          </div>
+
+          <div class="estadisticas-album">
+            <div class="stat-group">
+              <span class="stat-label">Promedio</span>
+              <span class="stat-value">{{ album.promedio }}</span>
+            </div>
+            <div class="stat-group">
+              <span class="stat-label">Numero de votos</span>
+              <span class="stat-value">{{ album.votos }}</span>
+            </div>
           </div>
         </div>
+      </main>
 
-        <div class="lista-albumes">
-          <div v-for="album in nuevosLanzamientos" :key="album.id" class="fila-album">
-            
-            <div class="portada-album">
-              <img :src="album.imagen" :alt="album.titulo" />
-            </div>
-
-            <div class="detalles-album">
-              <h2 class="titulo-album">{{ album.titulo }}</h2>
-              <div class="artista-album">{{ album.artista }}</div>
-              <div class="meta-album">{{ album.fecha }}</div>
-              
-              <div class="generos-album">
-                <span v-for="(genero, indice) in album.generos" :key="indice" class="etiqueta-genero">
-                  {{ genero }}{{ indice < album.generos.length - 1 ? ', ' : '' }}
-                </span>
+      <aside id="rightSidebar">
+        <h2>Top Tracks</h2>
+        <div class="box">
+          <p><strong>Lo más escuchado esta semana en la comunidad.</strong></p>
+          <ul class="lista-top">
+            <li v-for="(track, index) in masEscuchados" :key="track.id">
+              <div class="track-info">
+                <strong>{{ index + 1 }}. {{ track.titulo }}</strong
+                ><br />
+                <span style="font-size: 0.8em; color: #0f2d52">{{ track.artista }}</span>
               </div>
-            </div>
-
-            <div class="estadisticas-album">
-              <div class="stat-promedio">{{ album.promedio }}</div>
-              <div class="stat-secundario">{{ album.votos }}</div>
-              <div class="stat-secundario">{{ album.deseados }}</div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <aside class="barra-lateral">
-        <h2 class="titulo-barra-lateral">Más escuchados</h2>
-        
-        <div class="pestanas-barra-lateral">
-          <span class="sub-pestana activa">Lanzamientos</span>
-          <span class="sub-pestana">Canciones</span>
+            </li>
+          </ul>
         </div>
 
-        <ul class="lista-top">
-          <li v-for="(elemento, indice) in masEscuchados" :key="elemento.id" class="elemento-top">
-            <span class="rango">{{ indice + 1 }}</span>
-            <img :src="`https://placehold.co/40x40/222/FFF?text=${indice+1}`" class="mini-portada" />
-            <div class="detalles-top">
-              <div class="titulo-top">{{ elemento.titulo }}</div>
-              <div class="artista-top">{{ elemento.artista }}</div>
-              <div class="oyentes-top">{{ elemento.oyentes }} oyentes</div>
-            </div>
-          </li>
+        <h2>Enlaces</h2>
+        <ul>
+          <li><a href="#">No se que poner</a></li>
+          <li><a href="#">Tops</a></li>
+          <li><a href="https://github.com/Hiramrr/Frontend_Musica">Repositorio GitHub</a></li>
         </ul>
       </aside>
-
     </div>
-  </main>
+    <footer>
+      <p>Smart Rating</p>
+    </footer>
+  </div>
 </template>
 
-<style scoped>
-
-/* fondo azul oscuro y el texto blanco */
-.contenedor-inicio {
-  background-color: #0b152b; 
-  color: #ffffff;
-  /* que ocupe toda la altura de la pantalla */
-  min-height: 100vh;
-  padding: 2rem;
-  font-family: 'Inter', sans-serif;
+<style>
+/* Variables para imágenes y colores */
+:root {
+  --header-image: url('https://sadhost.neocities.org/images/layouts/wp.jpeg');
+  --body-bg-image: url('https://sadhost.neocities.org/images/tiles/bk024.gif');
+  --content-bg: #e6f0fa;
+  --azul-textos: #2b7de9;
+  --gris-azul: #c2d6ea;
+  --text-color: #0f2d52;
 }
 
-/* Flexbox: Pone la columna izquierda junto a la derecha */
-.envoltura-contenido {
-  display: flex; 
-  /* Espacio entre las columnas */
-  gap: 2rem;
-  max-width: 1200px;
+/* Fuentes importadas */
+@font-face {
+  font-family: Nunito;
+  src: url('https://sadhost.neocities.org/fonts/Nunito-Regular.ttf');
+}
+@font-face {
+  font-family: Nunito;
+  src: url('https://sadhost.neocities.org/fonts/Nunito-Bold.ttf');
+  font-weight: bold;
+}
+
+body {
+  font-family: 'Nunito', sans-serif;
+  margin: 0;
+  background-color: #08031a;
+  background-size: 65px;
+  color: var(--text-color);
+  background-image: var(--body-bg-image);
+}
+
+a {
+  color: var(--azul-textos);
+  font-weight: bold;
+  text-decoration: none;
+}
+a:hover {
+  color: #a49cba;
+  text-decoration: underline;
+}
+
+#container {
+  background-color: var(--content-bg);
+  max-width: 900px;
   margin: 0 auto;
 }
 
-/* la columna izquierda ocupa 3 veces mas espacio */
-.columna-principal {
-  flex: 3;
+#navbar {
+  height: 40px;
+  background-color: var(--gris-azul);
+  width: 100%;
+  border-bottom: 1px solid var(--azul-textos);
 }
 
-/* la columna derecha ocupa 1 parte del espacio */
-.barra-lateral {
+#navbar ul {
+  display: flex;
+  padding: 0;
+  margin: 0;
+  list-style-type: none;
+  justify-content: space-evenly;
+}
+
+#navbar li {
+  padding-top: 10px;
+}
+
+#flex {
+  display: flex;
+  align-items: flex-start;
+}
+
+main {
+  background-color: var(--content-bg);
   flex: 1;
-  min-width: 250px;
+  padding: 20px;
+  min-height: 80vh;
 }
 
-.titulo-seccion {
-  font-size: 1.5rem;
-  font-weight: 700;
-  margin-bottom: 1rem;
-  color: #fff;
+aside {
+  background-color: #c2d6ea;
+  width: 250px;
+  padding: 20px;
+  font-size: smaller;
+  border-left: 1px solid var(--azul-textos);
+  border-bottom: 1px solid var(--azul-textos);
 }
 
+footer {
+  background-color: var(--gris-azul);
+  width: 100%;
+  padding: 10px;
+  text-align: center;
+  border-top: 1px solid var(--azul-textos);
+  margin-top: 20px;
+}
+
+h1,
+h2,
+h3 {
+  color: var(--azul-textos);
+  margin-top: 0;
+}
+
+h1 {
+  font-size: 25px;
+  border-bottom: 1px dashed var(--azul-textos);
+  padding-bottom: 10px;
+}
+h2 {
+  font-size: 18px;
+}
+
+.box {
+  background-color: var(--gris-azul);
+  border: 1px solid var(--azul-textos);
+  padding: 10px;
+  margin-bottom: 15px;
+}
+
+/* Pestañas de navegación interna */
 .pestanas {
-  border-bottom: 1px solid #2c3e50;
-  margin-bottom: 1rem;
-  display: flex;
-  gap: 1.5rem;
+  margin-bottom: 15px;
+  border-bottom: 1px solid #a49cba;
 }
-
 .pestana {
-  padding-bottom: 0.5rem;
+  margin-right: 15px;
   cursor: pointer;
-  font-weight: 600;
-  color: #8fa3bf;
+  color: #0f2d52;
 }
-
 .pestana.activa {
-  color: #fff;
-  border-bottom: 2px solid #fff;
+  color: var(--azul-textos);
+  font-weight: bold;
+  border-bottom: 2px solid var(--azul-textos);
 }
 
-.encabezado-lista {
-  display: flex;
-  justify-content: space-between;
-  font-size: 0.8rem;
-  color: #8fa3bf;
-  margin-bottom: 0.5rem;
-  padding: 0 0.5rem;
-}
-
-.encabezado-estadisticas {
-  display: flex;
-  gap: 2rem;
-  text-align: right;
-  min-width: 180px;
-  justify-content: flex-end;
-}
-
-/* la tarjeta azul oscuro que es cada fila de album */
+/* Layout de la fila del álbum */
 .fila-album {
   display: flex;
-  background-color: #12203e;
-  margin-bottom: 2px;
-  padding: 0.8rem;
+  gap: 15px;
   align-items: center;
-  transition: background 0.2s;
-}
-
-.fila-album:hover {
-  background-color: #1c2e52;
 }
 
 .portada-album img {
   width: 80px;
   height: 80px;
-  object-fit: cover; /* ajusta la imagen para que quepa bien */
-  border-radius: 2px;
-  margin-right: 1rem;
+  border: 1px solid var(--azul-textos);
+  display: block;
 }
 
 .detalles-album {
-  flex: 1; /* ocupa el espacio que queda */
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
+  flex: 1;
 }
 
 .titulo-album {
-  font-size: 1.1rem;
-  font-weight: 700;
   margin: 0;
-  color: #a4c2f4;
-  cursor: pointer;
-}
-
-.titulo-album:hover {
-  text-decoration: underline;
-}
-
-.artista-album {
-  font-weight: 600;
-  font-size: 0.95rem;
-  color: #fff;
+  font-size: 1.2rem;
 }
 
 .meta-album {
-  font-size: 0.8rem;
-  color: #b0b0b0;
-  margin: 2px 0;
+  font-size: 0.85rem;
+  color: #0f2d52;
+  font-style: italic;
 }
 
 .generos-album {
-  font-size: 0.75rem;
-  color: #7f8c8d;
+  font-size: 0.8rem;
+  margin-top: 5px;
+  color: #0f2d52;
 }
 
-.etiqueta-genero {
-  color: #648bc4;
-}
-
+/* Estadísticas a la derecha */
 .estadisticas-album {
   display: flex;
-  gap: 2rem;
-  text-align: right;
-  min-width: 180px;
-  justify-content: flex-end;
-  align-items: center;
-  /* ajusta los números para que sean verticales */
-  font-variant-numeric: tabular-nums;
-}
-
-.stat-promedio {
-  font-weight: 700;
-  color: #fff;
-  font-size: 1rem;
-}
-
-.stat-secundario {
-  color: #b0b0b0;
-  font-size: 0.9rem;
-}
-
-.titulo-barra-lateral {
-  font-size: 1.2rem;
-  font-weight: 600;
-  margin-bottom: 0.5rem;
-  color: #fff;
-}
-
-.pestanas-barra-lateral {
-  margin-bottom: 1rem;
-  font-size: 0.9rem;
-}
-
-.sub-pestana {
-  margin-right: 1rem;
-  color: #8fa3bf;
-  cursor: pointer;
-  font-weight: bold;
-}
-
-.sub-pestana.activa {
-  color: #fff;
-  text-decoration: underline;
-}
-
-.lista-top {
-  /* quita los puntos de lista */
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.elemento-top {
-  display: flex;
-  align-items: center;
-  padding: 0.5rem 0;
-  border-bottom: 1px solid #1c2e52;
-}
-
-.rango {
-  width: 20px;
-  font-weight: bold;
-  color: #fff;
-}
-
-.mini-portada {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%; /* hace que la imagen sea redonda */
-  margin: 0 10px;
-}
-
-.detalles-top {
-  display: flex;
   flex-direction: column;
+  gap: 5px;
+  text-align: right;
+  min-width: 80px;
+  background: rgba(0, 0, 0, 0.2);
+  padding: 5px;
+  border-radius: 4px;
 }
 
-.titulo-top {
-  font-size: 0.9rem;
-  font-weight: 700;
-  color: #a4c2f4;
-}
-
-.artista-top {
+.stat-group {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
   font-size: 0.8rem;
-  color: #ccc;
 }
 
-.oyentes-top {
-  font-size: 0.75rem;
-  color: #7f8c8d;
+.stat-label {
+  color: #0f2d52;
+}
+.stat-value {
+  color: #345d91;
+  font-weight: bold;
 }
 
-/* en caso de que la pantalla es pequeña (menos de 768px de ancho) */
-@media (max-width: 768px) {
-  .envoltura-contenido {
-    flex-direction: column; 
-    /* pone una columna abajo de la otra */
+/* Lista del Sidebar */
+.lista-top {
+  padding-left: 0;
+  list-style: none;
+}
+.lista-top li {
+  margin-bottom: 10px;
+  border-bottom: 1px dashed #c2d6ea;
+  padding-bottom: 5px;
+}
+
+/* --- RESPONSIVE (MEDIA QUERY) --- */
+@media only screen and (max-width: 800px) {
+  #flex {
+    flex-wrap: wrap;
   }
 
-  .encabezado-estadisticas, .estadisticas-album {
-    display: none; /* oculta los numeros para ahorrar espacio */
+  aside {
+    width: 100%;
+    order: 1; /* Sidebar arriba en móvil o abajo según prefieras */
+    border-left: none;
+    border-bottom: 1px solid var(--azul-textos);
   }
 
-  .barra-lateral {
-    display: none; 
-    /* oculta la barra lateral en el celular */
+  main {
+    order: 2;
+  }
+
+  #navbar ul {
+    flex-wrap: wrap;
+  }
+
+  .fila-album {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .estadisticas-album {
+    width: 100%;
+    flex-direction: row;
+    justify-content: center;
+    gap: 20px;
+    text-align: center;
   }
 }
 </style>
