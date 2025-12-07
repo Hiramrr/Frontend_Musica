@@ -77,7 +77,7 @@ const masEscuchados = ref([
         <ul>
           <li><a href="#">Inicio</a></li>
           <li><RouterLink to="/artistas">Artistas</RouterLink></li>
-          <li><a href="#">Albums</a></li>
+          <li><RouterLink to="/albumes">Albumes</RouterLink></li>
           <li><a href="#">Musica</a></li>
           <li><a href="#">Perfil</a></li>
         </ul>
