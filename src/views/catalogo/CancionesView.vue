@@ -1,66 +1,36 @@
 <script setup>
-import { ref, computed } from 'vue' 
+import { onMounted, ref, computed } from 'vue' 
 import { useRouter, useRoute } from 'vue-router' 
+import { useCancionesStore } from '@/stores/canciones'
+import { storeToRefs } from 'pinia'
 
 const router = useRouter()
 const route = useRoute() 
+const store = useCancionesStore()
+
+//Extrameos los datos del estado global
+const { listaCanciones, cargando } = storeToRefs(store)
 
 const filtroAlbum = ref(route.query.album || '')
 
-const listaCanciones = ref([
-  {
-    id: 1,
-    nombre: 'No Sé Tú',
-    artista: 'Luis Miguel',
-    album: 'Romance', 
-    duracion: '3:49',
-    portada: 'https://placehold.co/400x400/2c3e50/FFF?text=No+Se+Tu'
-  },
-  {
-    id: 2,
-    nombre: 'Inolvidable',
-    artista: 'Luis Miguel',
-    album: 'Romance', 
-    duracion: '4:19',
-    portada: 'https://placehold.co/400x400/2c3e50/FFF?text=Inolvidable'
-  },
-  {
-    id: 3,
-    nombre: 'Querida',
-    artista: 'Juan Gabriel',
-    album: 'Recuerdos, Vol. II',
-    duracion: '5:19',
-    portada: 'https://placehold.co/400x400/8e44ad/FFF?text=Querida'
-  },
-  {
-    id: 4,
-    nombre: 'Gasoline',
-    artista: 'The Weeknd',
-    album: 'Dawn FM',
-    duracion: '3:32',
-    portada: 'https://placehold.co/400x400/d35400/FFF?text=Gasoline'
-  },
-  {
-    id: 5,
-    nombre: 'Get Lucky',
-    artista: 'Daft Punk',
-    album: 'Random Access Memories',
-    duracion: '6:09',
-    portada: 'https://placehold.co/400x400/1c2e52/FFF?text=Get+Lucky'
-  }
-])
-
 const cancionesFiltradas = computed(() => {
   if (filtroAlbum.value) {
-    return listaCanciones.value.filter(c => c.album === filtroAlbum.value)
+    return listaCanciones.value.filter(c => c.nombre_album === filtroAlbum.value)
   }
   return listaCanciones.value
 })
 
-const limpiarFiltro = () => {
-  filtroAlbum.value = ''
-  router.push({ name: 'musica' }) // Limpia la URL
+//Convertimos los segundos a minutos:segundos
+const formatearDuracion = (segundos) => {
+  if (!segundos) return '--:--'
+  const min = Math.floor(segundos / 60)
+  const sec = segundos % 60
+  return `${min}:${sec.toString().padStart(2, '0')}`
 }
+
+onMounted(() => {
+  store.obtenerCanciones()
+})
 
 const irAInicio = () => router.push('/')
 const irAAgregarCancion = () => router.push('/agregar-cancion')
@@ -76,24 +46,49 @@ const irAAgregarCancion = () => router.push('/agregar-cancion')
         <button @click="irAAgregarCancion" class="boton-nav boton-resaltado">+ Nueva Canción</button>
       </div>
 
-      <div class="cuadricula-canciones">
-        <div v-for="cancion in listaCanciones" :key="cancion.id" class="tarjeta-cancion">
+      <div v-if="cargando" class="mensaje-carga">
+        Cargando repertorio...
+      </div>
+
+      <div v-else-if="cancionesFiltradas.length > 0" class="cuadricula-canciones">
+        
+        <div v-for="cancion in cancionesFiltradas" :key="cancion.id || cancion.nombre" class="tarjeta-cancion">
           <div class="imagen-tarjeta">
-            <img :src="cancion.portada" :alt="cancion.nombre" />
+            <img :src="cancion.portada_url" :alt="cancion.nombre" />
           </div>
+          
           <div class="info-tarjeta">
             <h2>{{ cancion.nombre }}</h2>
-            <p class="texto-artista">{{ cancion.artista }}</p>
-            <p class="texto-album">
-              <span class="etiqueta-gris">Album:</span> {{ cancion.album }}
+            
+            <p class="texto-artista">
+              {{ cancion.nombre_artista }} <span class="texto-anio">({{ cancion.fecha_salida }})</span>
             </p>
+            
+            <p class="texto-album">
+              <span class="etiqueta-gris">Álbum:</span> {{ cancion.nombre_album }}
+            </p>
+
+            <p class="descripcion-cancion">
+              {{ cancion.descripcion }}
+            </p>
+            
             <div class="meta-inferior">
-              <span class="texto-duracion">Dur: {{ cancion.duracion }}</span>
-              <button class="boton-ver">Ver Reseñas</button>
+              <span class="dato-meta">
+                ⏱ {{ formatearDuracion(cancion.duracion_segundos) }}
+              </span>
+              
+              <span class="dato-meta calificacion">
+                ★ {{ cancion.calificacion }}/5
+              </span>
             </div>
           </div>
         </div>
       </div>
+
+      <div v-else class="mensaje-vacio">
+        No se encontraron canciones.
+      </div>
+
     </main>
   </div>
 </template>
