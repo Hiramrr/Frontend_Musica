@@ -7,10 +7,8 @@ import { storeToRefs } from 'pinia'
 const router = useRouter()
 const store = useAlbumesStore()
 
-// Cargamos los datos del estado global
 const { listaAlbumes, cargando } = storeToRefs(store)
 
-// Al montar la vista pedimos los datos reales al back
 onMounted(() => {
   store.obtenerAlbumes()
 })
@@ -33,26 +31,32 @@ const irAAgregarAlbum = () => router.push('/agregar-album')
         Cargando discografía...
       </div>
 
-      <div v-else class="cuadricula-albumes">
+      <div v-else-if="listaAlbumes.length > 0" class="cuadricula-albumes">
+        
         <div v-for="album in listaAlbumes" :key="album.id" class="tarjeta-album">
-          
           <div class="imagen-tarjeta">
-            <img :src="album.portada_url" :alt="album.nombre" />
+             <img :src="album.portadaUrl" :alt="album.nombre" />
           </div>
-
+          
           <div class="info-tarjeta">
             <h2>{{ album.nombre }}</h2>
             
             <span class="etiqueta-artista">
-              <span v-if="album.nombre_artista">{{ album.nombre_artista }} - </span>
-              {{ album.fecha_salida }}
+              {{ album.nombreArtista }} ({{ album.fechaSalida }})
             </span>
             
             <p class="descripcion">{{ album.descripcion }}</p>
+            
             <button class="boton-ver">Ver Canciones</button>
           </div>
         </div>
+
       </div>
+
+      <div v-else class="mensaje-vacio">
+        No se encontraron álbumes.
+      </div>
+
     </main>
   </div>
 </template>
