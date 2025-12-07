@@ -3,10 +3,9 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
-const fileInput = ref(null)
+const referenciaInput = ref(null)
 
-// estado del formulario
-const form = ref({
+const formulario = ref({
   nombre: '',
   fecha_inicio: '',
   fecha_fin: '',
@@ -14,157 +13,152 @@ const form = ref({
   bibliografia: ''
 })
 
-// Estado para la imagen
-const imagenPreview = ref(null)
-const imagenArchivo = ref(null)
+const previsualizacionImagen = ref(null)
+const archivoImagen = ref(null)
 
-const goToPanel = () => {
+const irAInicio = () => {
   router.push('/')
 }
 
-// Métodos para manejo de Imagen
-const triggerFileInput = () => {
-  fileInput.value.click()
+const seleccionarImagen = () => {
+  referenciaInput.value.click()
 }
 
-const onFileChange = (event) => {
-  const file = event.target.files[0]
-  if (file) {
-    imagenArchivo.value = file
-    // Crear URL temporal para previsualizar
-    imagenPreview.value = URL.createObjectURL(file)
+const alCambiarArchivo = (evento) => {
+  const archivo = evento.target.files[0]
+  if (archivo) {
+    archivoImagen.value = archivo
+    previsualizacionImagen.value = URL.createObjectURL(archivo)
   }
 }
 
-// metodo para limpiar campos
-const limpiarCampos = () => {
-  form.value = {
+const limpiarFormulario = () => {
+  formulario.value = {
     nombre: '',
     fecha_inicio: '',
     fecha_fin: '',
     fecha_nacimiento: '',
     bibliografia: ''
   }
-  imagenPreview.value = null
-  imagenArchivo.value = null
-  if (fileInput.value) fileInput.value.value = ''
+  previsualizacionImagen.value = null
+  archivoImagen.value = null
+  if (referenciaInput.value) referenciaInput.value.value = ''
 }
 
-const registrarArtista = () => {
-  // Aquí iría la lógica para enviar 'form' e 'imagenArchivo' a tu backend/Cloudinary
-  console.log("Registrando Artista:", { ...form.value, imagen: imagenArchivo.value })
+const guardarArtista = () => {
+  console.log("Registrando Artista:", { ...formulario.value, imagen: archivoImagen.value })
   alert("Artista registrado correctamente (Simulación)")
   router.push('/')
 }
 </script>
 
 <template>
-  <div class="agregar-artista-container">
-    <header class="header">
+  <div class="contenedor-agregar-artista">
+    <header class="encabezado">
       </header>
 
-    <div class="content">
-      <div class="form-wrapper">
+    <div class="contenido">
+      <div class="contenedor-formulario">
         
-        <div class="top-bar">
-          <button class="btn btn-outline-sm" @click="goToPanel">← Regresar</button>
+        <div class="barra-superior">
+          <button class="boton-texto" @click="irAInicio">← Regresar</button>
         </div>
 
-        <div class="title-section">
-          <h1 class="title">Agregar Artista</h1>
-          <p class="subtitle">Completa la información para añadir un nuevo solista o banda a la base de datos</p>
+        <div class="seccion-titulo">
+          <h1 class="titulo">Agregar Artista</h1>
+          <p class="subtitulo">Completa la información para añadir un nuevo solista o banda a la base de datos</p>
         </div>
 
-        <form class="form" @submit.prevent="registrarArtista">
-          <div class="form-grid">
+        <form class="formulario" @submit.prevent="guardarArtista">
+          <div class="cuadricula-formulario">
             
-            <div class="form-section">
+            <div class="seccion-datos">
               
-              <div class="input-group">
-                <label class="label">Nombre Artístico</label>
+              <div class="grupo-input">
+                <label class="etiqueta">Nombre Artístico</label>
                 <input
-                  v-model="form.nombre"
+                  v-model="formulario.nombre"
                   type="text"
                   required
-                  class="input"
+                  class="entrada"
                   placeholder="Ej: Luis Miguel, The Beatles..."
                 />
               </div>
 
-              <div class="input-row">
-                <div class="input-group">
-                  <label class="label">Fecha Inicio / Formación</label>
+              <div class="fila-input">
+                <div class="grupo-input">
+                  <label class="etiqueta">Fecha Inicio / Formación</label>
                   <input
-                    v-model="form.fecha_inicio"
+                    v-model="formulario.fecha_inicio"
                     type="date"
                     required
-                    class="input"
+                    class="entrada"
                   />
                 </div>
 
-                <div class="input-group">
-                  <label class="label">Fecha Fin (Opcional)</label>
+                <div class="grupo-input">
+                  <label class="etiqueta">Fecha Fin (Opcional)</label>
                   <input
-                    v-model="form.fecha_fin"
+                    v-model="formulario.fecha_fin"
                     type="date"
-                    class="input"
+                    class="entrada"
                   />
-                  <span class="hint">Deja vacío si sigue activo</span>
+                  <span class="pista">Deja vacío si sigue activo</span>
                 </div>
               </div>
 
-              <div class="input-group">
-                <label class="label">Fecha de Nacimiento (Solo solistas)</label>
+              <div class="grupo-input">
+                <label class="etiqueta">Fecha de Nacimiento (Solo solistas)</label>
                 <input
-                  v-model="form.fecha_nacimiento"
+                  v-model="formulario.fecha_nacimiento"
                   type="date"
-                  class="input"
+                  class="entrada"
                 />
               </div>
 
-              <div class="input-group">
-                <label class="label">Biografía</label>
+              <div class="grupo-input">
+                <label class="etiqueta">Biografía</label>
                 <textarea
-                  v-model="form.bibliografia"
+                  v-model="formulario.bibliografia"
                   rows="6"
                   required
-                  class="input textarea"
+                  class="entrada area-texto"
                   placeholder="Escribe la historia, origen y datos relevantes del artista..."
                 ></textarea>
               </div>
             </div>
 
-            <div class="form-section image-section">
-              <div class="input-group">
-                <label class="label">Foto del Artista</label>
+            <div class="seccion-imagen">
+              <div class="grupo-input">
+                <label class="etiqueta">Foto del Artista</label>
                 
                 <div 
-                  class="image-upload-area" 
-                  :class="{ 'has-image': imagenPreview }"
-                  @click="triggerFileInput"
+                  class="area-subida-imagen" 
+                  :class="{ 'con-imagen': previsualizacionImagen }"
+                  @click="seleccionarImagen"
                 >
                   
-                  <div v-if="imagenPreview" class="image-preview">
-                    <img :src="imagenPreview" alt="Preview" />
-                    <div class="image-overlay">
+                  <div v-if="previsualizacionImagen" class="previsualizacion">
+                    <img :src="previsualizacionImagen" alt="Preview" />
+                    <div class="capa-superpuesta">
                       <span>Cambiar imagen</span>
                     </div>
                   </div>
 
-                  <div v-else class="image-placeholder">
+                  <div v-else class="marcador-posicion">
                     <svg width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
                     </svg>
-                    <p class="upload-text">Haz clic para subir foto</p>
-                    <p class="upload-hint">JPG, PNG (Max 10MB)</p>
+                    <p class="texto-subida">Haz clic para subir foto</p>
+                    <p class="pista-subida">JPG, PNG (Max 10MB)</p>
                   </div>
 
                 </div>
                 
                 <input
-                  ref="fileInput"
+                  ref="referenciaInput"
                   type="file"
-                  @change="onFileChange"
+                  @change="alCambiarArchivo"
                   accept="image/*"
                   style="display: none"
                 />
@@ -173,14 +167,14 @@ const registrarArtista = () => {
 
           </div>
 
-          <div class="actions">
-            <button type="button" class="btn btn-secondary" @click="limpiarCampos">
+          <div class="acciones">
+            <button type="button" class="btn btn-secundario" @click="limpiarFormulario">
               Limpiar
             </button>
-            <button type="button" class="btn btn-outline" @click="goToPanel">
+            <button type="button" class="btn btn-borde" @click="irAInicio">
               Cancelar
             </button>
-            <button type="submit" class="btn btn-primary">
+            <button type="submit" class="btn btn-primario">
               Registrar Artista →
             </button>
           </div>
@@ -210,7 +204,7 @@ const registrarArtista = () => {
   font-weight: bold;
 }
 
-.agregar-artista-container {
+.contenedor-agregar-artista {
   min-height: 100vh;
   background-color: var(--content-bg);
   color: var(--text-color);
@@ -219,12 +213,12 @@ const registrarArtista = () => {
   background-image: var(--body-bg-image);
 }
 
-.content {
+.contenido {
   max-width: 900px;
   margin: 0 auto;
 }
 
-.form-wrapper {
+.contenedor-formulario {
   background-color: var(--gris-azul);
   border-radius: 12px;
   padding: 2.5rem;
@@ -232,30 +226,29 @@ const registrarArtista = () => {
   border: 1px solid var(--azul-textos);
 }
 
-.top-bar {
+.barra-superior {
   margin-bottom: 1.5rem;
 }
 
-/* Títulos */
-.title-section {
+.seccion-titulo {
   margin-bottom: 2.5rem;
   border-bottom: 1px dashed var(--azul-textos);
   padding-bottom: 1.5rem;
 }
 
-.title {
+.titulo {
   font-size: 1.8rem;
   font-weight: 700;
   color: var(--azul-textos);
   margin-bottom: 0.5rem;
 }
 
-.subtitle {
+.subtitulo {
   color: #0f2d52;
   font-size: 0.95rem;
 }
 
-.form-grid {
+.cuadricula-formulario {
   display: grid;
   grid-template-columns: 1fr;
   gap: 2rem;
@@ -263,34 +256,33 @@ const registrarArtista = () => {
 }
 
 @media (min-width: 768px) {
-  .form-grid {
+  .cuadricula-formulario {
     grid-template-columns: 2fr 1fr;
   }
 }
 
-/* Inputs y Labels */
-.input-group {
+.grupo-input {
   margin-bottom: 1.25rem;
   display: flex;
   flex-direction: column;
 }
 
-.input-row {
+.fila-input {
   display: flex;
   gap: 1rem;
 }
-.input-row > .input-group {
+.fila-input > .grupo-input {
   flex: 1;
 }
 
-.label {
+.etiqueta {
   font-size: 0.9rem;
   font-weight: 600;
   color: var(--azul-textos);
   margin-bottom: 0.5rem;
 }
 
-.input {
+.entrada {
   background-color: #e6f0fa;
   border: 1px solid var(--azul-textos);
   border-radius: 8px;
@@ -300,29 +292,28 @@ const registrarArtista = () => {
   transition: all 0.2s;
 }
 
-.input:focus {
+.entrada:focus {
   outline: none;
   border-color: #2b7de9;
   box-shadow: 0 0 0 3px rgba(43, 125, 233, 0.15);
 }
 
-.input::placeholder {
+.entrada::placeholder {
   color: #5c6b7f;
 }
 
-.textarea {
+.area-texto {
   resize: vertical;
   min-height: 120px;
 }
 
-.hint {
+.pista {
   font-size: 0.75rem;
   color: #5c6b7f;
   margin-top: 0.3rem;
 }
 
-/* Área de Imagen (Upload) */
-.image-upload-area {
+.area-subida-imagen {
   border: 2px dashed var(--azul-textos);
   border-radius: 12px;
   min-height: 250px;
@@ -337,33 +328,33 @@ const registrarArtista = () => {
   position: relative;
 }
 
-.image-upload-area:hover {
+.area-subida-imagen:hover {
   border-color: #345d91;
   background-color: #c2d6ea;
 }
 
-.image-placeholder {
+.marcador-posicion {
   text-align: center;
   color: #0f2d52;
 }
 
-.upload-text {
+.texto-subida {
   font-weight: 600;
   margin-top: 1rem;
 }
 
-.upload-hint {
+.pista-subida {
   font-size: 0.8rem;
   color: #5c6b7f;
 }
 
-.image-preview {
+.previsualizacion {
   width: 100%;
   height: 100%;
   position: relative;
 }
 
-.image-preview img {
+.previsualizacion img {
   width: 100%;
   height: 250px;
   object-fit: cover;
@@ -372,7 +363,7 @@ const registrarArtista = () => {
   border: 1px solid var(--azul-textos);
 }
 
-.image-overlay {
+.capa-superpuesta {
   position: absolute;
   top: 0;
   left: 0;
@@ -386,11 +377,11 @@ const registrarArtista = () => {
   transition: opacity 0.2s;
 }
 
-.image-upload-area:hover .image-overlay {
+.area-subida-imagen:hover .capa-superpuesta {
   opacity: 1;
 }
 
-.image-overlay span {
+.capa-superpuesta span {
   color: var(--azul-textos);
   font-weight: 600;
   border: 1px solid var(--azul-textos);
@@ -399,7 +390,7 @@ const registrarArtista = () => {
   background: #e6f0fa;
 }
 
-.actions {
+.acciones {
   display: flex;
   justify-content: flex-end;
   gap: 1rem;
@@ -417,35 +408,35 @@ const registrarArtista = () => {
   border: none;
 }
 
-.btn-primary {
+.btn-primario {
   background-color: var(--azul-textos);
   color: white;
 }
-.btn-primary:hover {
+.btn-primario:hover {
   background-color: #345d91;
   transform: translateY(-1px);
 }
 
-.btn-secondary {
+.btn-secundario {
   background-color: transparent;
   color: var(--azul-textos);
 }
-.btn-secondary:hover {
+.btn-secundario:hover {
   color: #345d91;
   text-decoration: underline;
 }
 
-.btn-outline {
+.btn-borde {
   background-color: transparent;
   border: 1px solid var(--azul-textos);
   color: var(--text-color);
 }
-.btn-outline:hover {
+.btn-borde:hover {
   border-color: #345d91;
   background-color: #e6f0fa;
 }
 
-.btn-outline-sm {
+.boton-texto {
   background: none;
   border: none;
   color: var(--azul-textos);
@@ -453,15 +444,15 @@ const registrarArtista = () => {
   font-size: 0.9rem;
   padding: 0;
 }
-.btn-outline-sm:hover {
+.boton-texto:hover {
   color: #345d91;
 }
 
 @media (max-width: 600px) {
-  .agregar-artista-container { padding: 1rem; }
-  .form-wrapper { padding: 1.5rem; }
-  .input-row { flex-direction: column; }
-  .actions { flex-direction: column-reverse; }
+  .contenedor-agregar-artista { padding: 1rem; }
+  .contenedor-formulario { padding: 1.5rem; }
+  .fila-input { flex-direction: column; }
+  .acciones { flex-direction: column-reverse; }
   .btn { width: 100%; }
 }
 </style>

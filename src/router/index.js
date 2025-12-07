@@ -20,7 +20,7 @@ const router = createRouter({
     {
       path: '/agregar-artista',
       name: 'add-artist',
-      component: () => import('../views/registros/AddArtistView.vue'),
+      component: () => import('../views/registros/AgregarArtistaView.vue'),
     },
     {
       path: '/agregar-album',
@@ -30,7 +30,7 @@ const router = createRouter({
     {
       path: '/agregar-cancion',
       name: 'add-song',
-      component: () => import('../views/registros/AddSongView.vue'),
+      component: () => import('../views/registros/AgregarCancionView.vue'),
     },
     {
       path: '/artistas',
