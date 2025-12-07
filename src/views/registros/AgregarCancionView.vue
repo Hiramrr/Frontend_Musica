@@ -19,11 +19,11 @@ const formulario = ref({
   anio_salida: '',
   duracion: '',
   artista_colaborador: '',
-  descripcion: ''
+  descripcion: '',
+  portada_url: '' // Nuevo campo para la URL de la portada
 })
 
-const previsualizacionImagen = ref(null)
-const archivoImagen = ref(null)
+
 
 const irAInicio = () => router.push('/')
 
@@ -44,15 +44,13 @@ const limpiarFormulario = () => {
     anio_salida: '',
     duracion: '', 
     artista_colaborador: '', 
-    descripcion: '' 
+    descripcion: '',
+    portada_url: ''
   }
-  previsualizacionImagen.value = null
-  archivoImagen.value = null
-  if (referenciaInput.value) referenciaInput.value.value = ''
 }
 
 const guardarCancion = () => {
-  console.log("Registrando Canción:", { ...formulario.value, portada: archivoImagen.value })
+  console.log("Registrando Canción:", { ...formulario.value })
   alert("Canción registrada correctamente (Simulación)")
   router.push('/')
 }
@@ -148,39 +146,18 @@ const guardarCancion = () => {
 
             <div class="seccion-imagen">
               <div class="grupo-input">
-                <label class="etiqueta">Portada del Sencillo</label>
-                
-                <div 
-                  class="area-subida-imagen" 
-                  :class="{ 'con-imagen': previsualizacionImagen }"
-                  @click="seleccionarImagen"
-                >
-                  <div v-if="previsualizacionImagen" class="previsualizacion">
-                    <img :src="previsualizacionImagen" alt="Portada Preview" />
-                    <div class="capa-superpuesta">
-                      <span>Cambiar imagen</span>
-                    </div>
-                  </div>
-
-                  <div v-else class="marcador-posicion">
-                    <svg width="72" height="72" viewBox="0 0 72 72" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:block;margin:0 auto;">
-                      <circle cx="36" cy="36" r="34" fill="#1c2e52" stroke="#648bc4" stroke-width="2"/>
-                      <path d="M48 24V44.5C48 47.5376 45.5376 50 42.5 50C39.4624 50 37 47.5376 37 44.5C37 41.4624 39.4624 39 42.5 39C43.3284 39 44.1046 39.1679 44.7857 39.4643V24H48Z" fill="#648bc4"/>
-                      <ellipse cx="29" cy="52" rx="5" ry="5" fill="#648bc4"/>
-                      <rect x="27.5" y="22" width="3" height="25" rx="1.5" fill="#648bc4"/>
-                    </svg>
-                    <p class="texto-subida">Subir Portada</p>
-                    <p class="pista-subida">Solo si es distinta a la del álbum</p>
-                  </div>
-                </div>
-                
+                <label class="etiqueta">URL de la Portada del Sencillo</label>
                 <input
-                  ref="referenciaInput"
-                  type="file"
-                  @change="alCambiarArchivo"
-                  accept="image/*"
-                  style="display: none"
+                  v-model="formulario.portada_url"
+                  type="url"
+                  class="entrada"
+                  placeholder="Pega aquí la URL de la portada desde imgbb.com"
+                  required
                 />
+                <span class="pista">Ejemplo: https://i.ibb.co/xxxxxx/portada.jpg</span>
+                <div v-if="formulario.portada_url" class="previsualizacion" style="margin-top:1rem;">
+                  <img :src="formulario.portada_url" alt="Portada Preview" />
+                </div>
               </div>
             </div>
 
