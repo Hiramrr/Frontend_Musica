@@ -3,18 +3,29 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
+const route = useRoute()
+
+const filtroAlbum = ref(route.query.album || '')
 
 const listaCanciones = ref([
   {
     id: 1,
-    nombre: 'La Incondicional',
+    nombre: 'No Sé Tú',
     artista: 'Luis Miguel',
-    album: 'Busca una Mujer',
-    duracion: '4:25',
-    portada: 'https://placehold.co/400x400/2c3e50/FFF?text=La+Incondicional'
+    album: 'Romance', 
+    duracion: '3:49',
+    portada: 'https://placehold.co/400x400/2c3e50/FFF?text=No+Se+Tu'
   },
   {
     id: 2,
+    nombre: 'Inolvidable',
+    artista: 'Luis Miguel',
+    album: 'Romance', 
+    duracion: '4:19',
+    portada: 'https://placehold.co/400x400/2c3e50/FFF?text=Inolvidable'
+  },
+  {
+    id: 3,
     nombre: 'Querida',
     artista: 'Juan Gabriel',
     album: 'Recuerdos, Vol. II',
@@ -22,30 +33,34 @@ const listaCanciones = ref([
     portada: 'https://placehold.co/400x400/8e44ad/FFF?text=Querida'
   },
   {
-    id: 3,
-    nombre: 'Blinding Lights',
+    id: 4,
+    nombre: 'Gasoline',
     artista: 'The Weeknd',
-    album: 'After Hours',
-    duracion: '3:20',
-    portada: 'https://placehold.co/400x400/d35400/FFF?text=Blinding+Lights'
+    album: 'Dawn FM',
+    duracion: '3:32',
+    portada: 'https://placehold.co/400x400/d35400/FFF?text=Gasoline'
   },
   {
-    id: 4,
+    id: 5,
     nombre: 'Get Lucky',
     artista: 'Daft Punk',
     album: 'Random Access Memories',
     duracion: '6:09',
     portada: 'https://placehold.co/400x400/1c2e52/FFF?text=Get+Lucky'
-  },
-  {
-    id: 5,
-    nombre: 'Ahora Te Puedes Marchar',
-    artista: 'Luis Miguel',
-    album: 'Soy Como Quiero Ser',
-    duracion: '3:12',
-    portada: 'https://placehold.co/400x400/f39c12/FFF?text=Luis+Miguel'
   }
 ])
+
+const cancionesFiltradas = computed(() => {
+  if (filtroAlbum.value) {
+    return listaCanciones.value.filter(c => c.album === filtroAlbum.value)
+  }
+  return listaCanciones.value
+})
+
+const limpiarFiltro = () => {
+  filtroAlbum.value = ''
+  router.push({ name: 'musica' }) // Limpia la URL
+}
 
 const irAInicio = () => router.push('/')
 const irAAgregarCancion = () => router.push('/agregar-cancion')

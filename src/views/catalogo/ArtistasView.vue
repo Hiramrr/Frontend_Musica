@@ -4,9 +4,7 @@ import { useRouter } from 'vue-router'
 
 const router = useRouter()
 
-// Datos simulados (Mock Data)
-// En el futuro, esto vendría de una base de datos o Store de Pinia
-const artistas = ref([
+const listaArtistas = ref([
   {
     id: 1,
     nombre: 'Luis Miguel',
@@ -37,29 +35,31 @@ const artistas = ref([
   }
 ])
 
-const irAHome = () => router.push('/')
-const irAAgregar = () => router.push('/agregar-artista')
+const irAInicio = () => router.push('/')
+const irAAgregarArtista = () => router.push('/agregar-artista')
 
 </script>
 
 <template>
   <div class="catalogo-container">
-    <main class="main-content">
-      <h1 class="page-title">Nuestros Artistas</h1>
-      <div class="botones-artistas">
-        <button @click="irAHome" class="btn-nav">Inicio</button>
-        <button @click="irAAgregar" class="btn-nav btn-highlight">+ Nuevo Artista</button>
+    <main class="contenido-principal">
+      <h1 class="titulo-pagina">Nuestros Artistas</h1>
+      
+      <div class="botones-superiores">
+        <button @click="irAInicio" class="boton-nav">Inicio</button>
+        <button @click="irAAgregarArtista" class="boton-nav boton-resaltado">+ Nuevo Artista</button>
       </div>
-      <div class="grid-artistas">
-        <div v-for="artista in artistas" :key="artista.id" class="card-artista">
-          <div class="card-image">
+
+      <div class="cuadricula-artistas">
+        <div v-for="artista in listaArtistas" :key="artista.id" class="tarjeta-artista">
+          <div class="imagen-tarjeta">
             <img :src="artista.imagen" :alt="artista.nombre" />
           </div>
-          <div class="card-info">
+          <div class="info-tarjeta">
             <h2>{{ artista.nombre }}</h2>
-            <span class="genero-badge">{{ artista.genero }}</span>
+            <span class="etiqueta-genero">{{ artista.genero }}</span>
             <p class="bio">{{ artista.bio }}</p>
-            <button class="btn-ver">Ver Detalles</button>
+            <button class="boton-ver">Ver Detalles</button>
           </div>
         </div>
       </div>
@@ -82,70 +82,60 @@ const irAAgregar = () => router.push('/agregar-artista')
   background-color: var(--content-bg);
   background-image: var(--body-bg-image);
   padding-bottom: 2rem;
+  font-family: 'Nunito', sans-serif;
 }
 
-.navbar-catalogo {
-  background-color: var(--gris-azul);
-  padding: 1rem 2rem;
-  border-bottom: 2px solid var(--azul-textos);
-  margin-bottom: 2rem;
-}
-
-.nav-content {
+.contenido-principal {
   max-width: 900px;
   margin: 0 auto;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  padding: 0 20px;
+  padding-top: 2rem;
 }
 
-.brand {
-  font-weight: bold;
+.titulo-pagina {
   color: var(--azul-textos);
-  font-size: 1.2rem;
+  border-bottom: 1px dashed var(--azul-textos);
+  padding-bottom: 10px;
+  margin-bottom: 30px;
+  font-size: 25px;
+  font-weight: bold;
 }
 
-.btn-nav {
+.botones-superiores {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 20px;
+}
+
+.boton-nav {
   background: transparent;
   border: 1px solid var(--azul-textos);
-  color: var(--text-color);
+  color: #0f2d52;
   padding: 0.5rem 1rem;
   border-radius: 6px;
   cursor: pointer;
   margin-left: 10px;
   transition: all 0.2s;
+  font-weight: bold;
 }
 
-.btn-highlight {
+.boton-resaltado {
   background-color: var(--azul-textos);
   color: white;
 }
 
-.btn-nav:hover {
+.boton-nav:hover {
   transform: translateY(-2px);
   box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 
-.main-content {
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 0 20px;
-}
-
-.page-title {
-  color: var(--azul-textos);
-  border-bottom: 1px dashed var(--azul-textos);
-  padding-bottom: 10px;
-  margin-bottom: 30px;
-}
-
-.grid-artistas {
+.cuadricula-artistas {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
   gap: 30px;
 }
 
-.card-artista {
+.tarjeta-artista {
   background: var(--gris-azul);
   border-radius: 12px;
   overflow: hidden;
@@ -154,18 +144,18 @@ const irAAgregar = () => router.push('/agregar-artista')
   transition: transform 0.3s ease, border-color 0.3s;
 }
 
-.card-artista:hover {
+.tarjeta-artista:hover {
   transform: translateY(-5px);
   border-color: #345d91;
 }
 
-.card-image {
+.imagen-tarjeta {
   height: 200px;
   overflow: hidden;
   background: #e6f0fa;
 }
 
-.card-image img {
+.imagen-tarjeta img {
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -173,22 +163,23 @@ const irAAgregar = () => router.push('/agregar-artista')
   border-bottom: 1px solid var(--azul-textos);
 }
 
-.card-artista:hover .card-image img {
+.tarjeta-artista:hover .imagen-tarjeta img {
   transform: scale(1.05);
 }
 
-.card-info {
+.info-tarjeta {
   padding: 1.5rem;
   text-align: center;
 }
 
-.card-info h2 {
+.info-tarjeta h2 {
   color: var(--azul-textos);
   font-size: 1.3rem;
   margin-bottom: 0.5rem;
+  font-weight: bold;
 }
 
-.genero-badge {
+.etiqueta-genero {
   display: inline-block;
   background-color: var(--content-bg);
   color: var(--text-color);
@@ -197,6 +188,7 @@ const irAAgregar = () => router.push('/agregar-artista')
   font-size: 0.8rem;
   margin-bottom: 1rem;
   border: 1px solid var(--azul-textos);
+  font-weight: bold;
 }
 
 .bio {
@@ -209,7 +201,7 @@ const irAAgregar = () => router.push('/agregar-artista')
   overflow: hidden;
 }
 
-.btn-ver {
+.boton-ver {
   width: 100%;
   padding: 0.6rem;
   background-color: transparent;
@@ -221,30 +213,20 @@ const irAAgregar = () => router.push('/agregar-artista')
   transition: background-color 0.2s, color 0.2s;
 }
 
-.btn-ver:hover {
+.boton-ver:hover {
   background-color: var(--azul-textos);
   color: white;
 }
 
-.botones-artistas {
-  display: flex;
-  justify-content: flex-end;
-  margin-bottom: 20px;
-}
-
 @media (max-width: 600px) {
-  .main-content {
+  .contenido-principal {
     padding: 0 5px;
   }
-  .nav-content {
-    flex-direction: column;
-    gap: 1rem;
-  }
-  .grid-artistas {
+  .cuadricula-artistas {
     grid-template-columns: 1fr;
     gap: 15px;
   }
-  .card-info {
+  .info-tarjeta {
     padding: 1rem;
   }
 }

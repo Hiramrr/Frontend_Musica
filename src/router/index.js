@@ -25,7 +25,7 @@ const router = createRouter({
     {
       path: '/agregar-album',
       name: 'add-album',
-      component: () => import('../views/registros/AddAlbumView.vue'),
+      component: () => import('../views/registros/AgregarAlbumView.vue'),
     },
     {
       path: '/agregar-cancion',
@@ -35,7 +35,7 @@ const router = createRouter({
     {
       path: '/artistas',
       name: 'artistas',
-      component: () => import('../views/catalogo/ArtistsView.vue'),
+      component: () => import('../views/catalogo/ArtistasView.vue'),
     },
     {
       path: '/albumes',
@@ -45,7 +45,6 @@ const router = createRouter({
     {
       path: '/musica',
       name: 'musica',
-      // Aquí llamamos al archivo con el nuevo nombre
       component: () => import('../views/catalogo/CancionesView.vue'),
     }
   ],
