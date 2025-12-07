@@ -41,6 +41,12 @@ const router = createRouter({
       path: '/albumes',
       name: 'albumes',
       component: () => import('../views/catalogo/AlbumsView.vue'),
+    },
+    {
+      path: '/musica',
+      name: 'musica',
+      // Aquí llamamos al archivo con el nuevo nombre
+      component: () => import('../views/catalogo/CancionesView.vue'),
     }
   ],
 })
