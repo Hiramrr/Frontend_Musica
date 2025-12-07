@@ -19,11 +19,11 @@ const formulario = ref({
   anio_salida: '',
   duracion: '',
   total_canciones: '',
-  descripcion: ''
+  descripcion: '',
+  portada_url: '' // Nuevo campo para la URL de la portada
 })
 
-const previsualizacionImagen = ref(null)
-const archivoImagen = ref(null)
+
 
 const irAInicio = () => router.push('/')
 
@@ -44,15 +44,13 @@ const limpiarFormulario = () => {
     anio_salida: '', 
     duracion: '', 
     total_canciones: '', 
-    descripcion: '' 
+    descripcion: '',
+    portada_url: ''
   }
-  previsualizacionImagen.value = null
-  archivoImagen.value = null
-  if (referenciaInput.value) referenciaInput.value.value = ''
 }
 
 const guardarAlbum = () => {
-  console.log("Registrando Álbum:", { ...formulario.value, portada: archivoImagen.value })
+  console.log("Registrando Álbum:", { ...formulario.value })
   alert("Álbum registrado correctamente (Simulación)")
   router.push('/')
 }
@@ -148,36 +146,18 @@ const guardarAlbum = () => {
 
             <div class="seccion-imagen">
               <div class="grupo-input">
-                <label class="etiqueta">Portada del Álbum</label>
-                
-                <div 
-                  class="area-subida-imagen" 
-                  :class="{ 'con-imagen': previsualizacionImagen }"
-                  @click="seleccionarImagen"
-                >
-                  <div v-if="previsualizacionImagen" class="previsualizacion">
-                    <img :src="previsualizacionImagen" alt="Portada Preview" />
-                    <div class="capa-superpuesta">
-                      <span>Cambiar portada</span>
-                    </div>
-                  </div>
-
-                  <div v-else class="marcador-posicion">
-                    <svg width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M9 9l10.5-3m0 6.553v3.75a2.25 2.25 0 01-1.632 2.163l-1.32.377a1.803 1.803 0 11-.99-3.467l2.31-.66a2.25 2.25 0 001.632-2.163zm0 0V2.25L9 5.25v10.303m0 0v3.75a2.25 2.25 0 01-1.632 2.163l-1.32.377a1.803 1.803 0 01-.99-3.467l2.31-.66A2.25 2.25 0 009 15.553z" />
-                    </svg>
-                    <p class="texto-subida">Subir Portada</p>
-                    <p class="pista-subida">Cuadrada preferentemente (JPG, PNG)</p>
-                  </div>
-                </div>
-                
+                <label class="etiqueta">URL de la Portada del Álbum</label>
                 <input
-                  ref="referenciaInput"
-                  type="file"
-                  @change="alCambiarArchivo"
-                  accept="image/*"
-                  style="display: none"
+                  v-model="formulario.portada_url"
+                  type="url"
+                  class="entrada"
+                  placeholder="Pega aquí la URL de la portada desde imgbb.com"
+                  required
                 />
+                <span class="pista">Ejemplo: https://i.ibb.co/xxxxxx/portada.jpg</span>
+                <div v-if="formulario.portada_url" class="previsualizacion" style="margin-top:1rem;">
+                  <img :src="formulario.portada_url" alt="Portada Preview" />
+                </div>
               </div>
             </div>
 
