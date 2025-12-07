@@ -5,16 +5,17 @@ import { useRouter } from 'vue-router'
 const router = useRouter()
 const referenciaInput = ref(null)
 
+
 const formulario = ref({
   nombre: '',
   fecha_inicio: '',
   fecha_fin: '',
   fecha_nacimiento: '',
-  bibliografia: ''
+  bibliografia: '',
+  imagen_url: '' // Nuevo campo para la URL de la imagen
 })
 
-const previsualizacionImagen = ref(null)
-const archivoImagen = ref(null)
+
 
 const irAInicio = () => {
   router.push('/')
@@ -38,15 +39,13 @@ const limpiarFormulario = () => {
     fecha_inicio: '',
     fecha_fin: '',
     fecha_nacimiento: '',
-    bibliografia: ''
+    bibliografia: '',
+    imagen_url: ''
   }
-  previsualizacionImagen.value = null
-  archivoImagen.value = null
-  if (referenciaInput.value) referenciaInput.value.value = ''
 }
 
 const guardarArtista = () => {
-  console.log("Registrando Artista:", { ...formulario.value, imagen: archivoImagen.value })
+  console.log("Registrando Artista:", { ...formulario.value })
   alert("Artista registrado correctamente (Simulación)")
   router.push('/')
 }
@@ -130,38 +129,18 @@ const guardarArtista = () => {
 
             <div class="seccion-imagen">
               <div class="grupo-input">
-                <label class="etiqueta">Foto del Artista</label>
-                
-                <div 
-                  class="area-subida-imagen" 
-                  :class="{ 'con-imagen': previsualizacionImagen }"
-                  @click="seleccionarImagen"
-                >
-                  
-                  <div v-if="previsualizacionImagen" class="previsualizacion">
-                    <img :src="previsualizacionImagen" alt="Preview" />
-                    <div class="capa-superpuesta">
-                      <span>Cambiar imagen</span>
-                    </div>
-                  </div>
-
-                  <div v-else class="marcador-posicion">
-                    <svg width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
-                    </svg>
-                    <p class="texto-subida">Haz clic para subir foto</p>
-                    <p class="pista-subida">JPG, PNG (Max 10MB)</p>
-                  </div>
-
-                </div>
-                
+                <label class="etiqueta">URL de la Foto del Artista</label>
                 <input
-                  ref="referenciaInput"
-                  type="file"
-                  @change="alCambiarArchivo"
-                  accept="image/*"
-                  style="display: none"
+                  v-model="formulario.imagen_url"
+                  type="url"
+                  class="entrada"
+                  placeholder="Pega aquí la URL de la imagen desde imgbb.com"
+                  required
                 />
+                <span class="pista">Ejemplo: https://i.ibb.co/xxxxxx/imagen.jpg</span>
+                <div v-if="formulario.imagen_url" class="previsualizacion" style="margin-top:1rem;">
+                  <img :src="formulario.imagen_url" alt="Preview" />
+                </div>
               </div>
             </div>
 
