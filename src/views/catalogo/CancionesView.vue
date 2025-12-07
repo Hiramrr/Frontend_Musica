@@ -1,9 +1,9 @@
 <script setup>
-import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, computed } from 'vue' 
+import { useRouter, useRoute } from 'vue-router' 
 
 const router = useRouter()
-const route = useRoute()
+const route = useRoute() 
 
 const filtroAlbum = ref(route.query.album || '')
 
