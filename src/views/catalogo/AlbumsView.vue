@@ -1,47 +1,22 @@
 <script setup>
-import { ref } from 'vue'
+import { onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { useAlbumesStore } from '@/stores/albums'
+import { storeToRefs } from 'pinia'
 
 const router = useRouter()
+const store = useAlbumesStore()
 
-const listaAlbumes = ref([
-  {
-    id: 1,
-    titulo: 'Romance',
-    artista: 'Luis Miguel',
-    anio: '1991',
-    portada: 'https://placehold.co/400x400/2c3e50/FFF?text=Romance',
-    descripcion: 'Uno de los álbumes de boleros más exitosos de la historia.'
-  },
-  {
-    id: 2,
-    titulo: 'Recuerdos, Vol. II',
-    artista: 'Juan Gabriel',
-    anio: '1984',
-    portada: 'https://placehold.co/400x400/8e44ad/FFF?text=JG+Recuerdos',
-    descripcion: 'Incluye el éxito masivo "Querida", un hito en su carrera.'
-  },
-  {
-    id: 3,
-    titulo: 'Dawn FM',
-    artista: 'The Weeknd',
-    anio: '2022',
-    portada: 'https://placehold.co/400x400/d35400/FFF?text=Dawn+FM',
-    descripcion: 'Un álbum conceptual que simula una estación de radio retro.'
-  },
-  {
-    id: 4,
-    titulo: 'Random Access Memories',
-    artista: 'Daft Punk',
-    anio: '2013',
-    portada: 'https://placehold.co/400x400/1c2e52/FFF?text=RAM',
-    descripcion: 'El aclamado último álbum del dúo francés.'
-  }
-])
+// Cargamos los datos del estado global
+const { listaAlbumes, cargando } = storeToRefs(store)
+
+// Al montar la vista pedimos los datos reales al back
+onMounted(() => {
+  store.obtenerAlbumes()
+})
 
 const irAInicio = () => router.push('/')
 const irAAgregarAlbum = () => router.push('/agregar-album')
-
 </script>
 
 <template>
@@ -54,14 +29,25 @@ const irAAgregarAlbum = () => router.push('/agregar-album')
         <button @click="irAAgregarAlbum" class="boton-nav boton-resaltado">+ Nuevo Álbum</button>
       </div>
 
-      <div class="cuadricula-albumes">
+      <div v-if="cargando" class="mensaje-carga">
+        Cargando discografía...
+      </div>
+
+      <div v-else class="cuadricula-albumes">
         <div v-for="album in listaAlbumes" :key="album.id" class="tarjeta-album">
+          
           <div class="imagen-tarjeta">
-            <img :src="album.portada" :alt="album.titulo" />
+            <img :src="album.portada_url" :alt="album.nombre" />
           </div>
+
           <div class="info-tarjeta">
-            <h2>{{ album.titulo }}</h2>
-            <span class="etiqueta-artista">{{ album.artista }} ({{ album.anio }})</span>
+            <h2>{{ album.nombre }}</h2>
+            
+            <span class="etiqueta-artista">
+              <span v-if="album.nombre_artista">{{ album.nombre_artista }} - </span>
+              {{ album.fecha_salida }}
+            </span>
+            
             <p class="descripcion">{{ album.descripcion }}</p>
             <button class="boton-ver">Ver Canciones</button>
           </div>

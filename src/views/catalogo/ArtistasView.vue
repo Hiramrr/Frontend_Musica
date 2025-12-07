@@ -1,43 +1,20 @@
 <script setup>
-import { ref } from 'vue'
+import { onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { useArtistasStore } from '@/stores/artistas' 
+import { storeToRefs } from 'pinia'
 
 const router = useRouter()
+const store = useArtistasStore()
 
-const listaArtistas = ref([
-  {
-    id: 1,
-    nombre: 'Luis Miguel',
-    genero: 'Bolero / Pop',
-    imagen: 'https://placehold.co/400x400/2c3e50/FFF?text=LM',
-    bio: 'El Sol de México, icono de la música romántica.'
-  },
-  {
-    id: 2,
-    nombre: 'Juan Gabriel',
-    genero: 'Ranchera / Balada',
-    imagen: 'https://placehold.co/400x400/8e44ad/FFF?text=JG',
-    bio: 'El Divo de Juárez, cantautor prolífico.'
-  },
-  {
-    id: 3,
-    nombre: 'The Weeknd',
-    genero: 'R&B / Synth-pop',
-    imagen: 'https://placehold.co/400x400/d35400/FFF?text=TW',
-    bio: 'Superestrella canadiense conocida por su versatilidad.'
-  },
-  {
-    id: 4,
-    nombre: 'Daft Punk',
-    genero: 'Electrónica',
-    imagen: 'https://placehold.co/400x400/1c2e52/FFF?text=DP',
-    bio: 'Dúo legendario de la música house francesa.'
-  }
-])
+const { listaArtistas, cargando } = storeToRefs(store)
+
+onMounted(() => {
+  store.obtenerArtistas()
+})
 
 const irAInicio = () => router.push('/')
 const irAAgregarArtista = () => router.push('/agregar-artista')
-
 </script>
 
 <template>
@@ -50,15 +27,20 @@ const irAAgregarArtista = () => router.push('/agregar-artista')
         <button @click="irAAgregarArtista" class="boton-nav boton-resaltado">+ Nuevo Artista</button>
       </div>
 
-      <div class="cuadricula-artistas">
+      <div v-if="cargando" class="mensaje-carga">
+        Cargando artistas...
+      </div>
+
+      <div v-else class="cuadricula-artistas">
         <div v-for="artista in listaArtistas" :key="artista.id" class="tarjeta-artista">
           <div class="imagen-tarjeta">
-            <img :src="artista.imagen" :alt="artista.nombre" />
+            <img :src="artista.foto_url" :alt="artista.nombre" />
           </div>
           <div class="info-tarjeta">
             <h2>{{ artista.nombre }}</h2>
-            <span class="etiqueta-genero">{{ artista.genero }}</span>
-            <p class="bio">{{ artista.bio }}</p>
+            
+            <p class="bio">{{ artista.bibliografia }}</p>
+            
             <button class="boton-ver">Ver Detalles</button>
           </div>
         </div>
