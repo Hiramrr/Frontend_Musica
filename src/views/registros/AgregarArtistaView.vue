@@ -1,18 +1,21 @@
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { useArtistasStore } from '@/stores/artistas'
 
 const router = useRouter()
 const referenciaInput = ref(null)
 
+const artistasStore = useArtistasStore()
+
 
 const formulario = ref({
   nombre: '',
-  fecha_inicio: '',
-  fecha_fin: '',
-  fecha_nacimiento: '',
+  fecha_inicio: '', 
+  fecha_fin: '',    
+  nacimiento: '',   
   bibliografia: '',
-  imagen_url: '' // Nuevo campo para la URL de la imagen
+  foto_url: ''
 })
 
 
@@ -38,16 +41,31 @@ const limpiarFormulario = () => {
     nombre: '',
     fecha_inicio: '',
     fecha_fin: '',
-    fecha_nacimiento: '',
+    nacimiento: '',
     bibliografia: '',
-    imagen_url: ''
+    foto_url: ''
   }
 }
 
 const guardarArtista = () => {
-  console.log("Registrando Artista:", { ...formulario.value })
-  alert("Artista registrado correctamente (Simulación)")
-  router.push('/')
+  // Enviar los años directamente como enteros
+  const artistaPayload = {
+    nombre: formulario.value.nombre,
+    fecha_inicio: formulario.value.fecha_inicio ? parseInt(formulario.value.fecha_inicio) : null,
+    fecha_fin: formulario.value.fecha_fin ? parseInt(formulario.value.fecha_fin) : null,
+    nacimiento: formulario.value.nacimiento || null,
+    bibliografia: formulario.value.bibliografia,
+    foto_url: formulario.value.foto_url
+  }
+  artistasStore.guardarArtista(artistaPayload)
+    .then(() => {
+      alert('Artista registrado correctamente')
+      router.push('/')
+    })
+    .catch((error) => {
+      alert('Error al registrar el artista')
+      console.error(error)
+    })
 }
 </script>
 
@@ -89,9 +107,12 @@ const guardarArtista = () => {
                   <label class="etiqueta">Fecha Inicio / Formación</label>
                   <input
                     v-model="formulario.fecha_inicio"
-                    type="date"
+                    type="number"
+                    min="1900"
+                    max="2100"
                     required
                     class="entrada"
+                    placeholder="Año de inicio"
                   />
                 </div>
 
@@ -99,8 +120,11 @@ const guardarArtista = () => {
                   <label class="etiqueta">Fecha Fin (Opcional)</label>
                   <input
                     v-model="formulario.fecha_fin"
-                    type="date"
+                    type="number"
+                    min="1900"
+                    max="2100"
                     class="entrada"
+                    placeholder="Año de fin (opcional)"
                   />
                   <span class="pista">Deja vacío si sigue activo</span>
                 </div>
@@ -109,7 +133,7 @@ const guardarArtista = () => {
               <div class="grupo-input">
                 <label class="etiqueta">Fecha de Nacimiento (Solo solistas)</label>
                 <input
-                  v-model="formulario.fecha_nacimiento"
+                  v-model="formulario.nacimiento"
                   type="date"
                   class="entrada"
                 />
@@ -131,15 +155,15 @@ const guardarArtista = () => {
               <div class="grupo-input">
                 <label class="etiqueta">URL de la Foto del Artista</label>
                 <input
-                  v-model="formulario.imagen_url"
+                  v-model="formulario.foto_url"
                   type="url"
                   class="entrada"
                   placeholder="Pega aquí la URL de la imagen desde imgbb.com"
                   required
                 />
                 <span class="pista">Ejemplo: https://i.ibb.co/xxxxxx/imagen.jpg</span>
-                <div v-if="formulario.imagen_url" class="previsualizacion" style="margin-top:1rem;">
-                  <img :src="formulario.imagen_url" alt="Preview" />
+                <div v-if="formulario.foto_url" class="previsualizacion" style="margin-top:1rem;">
+                  <img :src="formulario.foto_url" alt="Preview" />
                 </div>
               </div>
             </div>
