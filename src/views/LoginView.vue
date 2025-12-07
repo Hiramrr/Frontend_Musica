@@ -65,10 +65,6 @@ import { RouterLink } from 'vue-router'
   font-weight: bold;
 }
 
-* {
-  box-sizing: border-box;
-}
-
 h1 {
   text-align: center;
 }
@@ -328,7 +324,23 @@ input[type='submit'],
   border-radius: 5px;
   cursor: pointer;
 }
+#crear {
+  width: auto;
+  min-width: 150px;
+  background-color: #28a745;
+  margin-top: 20px;
+  float: right;
+}
 
+#crear:hover {
+  background-color: #218838;
+  width: auto;
+}
+
+#crear:active {
+  background-color: #1e7e34;
+  width: auto;
+}
 /* --- RESPONSIVE (MEDIA QUERY) --- */
 @media only screen and (max-width: 800px) {
   #flex {
