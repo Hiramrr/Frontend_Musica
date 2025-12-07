@@ -2,10 +2,8 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 
-// Mantenemos 'router' como es estándar
 const router = useRouter()
 
-// Datos en español
 const listaAlbumes = ref([
   {
     id: 1,
@@ -41,7 +39,6 @@ const listaAlbumes = ref([
   }
 ])
 
-// Funciones en español usando 'router'
 const irAInicio = () => router.push('/')
 const irAAgregarAlbum = () => router.push('/agregar-album')
 
@@ -75,7 +72,6 @@ const irAAgregarAlbum = () => router.push('/agregar-album')
 </template>
 
 <style scoped>
-/* Estilos iguales a Artistas */
 :root {
   --header-image: url('https://sadhost.neocities.org/images/layouts/wp.jpeg');
   --body-bg-image: url('https://sadhost.neocities.org/images/tiles/bk024.gif');
