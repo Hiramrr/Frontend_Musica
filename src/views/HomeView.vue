@@ -1,6 +1,8 @@
 <script setup>
 import { ref } from 'vue'
 import { RouterLink } from 'vue-router'
+import { useAuthStore } from '../stores/authStore'
+const store = useAuthStore()
 const nuevosLanzamientos = ref([
   {
     id: 1,
@@ -73,13 +75,27 @@ const masEscuchados = ref([
     <div id="headerArea">
       <div id="header"></div>
 
-      <nav id="navbar">
+      <nav id="navbar" v-if="store.estaLogeado">
         <ul>
           <li><a href="#">Inicio</a></li>
           <li><RouterLink to="/artistas">Artistas</RouterLink></li>
           <li><RouterLink to="/albumes">Albumes</RouterLink></li>
           <li><RouterLink to="/musica">Musica</RouterLink></li>
-          <li><RouterLink to="/login">Perfil</RouterLink></li>
+          <li>
+            <RouterLink to="/login">Hola, {{ store.usuario.nombre }}</RouterLink>
+          </li>
+        </ul>
+      </nav>
+
+      <nav id="navbar" v-else>
+        <ul>
+          <li><a href="#">Inicio</a></li>
+          <li><RouterLink to="/artistas">Artistas</RouterLink></li>
+          <li><RouterLink to="/albumes">Albumes</RouterLink></li>
+          <li><RouterLink to="/musica">Musica</RouterLink></li>
+          <li>
+            <RouterLink to="/login">Iniciar Sesion</RouterLink>
+          </li>
         </ul>
       </nav>
     </div>

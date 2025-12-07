@@ -1,6 +1,28 @@
 <script setup>
 import { ref } from 'vue'
 import { RouterLink } from 'vue-router'
+import { useRouter } from 'vue-router'
+import { useAuthStore } from '../stores/authStore'
+
+const authStore = useAuthStore()
+const router = useRouter()
+
+const formulario = ref({
+  nombre: '',
+  correo: '',
+  password: '',
+  foto_url: '',
+})
+
+const enviarRegistro = async () => {
+  const exito = await authStore.registrarUsuario(formulario.value)
+
+  if (exito) {
+    router.push('/')
+  } else {
+    alert('Fallo el registro: ' + authStore.error)
+  }
+}
 </script>
 
 <template>
@@ -24,17 +46,21 @@ import { RouterLink } from 'vue-router'
         <h1>Iniciar sesion</h1>
         <fieldset class="principal">
           <fieldset legend="informacion personal">
-            <form>
-              <label for="email">Correo Electrónico</label>
-              <input type="text" id="email" />
-              <label for="password">Contraseña</label>
-              <input type="password" id="password" />
+            <form @submit.prevent="enviarRegistro">
+              <label for="user">Nombre</label>
+              <input v-model="formulario.nombre" type="text" id="user" />
 
-              <input type="button" value="Inciar Sesion" id="iniciar" />
+              <label for="email">Correo Electrónico</label>
+              <input v-model="formulario.correo" type="text" id="email" />
+
+              <label for="password">Contraseña</label>
+              <input v-model="formulario.password" type="password" id="password" />
+
+              <input type="submit" value="Crear cuenta" id="crear" />
             </form>
           </fieldset>
         </fieldset>
-        <RouterLink to=/crear type="button" value="Crear cuenta" id="crear">Crear cuenta</RouterLink>
+        <input type="button" value="Regresar al login" id="regresar" />
       </main>
     </div>
     <footer>
