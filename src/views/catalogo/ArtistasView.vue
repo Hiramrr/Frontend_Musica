@@ -16,6 +16,10 @@ onMounted(() => {
 
 const irAInicio = () => router.push('/')
 const irAAdmin = () => router.push('/artistas-admin')
+
+const verDetalles = (id) => {
+  router.push({ name: 'detalle-artista', params: { id } })
+}
 </script>
 
 <template>
@@ -44,7 +48,7 @@ const irAAdmin = () => router.push('/artistas-admin')
 
             <p class="bio">{{ artista.bibliografia }}</p>
 
-            <button class="boton-ver">Ver Detalles</button>
+            <button class="boton-ver" @click="verDetalles(artista.id)">Ver Detalles</button>
             
             </div>
         </div>
