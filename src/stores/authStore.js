@@ -39,7 +39,6 @@ export const useAuthStore = defineStore('auth', {
     logout() {
       this.usuario = null
       localStorage.removeItem('usuario')
-      window.location.reload()
     },
   },
 

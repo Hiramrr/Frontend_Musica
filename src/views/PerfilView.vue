@@ -1,8 +1,15 @@
 <script setup>
 import { ref } from 'vue'
-import { RouterLink } from 'vue-router'
+import { RouterLink, useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/authStore'
 const store = useAuthStore()
+
+const router = useRouter()
+
+function cerrarSesion(){
+  router.push("/");
+  store.logout();
+}
 </script>
 
 <template>
@@ -24,7 +31,7 @@ const store = useAuthStore()
 
       <nav id="navbar" v-else>
         <ul>
-          <li><a href="#">Inicio</a></li>
+          <li><RouterLink to="/">Inicio</RouterLink></li>
           <li><RouterLink to="/artistas">Artistas</RouterLink></li>
           <li><RouterLink to="/albumes">Albumes</RouterLink></li>
           <li><RouterLink to="/musica">Musica</RouterLink></li>
@@ -38,48 +45,66 @@ const store = useAuthStore()
     <div id="flex">
       <main>
         <h1>Perfil de {{ store.usuario.nombre }}</h1>
+        <div class="contenido-perfil-layout">
+          <div class="sidebar">
+            <div class="foto-perfil-contenedor">
+              <img :src="store.usuario?.foto_url || 'https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y'" class="foto-perfil"></img>
+            </div>
+          </div>
 
-        <div class="pestanas">
-          <span class="pestana activa">General</span>
-          <span class="pestana">Reseñas de albums</span>
-          <span class="pestana">Reseñas de canciones</span>
+          <div class="informacion-usuario">
+            <ul class="lista">
+              <li><strong>Correo:</strong> {{store.usuario?.correo || 'No tiene' }}</li>
+              <li><strong>Nombre:</strong> {{store.usuario?.nombre || 'No tiene' }}</li>
+            </ul>
+          </div>
         </div>
 
-        <p class="intro-text">
-          <strong>Reseñas más recientes</strong>
-        </p>
-
-        <div v-for="album in nuevosLanzamientos" :key="album.id" class="box fila-album">
-          <div class="portada-album">
-            <img :src="album.imagen" :alt="album.titulo" />
+          <div class="pestanas">
+            <span class="pestana activa">General</span>
+            <span class="pestana">Reseñas de albums</span>
+            <span class="pestana">Reseñas de canciones</span>
           </div>
 
-          <div class="detalles-album">
-            <h2>
-              <a href="#">{{ album.titulo }}</a>
-            </h2>
-            <div class="artista-album">
-              de <strong>{{ album.artista }}</strong>
-            </div>
-            <div class="meta-album">Lanzado: {{ album.fecha }}</div>
+          <p class="intro-text">
+            <strong>Reseñas recientes</strong>
+          </p>
 
-            <div class="generos-album">
-              <span v-for="(genero, indice) in album.generos" :key="indice">
-                [{{ genero }}]{{ indice < album.generos.length - 1 ? ' ' : '' }}
-              </span>
+          <div v-for="album in nuevosLanzamientos" :key="album.id" class="box fila-album">
+            <div class="portada-album">
+              <img :src="album.imagen" :alt="album.titulo" />
             </div>
-          </div>
 
-          <div class="estadisticas-album">
-            <div class="stat-group">
-              <span class="stat-label">Promedio</span>
-              <span class="stat-value">{{ album.promedio }}</span>
+            <div class="detalles-album">
+              <h2>
+                <a href="#">{{ album.titulo }}</a>
+              </h2>
+              <div class="artista-album">
+                de <strong>{{ album.artista }}</strong>
+              </div>
+              <div class="meta-album">Lanzado: {{ album.fecha }}</div>
+
+              <div class="generos-album">
+                <span v-for="(genero, indice) in album.generos" :key="indice">
+                  [{{ genero }}]{{ indice < album.generos.length - 1 ? ' ' : '' }}
+                </span>
+              </div>
             </div>
-            <div class="stat-group">
-              <span class="stat-label">Numero de votos</span>
-              <span class="stat-value">{{ album.votos }}</span>
+
+            <div class="estadisticas-album">
+              <div class="stat-group">
+                <span class="stat-label">Promedio</span>
+                <span class="stat-value">{{ album.promedio }}</span>
+              </div>
+              <div class="stat-group">
+                <span class="stat-label">Numero de votos</span>
+                <span class="stat-value">{{ album.votos }}</span>
+              </div>
             </div>
-          </div>
+        </div>
+        <div class="boton-container">
+          <button @click="cerrarSesion()" class="editar-datos">Editar datos</button>
+          <button @click="cerrarSesion()" class="cerrar-sesion">Cerrar Sesión</button>
         </div>
       </main>
     </div>
@@ -284,6 +309,71 @@ h2 {
 .stat-value {
   color: #345d91;
   font-weight: bold;
+}
+
+.contenido-perfil-layout{
+  display: flex;
+  padding: 15px;
+}
+
+.sidebar {
+  width: 180px;
+  text-align: center;
+  border-right: 1px dashed var(--azul-textos);
+  padding-right: 15px;
+  margin-right: 15px;
+}
+
+.foto-perfil-contenedor{
+  background-color: #0352fc;
+  padding: 5px;
+  border: 1px solid var(--azul-textos);
+  display: inline-block;
+  margin-bottom: 10px;
+}
+
+.foto-perfil{
+  width: 100px;
+  height: 100px;
+  display: block;
+}
+
+.boton-container {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 20px;
+  padding-right: 20px;
+}
+
+.cerrar-sesion {
+  background-color: #db091e;
+  color: white;
+  border: none;
+  height: 40px;
+  padding: 0 20px;
+  font-weight: bold;
+  font-family: 'Nunito', sans-serif;
+  cursor: pointer;
+}
+
+.cerrar-sesion:hover {
+  background-color: #a80515;
+}
+
+.editar-datos {
+  background-color: #0f2d52;
+  color: white;
+  border: none;
+  height: 40px;
+  padding: 0 20px;
+  font-weight: bold;
+  font-family: 'Nunito', sans-serif;
+  cursor: pointer;
+  margin-right: 10px;
+}
+
+.editar-datos:hover {
+  background-color: #0e2847;
 }
 
 /* Lista del Sidebar */
