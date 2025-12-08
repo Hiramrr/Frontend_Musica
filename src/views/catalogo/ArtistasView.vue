@@ -77,30 +77,32 @@ const editarArtista = (id) => {
   margin-top: 0.7rem;
 }
 .boton-editar {
-  background: #f7d358;
-  color: #0f2d52;
-  border: none;
+  background: transparent;
+  border: 1px solid var(--azul-textos);
+  color: var(--azul-textos);
   border-radius: 6px;
   padding: 0.4rem 1rem;
   font-weight: bold;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: background-color 0.2s, color 0.2s;
 }
 .boton-editar:hover {
-  background: #ffe599;
+  background-color: var(--azul-textos);
+  color: white;
 }
 .boton-eliminar {
-  background: #e74c3c;
-  color: white;
-  border: none;
+  background: transparent;
+  border: 1px solid #e74c3c;
+  color: #e74c3c;
   border-radius: 6px;
   padding: 0.4rem 1rem;
   font-weight: bold;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: background-color 0.2s, color 0.2s;
 }
 .boton-eliminar:hover {
-  background: #c0392b;
+  background-color: #e74c3c;
+  color: white;
 }
 :root {
   --header-image: url('https://sadhost.neocities.org/images/layouts/wp.jpeg');
