@@ -2,6 +2,8 @@
 import { ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import { useAuthStore } from '../stores/authStore'
+import HeaderComponente from '../components/HeaderComponente.vue'
+
 const store = useAuthStore()
 const nuevosLanzamientos = ref([
   {
@@ -73,31 +75,7 @@ const masEscuchados = ref([
 <template>
   <div id="container">
     <div id="headerArea">
-      <div id="header"></div>
-
-      <nav id="navbar" v-if="store.estaLogeado">
-        <ul>
-          <li><a href="#">Inicio</a></li>
-          <li><RouterLink to="/artistas">Artistas</RouterLink></li>
-          <li><RouterLink to="/albumes">Albumes</RouterLink></li>
-          <li><RouterLink to="/musica">Musica</RouterLink></li>
-          <li>
-            <RouterLink to="/perfil">Hola, {{ store.usuario.nombre }}</RouterLink>
-          </li>
-        </ul>
-      </nav>
-
-      <nav id="navbar" v-else>
-        <ul>
-          <li><a href="#">Inicio</a></li>
-          <li><RouterLink to="/artistas">Artistas</RouterLink></li>
-          <li><RouterLink to="/albumes">Albumes</RouterLink></li>
-          <li><RouterLink to="/musica">Musica</RouterLink></li>
-          <li>
-            <RouterLink to="/login">Iniciar Sesion</RouterLink>
-          </li>
-        </ul>
-      </nav>
+      <HeaderComponente />
     </div>
 
     <div id="flex">

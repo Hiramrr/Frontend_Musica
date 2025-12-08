@@ -3,6 +3,7 @@ import { onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAlbumesStore } from '@/stores/albums'
 import { storeToRefs } from 'pinia'
+import HeaderComponente from '../../components/HeaderComponente.vue'
 
 const router = useRouter()
 const store = useAlbumesStore()
@@ -19,44 +20,41 @@ const irAAgregarAlbum = () => router.push('/agregar-album')
 
 <template>
   <div class="catalogo-container">
+    <div id="headerArea">
+      <HeaderComponente />
+    </div>
+
     <main class="contenido-principal">
       <h1 class="titulo-pagina">Nuestros Álbumes</h1>
-      
+
       <div class="botones-superiores">
         <button @click="irAInicio" class="boton-nav">Inicio</button>
         <button @click="irAAgregarAlbum" class="boton-nav boton-resaltado">+ Nuevo Álbum</button>
       </div>
 
-      <div v-if="cargando" class="mensaje-carga">
-        Cargando discografía...
-      </div>
+      <div v-if="cargando" class="mensaje-carga">Cargando discografía...</div>
 
       <div v-else-if="listaAlbumes.length > 0" class="cuadricula-albumes">
-        
         <div v-for="album in listaAlbumes" :key="album.id" class="tarjeta-album">
           <div class="imagen-tarjeta">
-             <img :src="album.portadaUrl" :alt="album.nombre" />
+            <img :src="album.portadaUrl" :alt="album.nombre" />
           </div>
-          
+
           <div class="info-tarjeta">
             <h2>{{ album.nombre }}</h2>
-            
+
             <span class="etiqueta-artista">
               {{ album.nombreArtista }} ({{ album.fechaSalida }})
             </span>
-            
+
             <p class="descripcion">{{ album.descripcion }}</p>
-            
+
             <button class="boton-ver">Ver Canciones</button>
           </div>
         </div>
-
       </div>
 
-      <div v-else class="mensaje-vacio">
-        No se encontraron álbumes.
-      </div>
-
+      <div v-else class="mensaje-vacio">No se encontraron álbumes.</div>
     </main>
   </div>
 </template>
@@ -77,6 +75,8 @@ const irAAgregarAlbum = () => router.push('/agregar-album')
   background-image: var(--body-bg-image);
   padding-bottom: 2rem;
   font-family: 'Nunito', sans-serif;
+  max-width: 900px;
+  margin: 0 auto;
 }
 
 .contenido-principal {
@@ -120,7 +120,7 @@ const irAAgregarAlbum = () => router.push('/agregar-album')
 
 .boton-nav:hover {
   transform: translateY(-2px);
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 .cuadricula-albumes {
@@ -133,9 +133,11 @@ const irAAgregarAlbum = () => router.push('/agregar-album')
   background: var(--gris-azul);
   border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
   border: 1px solid var(--azul-textos);
-  transition: transform 0.3s ease, border-color 0.3s;
+  transition:
+    transform 0.3s ease,
+    border-color 0.3s;
 }
 
 .tarjeta-album:hover {
@@ -205,7 +207,9 @@ const irAAgregarAlbum = () => router.push('/agregar-album')
   border-radius: 6px;
   font-weight: bold;
   cursor: pointer;
-  transition: background-color 0.2s, color 0.2s;
+  transition:
+    background-color 0.2s,
+    color 0.2s;
 }
 
 .boton-ver:hover {
@@ -214,7 +218,12 @@ const irAAgregarAlbum = () => router.push('/agregar-album')
 }
 
 @media (max-width: 600px) {
-  .contenido-principal { padding: 0 10px; }
-  .cuadricula-albumes { grid-template-columns: 1fr; gap: 15px; }
+  .contenido-principal {
+    padding: 0 10px;
+  }
+  .cuadricula-albumes {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
 }
 </style>

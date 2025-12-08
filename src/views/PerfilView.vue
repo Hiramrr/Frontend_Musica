@@ -2,6 +2,8 @@
 import { ref } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/authStore'
+import HeaderComponente from '../components/HeaderComponente.vue'
+
 const store = useAuthStore()
 
 const router = useRouter()
@@ -15,31 +17,7 @@ function cerrarSesion(){
 <template>
   <div id="container">
     <div id="headerArea">
-      <div id="header"></div>
-
-      <nav id="navbar" v-if="store.estaLogeado">
-        <ul>
-          <li><RouterLink to="/">Inicio</RouterLink></li>
-          <li><RouterLink to="/artistas">Artistas</RouterLink></li>
-          <li><RouterLink to="/albumes">Albumes</RouterLink></li>
-          <li><RouterLink to="/musica">Musica</RouterLink></li>
-          <li>
-            <RouterLink to="/login">Hola, {{ store.usuario.nombre }}</RouterLink>
-          </li>
-        </ul>
-      </nav>
-
-      <nav id="navbar" v-else>
-        <ul>
-          <li><RouterLink to="/">Inicio</RouterLink></li>
-          <li><RouterLink to="/artistas">Artistas</RouterLink></li>
-          <li><RouterLink to="/albumes">Albumes</RouterLink></li>
-          <li><RouterLink to="/musica">Musica</RouterLink></li>
-          <li>
-            <RouterLink to="/login">Iniciar Sesion</RouterLink>
-          </li>
-        </ul>
-      </nav>
+      <HeaderComponente />
     </div>
 
     <div id="flex">

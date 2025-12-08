@@ -3,6 +3,8 @@ import { ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/authStore'
+import HeaderComponente from '../components/HeaderComponente.vue'
+
 
 const authStore = useAuthStore()
 const router = useRouter()
@@ -28,17 +30,7 @@ const enviarRegistro = async () => {
 <template>
   <div id="container">
     <div id="headerArea">
-      <div id="header"></div>
-
-      <nav id="navbar">
-        <ul>
-          <li><a href="#">Inicio</a></li>
-          <li><RouterLink to="/artistas">Artistas</RouterLink></li>
-          <li><RouterLink to="/albumes">Albumes</RouterLink></li>
-          <li><RouterLink to="/musica">Musica</RouterLink></li>
-          <li><RouterLink to="/login">Perfil</RouterLink></li>
-        </ul>
-      </nav>
+      <HeaderComponente />
     </div>
 
     <div id="flex">

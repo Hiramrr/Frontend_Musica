@@ -1,11 +1,12 @@
 <script setup>
-import { onMounted, ref, computed } from 'vue' 
-import { useRouter, useRoute } from 'vue-router' 
+import { onMounted, ref, computed } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import { useCancionesStore } from '@/stores/canciones'
 import { storeToRefs } from 'pinia'
+import HeaderComponente from '../../components/HeaderComponente.vue'
 
 const router = useRouter()
-const route = useRoute() 
+const route = useRoute()
 const store = useCancionesStore()
 
 //Extrameos los datos del estado global
@@ -15,7 +16,7 @@ const filtroAlbum = ref(route.query.album || '')
 
 const cancionesFiltradas = computed(() => {
   if (filtroAlbum.value) {
-    return listaCanciones.value.filter(c => c.nombre_album === filtroAlbum.value)
+    return listaCanciones.value.filter((c) => c.nombre_album === filtroAlbum.value)
   }
   return listaCanciones.value
 })
@@ -38,32 +39,39 @@ const irAAgregarCancion = () => router.push('/agregar-cancion')
 
 <template>
   <div class="contenedor-catalogo">
+    <div id="headerArea">
+      <HeaderComponente />
+    </div>
     <main class="contenido-principal">
       <h1 class="titulo-pagina">Catálogo de Música</h1>
-      
+
       <div class="botones-superiores">
         <button @click="irAInicio" class="boton-nav">Inicio</button>
-        <button @click="irAAgregarCancion" class="boton-nav boton-resaltado">+ Nueva Canción</button>
+        <button @click="irAAgregarCancion" class="boton-nav boton-resaltado">
+          + Nueva Canción
+        </button>
       </div>
 
-      <div v-if="cargando" class="mensaje-carga">
-        Cargando repertorio...
-      </div>
+      <div v-if="cargando" class="mensaje-carga">Cargando repertorio...</div>
 
       <div v-else-if="cancionesFiltradas.length > 0" class="cuadricula-canciones">
-        
-        <div v-for="cancion in cancionesFiltradas" :key="cancion.id || cancion.nombre" class="tarjeta-cancion">
+        <div
+          v-for="cancion in cancionesFiltradas"
+          :key="cancion.id || cancion.nombre"
+          class="tarjeta-cancion"
+        >
           <div class="imagen-tarjeta">
             <img :src="cancion.portada_url" :alt="cancion.nombre" />
           </div>
-          
+
           <div class="info-tarjeta">
             <h2>{{ cancion.nombre }}</h2>
-            
+
             <p class="texto-artista">
-              {{ cancion.nombre_artista }} <span class="texto-anio">({{ cancion.fecha_salida }})</span>
+              {{ cancion.nombre_artista }}
+              <span class="texto-anio">({{ cancion.fecha_salida }})</span>
             </p>
-            
+
             <p class="texto-album">
               <span class="etiqueta-gris">Álbum:</span> {{ cancion.nombre_album }}
             </p>
@@ -71,24 +79,17 @@ const irAAgregarCancion = () => router.push('/agregar-cancion')
             <p class="descripcion-cancion">
               {{ cancion.descripcion }}
             </p>
-            
+
             <div class="meta-inferior">
-              <span class="dato-meta">
-                ⏱ {{ formatearDuracion(cancion.duracion_segundos) }}
-              </span>
-              
-              <span class="dato-meta calificacion">
-                ★ {{ cancion.calificacion }}/5
-              </span>
+              <span class="dato-meta"> ⏱ {{ formatearDuracion(cancion.duracion_segundos) }} </span>
+
+              <span class="dato-meta calificacion"> ★ {{ cancion.calificacion }}/5 </span>
             </div>
           </div>
         </div>
       </div>
 
-      <div v-else class="mensaje-vacio">
-        No se encontraron canciones.
-      </div>
-
+      <div v-else class="mensaje-vacio">No se encontraron canciones.</div>
     </main>
   </div>
 </template>
@@ -109,6 +110,8 @@ const irAAgregarCancion = () => router.push('/agregar-cancion')
   background-image: var(--body-bg-image);
   padding-bottom: 2rem;
   font-family: 'Nunito', sans-serif;
+  max-width: 900px;
+  margin: 0 auto;
 }
 
 .contenido-principal {
@@ -152,7 +155,7 @@ const irAAgregarCancion = () => router.push('/agregar-cancion')
 
 .boton-nav:hover {
   transform: translateY(-2px);
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 .cuadricula-canciones {
@@ -165,7 +168,7 @@ const irAAgregarCancion = () => router.push('/agregar-cancion')
   background: var(--gris-azul);
   border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
   border: 1px solid var(--azul-textos);
   transition: transform 0.2s;
   display: flex;
@@ -261,7 +264,11 @@ const irAAgregarCancion = () => router.push('/agregar-cancion')
 }
 
 @media (max-width: 600px) {
-  .contenido-principal { padding: 0 10px; }
-  .cuadricula-canciones { grid-template-columns: 1fr; }
+  .contenido-principal {
+    padding: 0 10px;
+  }
+  .cuadricula-canciones {
+    grid-template-columns: 1fr;
+  }
 }
 </style>

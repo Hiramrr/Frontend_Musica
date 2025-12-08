@@ -1,8 +1,9 @@
 <script setup>
 import { onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { useArtistasStore } from '@/stores/artistas' 
+import { useArtistasStore } from '@/stores/artistas'
 import { storeToRefs } from 'pinia'
+import HeaderComponente from '../../components/HeaderComponente.vue'
 
 const router = useRouter()
 const store = useArtistasStore()
@@ -28,24 +29,26 @@ const eliminarArtista = async (id) => {
 }
 
 const editarArtista = (id) => {
-  // Redirigir a una vista de edición (debes crearla si no existe)
   router.push(`/editar-artista/${id}`)
 }
 </script>
 
 <template>
   <div class="catalogo-container">
+    <div id="headerArea">
+      <HeaderComponente />
+    </div>
     <main class="contenido-principal">
       <h1 class="titulo-pagina">Nuestros Artistas</h1>
-      
+
       <div class="botones-superiores">
         <button @click="irAInicio" class="boton-nav">Inicio</button>
-        <button @click="irAAgregarArtista" class="boton-nav boton-resaltado">+ Nuevo Artista</button>
+        <button @click="irAAgregarArtista" class="boton-nav boton-resaltado">
+          + Nuevo Artista
+        </button>
       </div>
 
-      <div v-if="cargando" class="mensaje-carga">
-        Cargando artistas...
-      </div>
+      <div v-if="cargando" class="mensaje-carga">Cargando artistas...</div>
 
       <div v-else class="cuadricula-artistas">
         <div v-for="artista in listaArtistas" :key="artista.id" class="tarjeta-artista">
@@ -54,9 +57,9 @@ const editarArtista = (id) => {
           </div>
           <div class="info-tarjeta">
             <h2>{{ artista.nombre }}</h2>
-            
+
             <p class="bio">{{ artista.bibliografia }}</p>
-            
+
             <button class="boton-ver">Ver Detalles</button>
             <div class="acciones-tarjeta">
               <button class="boton-editar" @click="editarArtista(artista.id)">Editar</button>
@@ -117,6 +120,8 @@ const editarArtista = (id) => {
   background-image: var(--body-bg-image);
   padding-bottom: 2rem;
   font-family: 'Nunito', sans-serif;
+  max-width: 900px;
+  margin: 0 auto;
 }
 
 .contenido-principal {
@@ -160,7 +165,7 @@ const editarArtista = (id) => {
 
 .boton-nav:hover {
   transform: translateY(-2px);
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 .cuadricula-artistas {
@@ -173,9 +178,11 @@ const editarArtista = (id) => {
   background: var(--gris-azul);
   border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
   border: 1px solid var(--azul-textos);
-  transition: transform 0.3s ease, border-color 0.3s;
+  transition:
+    transform 0.3s ease,
+    border-color 0.3s;
 }
 
 .tarjeta-artista:hover {
@@ -244,7 +251,9 @@ const editarArtista = (id) => {
   border-radius: 6px;
   font-weight: bold;
   cursor: pointer;
-  transition: background-color 0.2s, color 0.2s;
+  transition:
+    background-color 0.2s,
+    color 0.2s;
 }
 
 .boton-ver:hover {
