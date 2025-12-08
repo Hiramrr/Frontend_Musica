@@ -36,10 +36,26 @@ export const useArtistasStore = defineStore('artistas', () => {
     }
   }
 
+  // Eliminar artista por id
+  const eliminarArtista = async (id) => {
+    cargando.value = true
+    try {
+      await apiClient.delete(`/artistas/${id}`)
+      // Quitar artista de la lista local
+      listaArtistas.value = listaArtistas.value.filter(a => a.id !== id)
+    } catch (error) {
+      console.error('Error al eliminar el artista:', error)
+      throw error
+    } finally {
+      cargando.value = false
+    }
+  }
+
   return { 
     listaArtistas, 
     cargando, 
-      obtenerArtistas,
-      guardarArtista
+    obtenerArtistas,
+    guardarArtista,
+    eliminarArtista
   }
 })

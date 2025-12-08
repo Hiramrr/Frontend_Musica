@@ -15,6 +15,22 @@ onMounted(() => {
 
 const irAInicio = () => router.push('/')
 const irAAgregarArtista = () => router.push('/agregar-artista')
+
+const eliminarArtista = async (id) => {
+  if (confirm('¿Seguro que deseas eliminar este artista?')) {
+    try {
+      await store.eliminarArtista(id)
+      alert('Artista eliminado correctamente')
+    } catch (error) {
+      alert('Error al eliminar el artista')
+    }
+  }
+}
+
+const editarArtista = (id) => {
+  // Redirigir a una vista de edición (debes crearla si no existe)
+  router.push(`/editar-artista/${id}`)
+}
 </script>
 
 <template>
@@ -42,6 +58,10 @@ const irAAgregarArtista = () => router.push('/agregar-artista')
             <p class="bio">{{ artista.bibliografia }}</p>
             
             <button class="boton-ver">Ver Detalles</button>
+            <div class="acciones-tarjeta">
+              <button class="boton-editar" @click="editarArtista(artista.id)">Editar</button>
+              <button class="boton-eliminar" @click="eliminarArtista(artista.id)">Eliminar</button>
+            </div>
           </div>
         </div>
       </div>
@@ -50,6 +70,38 @@ const irAAgregarArtista = () => router.push('/agregar-artista')
 </template>
 
 <style scoped>
+.acciones-tarjeta {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 0.7rem;
+}
+.boton-editar {
+  background: #f7d358;
+  color: #0f2d52;
+  border: none;
+  border-radius: 6px;
+  padding: 0.4rem 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.boton-editar:hover {
+  background: #ffe599;
+}
+.boton-eliminar {
+  background: #e74c3c;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 0.4rem 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.boton-eliminar:hover {
+  background: #c0392b;
+}
 :root {
   --header-image: url('https://sadhost.neocities.org/images/layouts/wp.jpeg');
   --body-bg-image: url('https://sadhost.neocities.org/images/tiles/bk024.gif');
