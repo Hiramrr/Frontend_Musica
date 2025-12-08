@@ -51,11 +51,28 @@ export const useArtistasStore = defineStore('artistas', () => {
     }
   }
 
+  // Actualizar artista por id
+  const actualizarArtista = async (id, artista) => {
+    cargando.value = true
+    try {
+      const response = await apiClient.put(`/artistas/${id}`, artista)
+      // Actualizar artista en la lista local
+      listaArtistas.value = listaArtistas.value.map(a => a.id === id ? response.data : a)
+      return response.data
+    } catch (error) {
+      console.error('Error al actualizar el artista:', error)
+      throw error
+    } finally {
+      cargando.value = false
+    }
+  }
+
   return { 
     listaArtistas, 
     cargando, 
     obtenerArtistas,
     guardarArtista,
-    eliminarArtista
+    eliminarArtista,
+    actualizarArtista
   }
 })
