@@ -27,7 +27,6 @@ const irAAdmin = () => router.push('/artistas-admin')
       <h1 class="titulo-pagina">Nuestros Artistas</h1>
 
       <div class="botones-superiores">
-        <button @click="irAInicio" class="boton-nav">Inicio</button>
         <button @click="irAAdmin" class="boton-nav boton-resaltado">
           Gestionar Artistas (CRUD)
         </button>

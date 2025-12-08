@@ -42,7 +42,6 @@ const editarArtista = (id) => {
       <h1 class="titulo-pagina">Gestión de Artistas (CRUD)</h1>
 
       <div class="botones-superiores">
-        <button @click="irAInicio" class="boton-nav">Inicio</button>
         <button @click="irAAgregarArtista" class="boton-nav boton-resaltado">
           + Nuevo Artista
         </button>
