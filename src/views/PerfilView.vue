@@ -1,28 +1,8 @@
 <script setup>
 import { ref } from 'vue'
 import { RouterLink } from 'vue-router'
-import { useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/authStore'
-
-const authStore = useAuthStore()
-const router = useRouter()
-
-const formulario = ref({
-  nombre: '',
-  correo: '',
-  password: '',
-  foto_url: '',
-})
-
-const enviarRegistro = async () => {
-  const exito = await authStore.registrarUsuario(formulario.value)
-
-  if (exito) {
-    router.push('/')
-  } else {
-    alert('Fallo el registro: ' + authStore.error)
-  }
-}
+const store = useAuthStore()
 </script>
 
 <template>
@@ -30,36 +10,77 @@ const enviarRegistro = async () => {
     <div id="headerArea">
       <div id="header"></div>
 
-      <nav id="navbar">
+      <nav id="navbar" v-if="store.estaLogeado">
+        <ul>
+          <li><RouterLink to="/">Inicio</RouterLink></li>
+          <li><RouterLink to="/artistas">Artistas</RouterLink></li>
+          <li><RouterLink to="/albumes">Albumes</RouterLink></li>
+          <li><RouterLink to="/musica">Musica</RouterLink></li>
+          <li>
+            <RouterLink to="/login">Hola, {{ store.usuario.nombre }}</RouterLink>
+          </li>
+        </ul>
+      </nav>
+
+      <nav id="navbar" v-else>
         <ul>
           <li><a href="#">Inicio</a></li>
           <li><RouterLink to="/artistas">Artistas</RouterLink></li>
           <li><RouterLink to="/albumes">Albumes</RouterLink></li>
           <li><RouterLink to="/musica">Musica</RouterLink></li>
-          <li><RouterLink to="/login">Perfil</RouterLink></li>
+          <li>
+            <RouterLink to="/login">Iniciar Sesion</RouterLink>
+          </li>
         </ul>
       </nav>
     </div>
 
     <div id="flex">
       <main>
-        <h1>Crear cuenta</h1>
-        <RouterLink to=/login type="button">Regresar al login</RouterLink>
+        <h1>Perfil de {{ store.usuario.nombre }}</h1>
 
-        <fieldset class="principal">
-          <form @submit.prevent="enviarRegistro">
-            <label for="user">Nombre</label>
-            <input v-model="formulario.nombre" type="text" id="user" />
+        <div class="pestanas">
+          <span class="pestana activa">General</span>
+          <span class="pestana">Reseñas de albums</span>
+          <span class="pestana">Reseñas de canciones</span>
+        </div>
 
-            <label for="email">Correo Electrónico</label>
-            <input v-model="formulario.correo" type="text" id="email" />
+        <p class="intro-text">
+          <strong>Reseñas más recientes</strong>
+        </p>
 
-            <label for="password">Contraseña</label>
-            <input v-model="formulario.password" type="password" id="password" />
+        <div v-for="album in nuevosLanzamientos" :key="album.id" class="box fila-album">
+          <div class="portada-album">
+            <img :src="album.imagen" :alt="album.titulo" />
+          </div>
 
-            <input type="submit" value="Crear cuenta" id="crear" />
-          </form>
-        </fieldset>
+          <div class="detalles-album">
+            <h2>
+              <a href="#">{{ album.titulo }}</a>
+            </h2>
+            <div class="artista-album">
+              de <strong>{{ album.artista }}</strong>
+            </div>
+            <div class="meta-album">Lanzado: {{ album.fecha }}</div>
+
+            <div class="generos-album">
+              <span v-for="(genero, indice) in album.generos" :key="indice">
+                [{{ genero }}]{{ indice < album.generos.length - 1 ? ' ' : '' }}
+              </span>
+            </div>
+          </div>
+
+          <div class="estadisticas-album">
+            <div class="stat-group">
+              <span class="stat-label">Promedio</span>
+              <span class="stat-value">{{ album.promedio }}</span>
+            </div>
+            <div class="stat-group">
+              <span class="stat-label">Numero de votos</span>
+              <span class="stat-value">{{ album.votos }}</span>
+            </div>
+          </div>
+        </div>
       </main>
     </div>
     <footer>
@@ -88,10 +109,6 @@ const enviarRegistro = async () => {
   font-family: Nunito;
   src: url('https://sadhost.neocities.org/fonts/Nunito-Bold.ttf');
   font-weight: bold;
-}
-
-h1 {
-  text-align: center;
 }
 
 body {
@@ -280,92 +297,6 @@ h2 {
   padding-bottom: 5px;
 }
 
-fieldset {
-  margin-top: 20px;
-  border: 1px solid #ccc;
-}
-
-fieldset.principal {
-  max-width: 400px;
-  box-shadow: 15px 20px 10px rgba(1, 14, 27, 0.472);
-  margin: 0 auto;
-  border-radius: 5px;
-  border: 1px solid #ccc;
-  padding: 20px;
-}
-
-legend {
-  font-size: 12px;
-  margin-bottom: 10px;
-  padding: 0px;
-}
-
-label {
-  display: block;
-  margin-bottom: 3px;
-  margin-top: 3px;
-}
-
-input[type='text'],
-input[type='email'],
-input[type='password'] {
-  width: 100%;
-  padding: 8px;
-  margin-bottom: 10px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  background-color: #f8f8f8cc;
-}
-
-input[type='submit'],
-[type='button'] {
-  width: 100%;
-  padding: 10px;
-  background-color: #0056b3;
-  color: #ffffff;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-input[type='submit'],
-[type='button']:hover {
-  width: 100%;
-  padding: 10px;
-  background-color: #004494;
-  color: #fff;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-input[type='submit'],
-[type='button']:active {
-  width: 100%;
-  padding: 10px;
-  background-color: #003366;
-  color: #fff;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-}
-#crear {
-  width: auto;
-  min-width: 150px;
-  background-color: #28a745;
-  margin-top: 20px;
-  float: right;
-}
-
-#crear:hover {
-  background-color: #218838;
-  width: auto;
-}
-
-#crear:active {
-  background-color: #1e7e34;
-  width: auto;
-}
 /* --- RESPONSIVE (MEDIA QUERY) --- */
 @media only screen and (max-width: 800px) {
   #flex {

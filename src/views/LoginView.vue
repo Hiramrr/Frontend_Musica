@@ -1,6 +1,25 @@
 <script setup>
 import { ref } from 'vue'
-import { RouterLink } from 'vue-router'
+import { RouterLink, useRouter } from 'vue-router'
+import { useAuthStore } from '../stores/authStore'
+
+const router = useRouter()
+const authStore = useAuthStore()
+
+const credenciales = ref({
+  correo: '',
+  password: '',
+})
+
+const handeLogin = async () => {
+  const exito = await authStore.login(credenciales.value)
+
+  if (exito) {
+    router.push('/')
+  } else {
+    alert(authStore.error)
+  }
+}
 </script>
 
 <template>
@@ -24,17 +43,18 @@ import { RouterLink } from 'vue-router'
         <h1>Iniciar sesion</h1>
         <fieldset class="principal">
           <fieldset legend="informacion personal">
-            <form>
+            <form @submit.prevent="manejarLogin">
               <label for="email">Correo Electrónico</label>
-              <input type="text" id="email" />
+              <input v-model="credenciales.correo" type="text" id="email" required />
               <label for="password">Contraseña</label>
-              <input type="password" id="password" />
-
-              <input type="button" value="Inciar Sesion" id="iniciar" />
+              <input v-model="credenciales.password" type="password" id="password" required />
+              <input type="submit" value="Iniciar Sesión" id="iniciar" @click="handeLogin" />
             </form>
           </fieldset>
         </fieldset>
-        <RouterLink to=/crear type="button" value="Crear cuenta" id="crear">Crear cuenta</RouterLink>
+        <RouterLink to="/crear" custom v-slot="{ navigate }">
+          <input type="button" value="Crear cuenta" id="crear" @click="navigate" />
+        </RouterLink>
       </main>
     </div>
     <footer>

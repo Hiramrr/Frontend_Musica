@@ -82,7 +82,7 @@ const masEscuchados = ref([
           <li><RouterLink to="/albumes">Albumes</RouterLink></li>
           <li><RouterLink to="/musica">Musica</RouterLink></li>
           <li>
-            <RouterLink to="/login">Hola, {{ store.usuario.nombre }}</RouterLink>
+            <RouterLink to="/perfil">Hola, {{ store.usuario.nombre }}</RouterLink>
           </li>
         </ul>
       </nav>

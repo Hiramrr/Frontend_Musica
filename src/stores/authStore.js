@@ -23,6 +23,18 @@ export const useAuthStore = defineStore('auth', {
         return false
       }
     },
+    async login(credenciales) {
+      try {
+        const respuesta = await apiClient.post('usuarios/login', credenciales)
+        this.usuario = respuesta.data
+        localStorage.setItem('usuario', JSON.stringify(respuesta.data))
+        return true
+      } catch (err) {
+        console.error(err)
+        this.error = err.response?.data?.message || 'Correo o contraseñas incorrectos'
+        return false
+      }
+    },
 
     logout() {
       this.usuario = null
@@ -32,7 +44,7 @@ export const useAuthStore = defineStore('auth', {
   },
 
   getters: {
-    estaLogueado: (state) => !!state.usuario, // Retorna true si usuario no es null
+    estaLogeado: (state) => state.usuario !== null,
     nombreUsuario: (state) => state.usuario?.nombre || 'Invitado',
   },
 })
