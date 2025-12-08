@@ -15,7 +15,22 @@ onMounted(() => {
 })
 
 const irAInicio = () => router.push('/')
-const irAAdmin = () => router.push('/artistas-admin')
+const irAAgregarArtista = () => router.push('/agregar-artista')
+
+const eliminarArtista = async (id) => {
+  if (confirm('¿Seguro que deseas eliminar este artista?')) {
+    try {
+      await store.eliminarArtista(id)
+      alert('Artista eliminado correctamente')
+    } catch (error) {
+      alert('Error al eliminar el artista')
+    }
+  }
+}
+
+const editarArtista = (id) => {
+  router.push(`/editar-artista/${id}`)
+}
 </script>
 
 <template>
@@ -24,12 +39,12 @@ const irAAdmin = () => router.push('/artistas-admin')
       <HeaderComponente />
     </div>
     <main class="contenido-principal">
-      <h1 class="titulo-pagina">Nuestros Artistas</h1>
+      <h1 class="titulo-pagina">Gestión de Artistas (CRUD)</h1>
 
       <div class="botones-superiores">
         <button @click="irAInicio" class="boton-nav">Inicio</button>
-        <button @click="irAAdmin" class="boton-nav boton-resaltado">
-          Gestionar Artistas (CRUD)
+        <button @click="irAAgregarArtista" class="boton-nav boton-resaltado">
+          + Nuevo Artista
         </button>
       </div>
 
@@ -47,7 +62,11 @@ const irAAdmin = () => router.push('/artistas-admin')
 
             <button class="boton-ver">Ver Detalles</button>
             
+            <div class="acciones-tarjeta">
+              <button class="boton-editar" @click="editarArtista(artista.id)">Editar</button>
+              <button class="boton-eliminar" @click="eliminarArtista(artista.id)">Eliminar</button>
             </div>
+          </div>
         </div>
       </div>
     </main>
@@ -55,6 +74,41 @@ const irAAdmin = () => router.push('/artistas-admin')
 </template>
 
 <style scoped>
+.acciones-tarjeta {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 0.7rem;
+}
+.boton-editar {
+  background: transparent;
+  border: 1px solid var(--azul-textos);
+  color: var(--azul-textos);
+  border-radius: 6px;
+  padding: 0.4rem 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s;
+}
+.boton-editar:hover {
+  background-color: var(--azul-textos);
+  color: white;
+}
+.boton-eliminar {
+  background: transparent;
+  border: 1px solid #e74c3c;
+  color: #e74c3c;
+  border-radius: 6px;
+  padding: 0.4rem 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s;
+}
+.boton-eliminar:hover {
+  background-color: #e74c3c;
+  color: white;
+}
+
 :root {
   --header-image: url('https://sadhost.neocities.org/images/layouts/wp.jpeg');
   --body-bg-image: url('https://sadhost.neocities.org/images/tiles/bk024.gif');

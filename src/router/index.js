@@ -72,6 +72,12 @@ const router = createRouter({
         title: 'Perfil',
       },
     },
+
+    {
+      path: '/artistas-admin',
+      name: 'artistas-admin',
+      component: () => import('../views/catalogo/ArtistasAdminView.vue'),
+    },
   ],
 })
 
