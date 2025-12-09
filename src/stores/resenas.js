@@ -63,13 +63,46 @@ export const useResenasStore = defineStore('resenas', () => {
     }
   }
 
-  // TODO: Agregar función editarResena si el back tiene endpoint PUT
+  const editarResena = async (idResena, { texto, puntos }) => {
+    const authStore = useAuthStore()
+    
+    if (!authStore.usuario?.id) return false
+
+    try {
+      //Cuerpo del request
+      const payload = {
+        contenido: texto,
+        calificacion: puntos
+      }
+
+      const response = await apiClient.put(`/resenas/${idResena}`, payload, {
+        params: { usuarioId: authStore.usuario.id }
+      })
+
+      // Actualizamos la lista local para que se vea el cambio sin recargar
+      const index = listaResenas.value.findIndex(r => r.id === idResena)
+      if (index !== -1) {
+        // Mantenemos la info del autor y 'esMia', solo actualizamos contenido
+        listaResenas.value[index] = { 
+          ...listaResenas.value[index], 
+          contenido: response.data.contenido,
+          calificacion: response.data.calificacion,
+        }
+      }
+      return true
+    } catch (error) {
+      console.error('Error al editar reseña:', error)
+      alert('No se pudo editar la reseña.')
+      return false
+    }
+  }
 
   return {
     listaResenas,
     cargando,
     obtenerResenasAlbum,
     crearResenaAlbum,
-    eliminarResena
+    eliminarResena,
+    editarResena
   }
 })

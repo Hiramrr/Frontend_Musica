@@ -37,6 +37,10 @@ const manejarEliminarResena = async (idResena) => {
   await resenasStore.eliminarResena(idResena)
 }
 
+const manejarEditarResena = async ({ id, texto, puntos }) => {
+  await resenasStore.editarResena(id, { texto, puntos })
+}
+
 const irAtras = () => router.go(-1)
 </script>
 
@@ -61,6 +65,7 @@ const irAtras = () => router.go(-1)
             :reviews="listaResenas" 
             @agregar-review="manejarNuevaResena"
             @eliminar-review="manejarEliminarResena"
+            @editar-review="manejarEditarResena"
           />
         </div>
         

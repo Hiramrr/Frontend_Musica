@@ -16,7 +16,7 @@ const nuevaResena = ref('')
 const calificacion = ref(5)
 const idEditando = ref(null)
 const textoEditando = ref('')
-
+const calificacionEditando = ref(5) 
 
 const enviarResena = () => {
   if (!nuevaResena.value.trim()) return
@@ -28,15 +28,24 @@ const enviarResena = () => {
 const iniciarEdicion = (review) => {
   idEditando.value = review.id
   textoEditando.value = review.contenido
+  calificacionEditando.value = review.calificacion 
 }
 
 const cancelarEdicion = () => {
   idEditando.value = null
   textoEditando.value = ''
+  calificacionEditando.value = 5
 }
 
-const guardarEdicion = (review) => {
-  console.log("Editando", review.id, textoEditando.value)
+const guardarEdicion = () => {
+  if (!textoEditando.value.trim()) return
+
+  emit('editar-review', {
+    id: idEditando.value,
+    texto: textoEditando.value,
+    puntos: calificacionEditando.value
+  })
+  
   idEditando.value = null
 }
 
@@ -148,4 +157,35 @@ const irALogin = () => router.push('/login')
 
 .contenido { color: #444; line-height: 1.5; }
 .vacio { text-align: center; color: #888; font-style: italic; margin-top: 20px; }
+
+.input-editar {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid var(--azul-textos);
+  border-radius: 8px;
+  margin-bottom: 10px;
+  background-color: #f0f7ff;
+}
+
+.controles-edicion {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.select-editar {
+  padding: 5px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+
+.btns-group {
+  display: flex;
+  gap: 10px;
+}
+
+.btn-mini { padding: 6px 12px; font-size: 0.85rem; border-radius: 4px; border: 1px solid #ccc; background: white; cursor: pointer; }
+.btn-mini.primary { background: var(--azul-textos); color: white; border: none; }
 </style>
+
+
