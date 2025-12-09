@@ -29,7 +29,7 @@ export const useResenasStore = defineStore('resenas', () => {
   }
 
   // Crear reseña real
-  const crearResenaAlbum = async (albumId, { texto, puntos }) => {
+const crearResenaAlbum = async (albumId, { texto, puntos }) => {
     if (!authStore.usuario?.id) {
       alert("Debes iniciar sesión")
       return false
@@ -40,12 +40,23 @@ export const useResenasStore = defineStore('resenas', () => {
         contenido: texto,
         calificacion: puntos,
         album: { id: albumId },
-        usuario: { id: authStore.usuario.id } 
+        usuario: { id: authStore.usuario.id }
       }
 
       const response = await apiClient.post('/resenas', payload)
       
-      const nuevaResena = { ...response.data, esMia: true }
+      // El back no manda los datos del autor, solo su id por eso "inyectamos" los datos del usuario actual
+      // para asegurar que se vean nombre y foto sin recargar.
+      const nuevaResena = { 
+        ...response.data,
+        esMia: true,      
+        autor: {         
+          id: authStore.usuario.id,
+          nombre: authStore.usuario.nombre, 
+          fotoUrl: authStore.usuario.fotoUrl || 'https://placehold.co/40'
+        }
+      }
+      
       listaResenas.value.unshift(nuevaResena)
       return true
     } catch (error) {
