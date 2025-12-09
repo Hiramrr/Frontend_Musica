@@ -33,6 +33,20 @@ async function guardarCambios() {
 function cancelar() {
   router.push('/perfil')
 }
+
+async function eliminarCuenta() {
+  const confirmacion = window.confirm('Estas seguro? esto no se puede revertir btw')
+
+  if (confirmacion) {
+    try {
+      await store.eliminarUsuario(store.usuario.id)
+      alert('Tu cuenta ha sido eliminada.')
+      router.push('/')
+    } catch (error) {
+      alert('Hubo un error al intentar eliminar la cuenta.')
+    }
+  }
+}
 </script>
 
 <template>
@@ -47,7 +61,7 @@ function cancelar() {
 
         <a
           @click.prevent="cancelar()"
-          style="display: block; text-align: center; margin-bottom: 10px"
+          style="display: block; text-align: center; margin-bottom: 10px; cursor: pointer"
         >
           Regresar al perfil
         </a>
@@ -84,6 +98,14 @@ function cancelar() {
             </div>
           </form>
         </fieldset>
+
+        <div class="zona-peligro">
+          <h3>Eliminar Cuenta</h3>
+          <p>Si eliminas tu cuenta, perderás acceso a tus reseñas y configuraciones.</p>
+          <button @click="eliminarCuenta()" class="btn-borrar-final">
+            Eliminar mi cuenta definitivamente
+          </button>
+        </div>
       </main>
     </div>
     <footer>
@@ -92,7 +114,7 @@ function cancelar() {
   </div>
 </template>
 
-<style>
+<style scoped>
 :root {
   --header-image: url('https://sadhost.neocities.org/images/layouts/wp.jpeg');
   --body-bg-image: url('https://sadhost.neocities.org/images/tiles/bk024.gif');
@@ -257,6 +279,43 @@ input[type='button'] {
 }
 #cancelar-btn:hover {
   background-color: #b00616;
+}
+
+.zona-peligro {
+  max-width: 400px;
+  margin: 40px auto 0 auto;
+  text-align: center;
+  border-top: 2px dashed #db091e;
+  padding-top: 20px;
+}
+
+.zona-peligro h3 {
+  color: #db091e;
+  font-size: 18px;
+  margin-bottom: 5px;
+}
+
+.zona-peligro p {
+  font-size: 12px;
+  color: #555;
+  margin-bottom: 15px;
+}
+
+.btn-borrar-final {
+  background-color: transparent;
+  border: 2px solid #db091e;
+  color: #db091e;
+  padding: 10px 20px;
+  border-radius: 5px;
+  font-weight: bold;
+  cursor: pointer;
+  width: 100%;
+  transition: all 0.3s ease;
+}
+
+.btn-borrar-final:hover {
+  background-color: #db091e;
+  color: white;
 }
 
 @media only screen and (max-width: 800px) {

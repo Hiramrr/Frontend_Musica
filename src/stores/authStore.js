@@ -66,6 +66,19 @@ export const useAuthStore = defineStore('auth', {
       this.usuario = null
       localStorage.removeItem('usuario')
     },
+
+    async eliminarUsuario(id) {
+      try {
+        await apiClient.delete(`/usuarios/${id}`)
+
+        this.logout()
+
+        return true
+      } catch (error) {
+        console.error('Error eliminando usuario, ojala no pase esto')
+        throw error
+      }
+    },
   },
 
   getters: {
