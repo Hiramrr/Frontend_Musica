@@ -19,6 +19,22 @@ export const useCancionesStore = defineStore('canciones', () => {
     }
   }
 
+  const eliminarCancion = async (id) => {
+    try {
+      // 1. Petición al backend
+      await apiClient.delete(`/canciones/${id}`)
+      
+      // 2. Actualizar la lista local (filtro para quitar la que borramos)
+      listaCanciones.value = listaCanciones.value.filter(c => c.id !== id)
+      
+      return true
+    } catch (error) {
+      console.error('Error al eliminar la canción:', error)
+      alert("No se pudo eliminar la canción.")
+      return false
+    }
+  }
+
   // Obtener una por ID para editar
   const obtenerCancionPorId = async (id) => {
     cargando.value = true
@@ -71,16 +87,6 @@ export const useCancionesStore = defineStore('canciones', () => {
     }
   }
 
-  // Eliminar
-  const eliminarCancion = async (id) => {
-    try {
-      await apiClient.delete(`/canciones/${id}`)
-      listaCanciones.value = listaCanciones.value.filter(c => c.id !== id)
-    } catch (error) {
-      console.error('Error al eliminar la canción:', error)
-      throw error
-    }
-  }
 
   return { 
     listaCanciones, 

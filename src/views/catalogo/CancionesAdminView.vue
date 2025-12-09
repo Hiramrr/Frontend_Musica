@@ -39,8 +39,10 @@ const editarCancion = (id) => {
 }
 
 const borrarCancion = async (id) => {
-  if (confirm("¿Estás seguro de eliminar esta canción?")) {
+  // Confirmación simple del navegador
+  if (confirm("¿Estás seguro de que deseas eliminar esta canción permanentemente?")) {
     await store.eliminarCancion(id)
+    // No hace falta recargar la página porque el store actualiza la lista reactiva
   }
 }
 </script>
