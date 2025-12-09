@@ -92,7 +92,7 @@ const router = createRouter({
       component: EditarPerfilView,
       meta: {
         title: 'Editar perfil',
-      }, c593a1ace14a3d536ba8a3976b844f3ece685f38
+      },
     },
     {
       path: '/album/:id', 
