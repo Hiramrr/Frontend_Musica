@@ -13,7 +13,17 @@ const store = useAuthStore()
       <li><RouterLink to="/musica">Musica</RouterLink></li>
       <li><RouterLink to="/comunidad">Comunidad</RouterLink></li>
       <li>
-        <RouterLink to="/perfil">Hola, {{ store.usuario.nombre }}</RouterLink>
+        <RouterLink to="/perfil" class="user-link">
+          <img
+            :src="
+              store.usuario?.fotoUrl ||
+              'https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y'
+            "
+            class="nav-avatar"
+            alt="Avatar"
+          />
+          <span>Hola, {{ store.usuario.nombre }}</span>
+        </RouterLink>
       </li>
     </ul>
   </nav>
@@ -66,9 +76,26 @@ const store = useAuthStore()
   margin: 0;
   list-style-type: none;
   justify-content: space-evenly;
+  align-items: center;
+  height: 100%;
 }
 
 #navbar li {
-  padding-top: 10px;
+  display: flex;
+  align-items: center;
+}
+
+.user-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+}
+
+.nav-avatar {
+  width: 24px;
+  height: 24px;
+  object-fit: cover;
+  border: 1px solid var(--azul-textos);
 }
 </style>

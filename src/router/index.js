@@ -56,7 +56,7 @@ const router = createRouter({
       path: '/editar-album/:id',
       name: 'editar-album',
       component: () => import('../views/registros/EditarAlbumView.vue'),
-      props: true
+      props: true,
     },
     {
       path: '/musica',
