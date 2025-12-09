@@ -3,16 +3,16 @@ import { defineStore } from 'pinia'
 import apiClient from '@/api/axios'
 
 export const useArtistasStore = defineStore('artistas', () => {
-  // Estados globales 
+   
   const listaArtistas = ref([])
   const cargando = ref(false)
 
-    // Guardar artista en la base de datos
+    
     const guardarArtista = async (artista) => {
       cargando.value = true
       try {
         const response = await apiClient.post('/artistas', artista)
-        // Opcional: agregar el artista a la lista local si la API responde con el nuevo artista
+        
         listaArtistas.value.push(response.data)
         return response.data
       } catch (error) {
@@ -23,7 +23,7 @@ export const useArtistasStore = defineStore('artistas', () => {
       }
     }
 
-  // Obtenemos todos los artistas desde la api
+  
   const obtenerArtistas = async () => {
     cargando.value = true
     try {
@@ -36,12 +36,12 @@ export const useArtistasStore = defineStore('artistas', () => {
     }
   }
 
-  // Eliminar artista por id
+  
   const eliminarArtista = async (id) => {
     cargando.value = true
     try {
       await apiClient.delete(`/artistas/${id}`)
-      // Quitar artista de la lista local
+      
       listaArtistas.value = listaArtistas.value.filter(a => a.id !== id)
     } catch (error) {
       console.error('Error al eliminar el artista:', error)
@@ -51,12 +51,12 @@ export const useArtistasStore = defineStore('artistas', () => {
     }
   }
 
-  // Actualizar artista por id
+  
   const actualizarArtista = async (id, artista) => {
     cargando.value = true
     try {
       const response = await apiClient.put(`/artistas/${id}`, artista)
-      // Actualizar artista en la lista local
+      
       listaArtistas.value = listaArtistas.value.map(a => a.id === id ? response.data : a)
       return response.data
     } catch (error) {
