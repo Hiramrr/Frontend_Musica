@@ -21,6 +21,16 @@ const verDetalle = (id) => {
 
 const irAInicio = () => router.push('/')
 const irAAgregarAlbum = () => router.push('/agregar-album')
+
+const editarAlbum = (id) => {
+  router.push(`/editar-album/${id}`)
+}
+
+const eliminarAlbum = async (id) => {
+  if (confirm('¿Estás seguro de que quieres eliminar este álbum?')) {
+    await store.eliminarAlbum(id)
+  }
+}
 </script>
 
 <template>
@@ -55,6 +65,10 @@ const irAAgregarAlbum = () => router.push('/agregar-album')
             <p class="descripcion">{{ album.descripcion }}</p>
 
             <button @click="verDetalle(album.id)" class="boton-ver">Ver Canciones</button>
+            <div class="botones-accion">
+              <button @click="editarAlbum(album.id)" class="boton-editar">Editar</button>
+              <button @click="eliminarAlbum(album.id)" class="boton-eliminar">Eliminar</button>
+            </div>
           </div>
         </div>
       </div>
@@ -221,6 +235,47 @@ const irAAgregarAlbum = () => router.push('/agregar-album')
   background-color: var(--azul-textos);
   color: white;
 }
+
+.botones-accion {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 1rem;
+}
+
+.boton-editar,
+.boton-eliminar {
+  width: 48%;
+  padding: 0.6rem;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  transition:
+    background-color 0.2s,
+    color 0.2s;
+}
+
+.boton-editar {
+  background-color: transparent;
+  border: 1px solid #f0ad4e;
+  color: #f0ad4e;
+}
+
+.boton-editar:hover {
+  background-color: #f0ad4e;
+  color: white;
+}
+
+.boton-eliminar {
+  background-color: transparent;
+  border: 1px solid #d9534f;
+  color: #d9534f;
+}
+
+.boton-eliminar:hover {
+  background-color: #d9534f;
+  color: white;
+}
+
 
 @media (max-width: 600px) {
   .contenido-principal {
