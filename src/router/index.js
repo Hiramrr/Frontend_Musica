@@ -3,6 +3,7 @@ import HomeView from '../views/HomeView.vue'
 import LoginView from '../views/LoginView.vue'
 import CrearCuentaView from '../views/CrearCuentaView.vue'
 import PerfilView from '../views/PerfilView.vue'
+import EditarPerfilView from '../views/EditarPerfilView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -36,13 +37,13 @@ const router = createRouter({
       path: '/artistas/:id',
       name: 'detalle-artista',
       component: () => import('../views/catalogo/DetalleArtistaView.vue'),
-      props: true
+      props: true,
     },
     {
       path: '/editar-artista/:id',
       name: 'editar-artista',
       component: () => import('../views/registros/EditarArtistaView.vue'),
-      props: true
+      props: true,
     },
     {
       path: '/albumes',
@@ -83,6 +84,15 @@ const router = createRouter({
       path: '/artistas-admin',
       name: 'artistas-admin',
       component: () => import('../views/catalogo/ArtistasAdminView.vue'),
+    },
+
+    {
+      path: '/editar-perfil',
+      name: 'editar perfil',
+      component: EditarPerfilView,
+      meta: {
+        title: 'Editar perfil',
+      },
     },
   ],
 })
