@@ -5,7 +5,6 @@ import { useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/authStore'
 import HeaderComponente from '../components/HeaderComponente.vue'
 
-
 const authStore = useAuthStore()
 const router = useRouter()
 
@@ -36,7 +35,14 @@ const enviarRegistro = async () => {
     <div id="flex">
       <main>
         <h1>Crear cuenta</h1>
-        <RouterLink to=/login type="button">Regresar al login</RouterLink>
+
+        <a
+          href="#"
+          @click.prevent="cancelar()"
+          style="display: block; text-align: center; margin-bottom: 10px"
+        >
+          Regresar al login
+        </a>
 
         <fieldset class="principal">
           <form @submit.prevent="enviarRegistro">

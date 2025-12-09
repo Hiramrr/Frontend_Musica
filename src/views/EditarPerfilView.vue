@@ -46,7 +46,6 @@ function cancelar() {
         <h1>Editar Perfil</h1>
 
         <a
-          href="#"
           @click.prevent="cancelar()"
           style="display: block; text-align: center; margin-bottom: 10px"
         >
