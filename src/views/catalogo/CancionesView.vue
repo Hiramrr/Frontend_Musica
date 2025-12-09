@@ -9,7 +9,7 @@ const router = useRouter()
 const route = useRoute()
 const store = useCancionesStore()
 
-//Extrameos los datos del estado global
+// Extraemos los datos del estado global
 const { listaCanciones, cargando } = storeToRefs(store)
 
 const filtroAlbum = ref(route.query.album || '')
@@ -21,7 +21,7 @@ const cancionesFiltradas = computed(() => {
   return listaCanciones.value
 })
 
-//Convertimos los segundos a minutos:segundos
+// Convertimos los segundos a minutos:segundos
 const formatearDuracion = (segundos) => {
   if (!segundos) return '--:--'
   const min = Math.floor(segundos / 60)
@@ -33,12 +33,12 @@ onMounted(() => {
   store.obtenerCanciones()
 })
 
-const irAInicio = () => router.push('/')
-const irAAgregarCancion = () => router.push('/agregar-cancion')
+const irACancionesAdmin = () => router.push('/canciones-admin') 
+
 </script>
 
 <template>
-  <div class="contenedor-catalogo">
+  <div class="catalogo-container">
     <div id="headerArea">
       <HeaderComponente />
     </div>
@@ -46,22 +46,23 @@ const irAAgregarCancion = () => router.push('/agregar-cancion')
       <h1 class="titulo-pagina">Catálogo de Música</h1>
 
       <div class="botones-superiores">
-        <button @click="irAInicio" class="boton-nav">Inicio</button>
-        <button @click="irAAgregarCancion" class="boton-nav boton-resaltado">
-          + Nueva Canción
+        <button @click="irACancionesAdmin" class="boton-nav boton-resaltado">
+          Gestionar Canciones (CRUD)
         </button>
       </div>
 
       <div v-if="cargando" class="mensaje-carga">Cargando repertorio...</div>
 
       <div v-else-if="cancionesFiltradas.length > 0" class="cuadricula-canciones">
-        <div
-          v-for="cancion in cancionesFiltradas"
-          :key="cancion.id || cancion.nombre"
-          class="tarjeta-cancion"
-        >
+          <div
+            v-for="cancion in cancionesFiltradas"
+            :key="cancion.id"
+            class="tarjeta-cancion"
+            @click="router.push({ name: 'detalle-cancion', params: { id: cancion.id } })"
+            style="cursor: pointer"
+          >
           <div class="imagen-tarjeta">
-            <img :src="cancion.portada_url" :alt="cancion.nombre" />
+            <img :src="cancion.portada_url || 'https://placehold.co/400'" :alt="cancion.nombre" />
           </div>
 
           <div class="info-tarjeta">
@@ -69,23 +70,18 @@ const irAAgregarCancion = () => router.push('/agregar-cancion')
 
             <p class="texto-artista">
               {{ cancion.nombre_artista }}
-              <span class="texto-anio">({{ cancion.fecha_salida }})</span>
             </p>
 
             <p class="texto-album">
-              <span class="etiqueta-gris">Álbum:</span> {{ cancion.nombre_album }}
-            </p>
-
-            <p class="descripcion-cancion">
-              {{ cancion.descripcion }}
+              {{ cancion.nombre_album }} <span v-if="cancion.fecha_salida">({{ cancion.fecha_salida }})</span>
             </p>
 
             <div class="meta-inferior">
-              <span class="dato-meta"> ⏱ {{ formatearDuracion(cancion.duracion_segundos) }} </span>
-
-              <span class="dato-meta calificacion"> ★ {{ cancion.calificacion }}/5 </span>
+              <span class="dato-meta">⏱ {{ formatearDuracion(cancion.duracion_segundos) }}</span>
+              <span class="dato-meta calificacion">★ {{ cancion.calificacion }}/5</span>
             </div>
-          </div>
+            
+            </div>
         </div>
       </div>
 
@@ -95,6 +91,7 @@ const irAAgregarCancion = () => router.push('/agregar-cancion')
 </template>
 
 <style scoped>
+
 :root {
   --header-image: url('https://sadhost.neocities.org/images/layouts/wp.jpeg');
   --body-bg-image: url('https://sadhost.neocities.org/images/tiles/bk024.gif');
@@ -104,7 +101,7 @@ const irAAgregarCancion = () => router.push('/agregar-cancion')
   --text-color: #0f2d52;
 }
 
-.contenedor-catalogo {
+.catalogo-container {
   min-height: 100vh;
   background-color: var(--content-bg);
   background-image: var(--body-bg-image);
@@ -158,10 +155,11 @@ const irAAgregarCancion = () => router.push('/agregar-cancion')
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
+
 .cuadricula-canciones {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 25px;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); 
+  gap: 30px;
 }
 
 .tarjeta-cancion {
@@ -170,18 +168,18 @@ const irAAgregarCancion = () => router.push('/agregar-cancion')
   overflow: hidden;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
   border: 1px solid var(--azul-textos);
-  transition: transform 0.2s;
+  transition: transform 0.3s ease, border-color 0.3s;
   display: flex;
   flex-direction: column;
 }
 
 .tarjeta-cancion:hover {
-  transform: translateY(-3px);
+  transform: translateY(-5px);
   border-color: #345d91;
 }
 
 .imagen-tarjeta {
-  height: 180px;
+  height: 200px; 
   overflow: hidden;
   background: #e6f0fa;
   position: relative;
@@ -192,6 +190,7 @@ const irAAgregarCancion = () => router.push('/agregar-cancion')
   height: 100%;
   object-fit: cover;
   transition: transform 0.3s;
+  border-bottom: 1px solid var(--azul-textos);
 }
 
 .tarjeta-cancion:hover .imagen-tarjeta img {
@@ -199,7 +198,8 @@ const irAAgregarCancion = () => router.push('/agregar-cancion')
 }
 
 .info-tarjeta {
-  padding: 1rem;
+  padding: 1.5rem;
+  text-align: center; 
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -207,16 +207,16 @@ const irAAgregarCancion = () => router.push('/agregar-cancion')
 
 .info-tarjeta h2 {
   color: var(--azul-textos);
-  font-size: 1.1rem;
-  margin-bottom: 0.2rem;
+  font-size: 1.2rem;
+  margin-bottom: 0.5rem;
   font-weight: bold;
 }
 
 .texto-artista {
-  font-size: 0.95rem;
+  font-size: 1rem;
   color: #0f2d52;
   font-weight: 600;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.2rem;
 }
 
 .texto-album {
@@ -226,41 +226,51 @@ const irAAgregarCancion = () => router.push('/agregar-cancion')
   font-style: italic;
 }
 
-.etiqueta-gris {
-  font-weight: bold;
-  color: #5c6b7f;
-}
-
 .meta-inferior {
   margin-top: auto;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-top: 1px solid rgba(43, 125, 233, 0.2);
+  justify-content: center; 
+  gap: 15px;
   padding-top: 0.8rem;
+  border-top: 1px dashed rgba(43, 125, 233, 0.3);
 }
 
-.texto-duracion {
-  font-size: 0.85rem;
+.dato-meta {
+  font-size: 0.9rem;
   color: #0f2d52;
   font-weight: bold;
+  background: rgba(255,255,255,0.4);
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.calificacion {
+  color: #d35400;
 }
 
 .boton-ver {
+  width: 100%;
+  margin-top: 10px;
+  padding: 0.6rem;
   background-color: transparent;
   border: 1px solid var(--azul-textos);
   color: var(--azul-textos);
-  padding: 0.3rem 0.8rem;
   border-radius: 6px;
-  font-size: 0.85rem;
-  cursor: pointer;
   font-weight: bold;
-  transition: all 0.2s;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s;
 }
 
 .boton-ver:hover {
   background-color: var(--azul-textos);
   color: white;
+}
+
+.mensaje-carga, .mensaje-vacio {
+  text-align: center;
+  font-style: italic;
+  color: #666;
+  margin-top: 2rem;
 }
 
 @media (max-width: 600px) {
@@ -269,6 +279,10 @@ const irAAgregarCancion = () => router.push('/agregar-cancion')
   }
   .cuadricula-canciones {
     grid-template-columns: 1fr;
+    gap: 15px;
+  }
+  .info-tarjeta {
+    padding: 1rem;
   }
 }
 </style>

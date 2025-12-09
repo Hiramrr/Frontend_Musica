@@ -3,11 +3,11 @@ import { defineStore } from 'pinia'
 import apiClient from '@/api/axios'
 
 export const useCancionesStore = defineStore('canciones', () => {
-  //estado global
   const listaCanciones = ref([])
+  const cancionSeleccionada = ref(null) 
   const cargando = ref(false)
 
-  //Obtenemos las caciones del back, ya vienen filtrados los datos
+  // Obtener todas las canciones de la db 
   const obtenerCanciones = async () => {
     cargando.value = true
     try {
@@ -20,9 +20,25 @@ export const useCancionesStore = defineStore('canciones', () => {
     }
   }
 
+  //Obtener detalle de una canción individual para mostrar DetalleCancionView
+  const obtenerDetalleCancion = async (id) => {
+    cargando.value = true
+    cancionSeleccionada.value = null
+    try {
+      const response = await apiClient.get(`/canciones/${id}`)
+      cancionSeleccionada.value = response.data
+    } catch (error) {
+      console.error('Error al cargar el detalle de la canción:', error)
+    } finally {
+      cargando.value = false
+    }
+  }
+
   return { 
     listaCanciones, 
+    cancionSeleccionada, 
     cargando, 
-    obtenerCanciones 
+    obtenerCanciones,
+    obtenerDetalleCancion 
   }
 })
