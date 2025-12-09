@@ -1,6 +1,6 @@
 <script setup>
 import { ref } from 'vue'
-import { useAuthStore } from '@/stores/authStore' // Importamos auth
+import { useAuthStore } from '@/stores/authStore' 
 import { useRouter } from 'vue-router'
 
 const props = defineProps({
@@ -9,11 +9,14 @@ const props = defineProps({
 
 const emit = defineEmits(['agregar-review', 'eliminar-review', 'editar-review'])
 
-const authStore = useAuthStore() // Instancia del store
+const authStore = useAuthStore() 
 const router = useRouter()
 
+// Variables CREAR
 const nuevaResena = ref('')
 const calificacion = ref(5)
+
+// Variables EDITAR
 const idEditando = ref(null)
 const textoEditando = ref('')
 const calificacionEditando = ref(5) 
@@ -87,9 +90,9 @@ const irALogin = () => router.push('/login')
           </div>
           
           <div class="meta-right">
-            <span class="stars">★ {{ rev.calificacion }}/5</span>
+            <span v-if="idEditando !== rev.id" class="stars">★ {{ rev.calificacion }}/5</span>
             
-            <div v-if="rev.esMia" class="botones-dueno">
+            <div v-if="rev.esMia && idEditando !== rev.id" class="botones-dueno">
               <button @click="iniciarEdicion(rev)" class="btn-icon">✏️</button>
               <button @click="$emit('eliminar-review', rev.id)" class="btn-icon danger">🗑️</button>
             </div>
@@ -99,10 +102,17 @@ const irALogin = () => router.push('/login')
         <p v-if="idEditando !== rev.id" class="contenido">{{ rev.contenido }}</p>
 
         <div v-else class="modo-edicion">
-          <textarea v-model="textoEditando"></textarea>
-          <div class="btns-edicion">
-            <button @click="guardarEdicion(rev)" class="btn-mini primary">Guardar</button>
-            <button @click="cancelarEdicion" class="btn-mini">Cancelar</button>
+          <textarea v-model="textoEditando" class="input-editar"></textarea>
+          
+          <div class="controles-edicion">
+            <select v-model="calificacionEditando" class="select-editar">
+              <option v-for="n in 5" :key="n" :value="n">{{ n }} Estrellas</option>
+            </select>
+
+            <div class="btns-edicion">
+              <button @click="cancelarEdicion" class="btn-mini">Cancelar</button>
+              <button @click="guardarEdicion" class="btn-mini primary">Guardar</button>
+            </div>
           </div>
         </div>
 
@@ -148,12 +158,7 @@ const irALogin = () => router.push('/login')
 .botones-dueno { display: flex; gap: 5px; }
 .btn-icon { background: none; border: none; cursor: pointer; font-size: 1rem; opacity: 0.6; transition: 0.2s; }
 .btn-icon:hover { opacity: 1; transform: scale(1.1); }
-.btn-icon.danger:hover { filter: hue-rotate(140deg); } /* Truco visual simple para cambiar color */
-
-.modo-edicion textarea { width: 100%; padding: 8px; border: 1px solid var(--azul-textos); border-radius: 6px; margin-bottom: 5px; }
-.btns-edicion { display: flex; gap: 5px; }
-.btn-mini { padding: 4px 10px; font-size: 0.8rem; border-radius: 4px; border: 1px solid #ccc; background: white; cursor: pointer; }
-.btn-mini.primary { background: var(--azul-textos); color: white; border: none; }
+.btn-icon.danger:hover { filter: hue-rotate(140deg); }
 
 .contenido { color: #444; line-height: 1.5; }
 .vacio { text-align: center; color: #888; font-style: italic; margin-top: 20px; }
@@ -179,7 +184,7 @@ const irALogin = () => router.push('/login')
   border: 1px solid #ccc;
 }
 
-.btns-group {
+.btns-edicion {
   display: flex;
   gap: 10px;
 }
@@ -187,5 +192,3 @@ const irALogin = () => router.push('/login')
 .btn-mini { padding: 6px 12px; font-size: 0.85rem; border-radius: 4px; border: 1px solid #ccc; background: white; cursor: pointer; }
 .btn-mini.primary { background: var(--azul-textos); color: white; border: none; }
 </style>
-
-
