@@ -1,10 +1,10 @@
 <script setup>
 import { onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { useAlbumesStore } from '@/stores/albums'
 import { storeToRefs } from 'pinia'
-
-// Componentes utilizados
+import { useAlbumesStore } from '@/stores/albums'
+import { useResenasStore } from '@/stores/resenas' 
+// componentes utilizados
 import HeaderComponente from '../../components/HeaderComponente.vue'
 import AlbumInfo from '@/components/album/AlbumInfo.vue'
 import AlbumTracklist from '@/components/album/AlbumTracklist.vue'
@@ -12,20 +12,29 @@ import AlbumReviews from '@/components/album/AlbumReviews.vue'
 
 const route = useRoute()
 const router = useRouter()
+
 const store = useAlbumesStore()
+const resenasStore = useResenasStore() // Instanciamos
 
-// Obtenemos estado global
-const { albumSeleccionado, cancionesAlbum, reseñasAlbum, cargando } = storeToRefs(store)
+// Estados globales
+const { albumSeleccionado, cancionesAlbum, cargando } = storeToRefs(store)
+const { listaResenas } = storeToRefs(resenasStore)
 
-// Al montar, pedimos los datos al backend
+// Cargamos en paralelo los albums y las reseñas
 onMounted(async () => {
   const id = route.params.id
-  await store.obtenerDetalleAlbum(id)
+  await Promise.all([
+    store.obtenerDetalleAlbum(id),
+    resenasStore.obtenerResenasAlbum(id)
+  ])
 })
 
-// Manejo de la acción de agregar reseña
-const manejarNuevaResena = (datos) => {
-  store.guardarResena(route.params.id, datos)
+const manejarNuevaResena = async (datos) => {
+  await resenasStore.crearResenaAlbum(route.params.id, datos)
+}
+
+const manejarEliminarResena = async (idResena) => {
+  await resenasStore.eliminarResena(idResena)
 }
 
 const irAtras = () => router.go(-1)
@@ -33,43 +42,59 @@ const irAtras = () => router.go(-1)
 
 <template>
   <div class="detalle-container">
-    <HeaderComponente />
+    <div class="centered-content">
+      <div id="headerArea"> <HeaderComponente /> </div>
 
-    <main class="contenido">
-      <button @click="irAtras" class="btn-regresar">← Volver al catálogo</button>
+      <main class="contenido-principal">
+        <button @click="irAtras" class="btn-regresar">← Volver al catálogo</button>
 
-      <div v-if="cargando" class="loading">Cargando información...</div>
+        <div v-if="cargando" class="loading">Cargando información...</div>
 
-      <div v-else-if="albumSeleccionado" class="pila-vertical">
-        
-        <AlbumInfo :album="albumSeleccionado" />
+        <div v-else-if="albumSeleccionado" class="pila-vertical">
+          <AlbumInfo :album="albumSeleccionado" />
 
-        <div class="seccion-central">
-          <AlbumTracklist :canciones="cancionesAlbum" />
+          <div class="seccion-central">
+            <AlbumTracklist :canciones="cancionesAlbum" />
+          </div>
+
+          <AlbumReviews 
+            :reviews="listaResenas" 
+            @agregar-review="manejarNuevaResena"
+            @eliminar-review="manejarEliminarResena"
+          />
         </div>
-
-        <AlbumReviews 
-          :reviews="reseñasAlbum" 
-          @agregar-review="manejarNuevaResena" 
-        />
         
-      </div>
-      
-      <div v-else class="error">No se encontró el álbum.</div>
-    </main>
+        <div v-else class="error">No se encontró el álbum.</div>
+      </main>
+    </div>
   </div>
 </template>
 
 <style scoped>
-.detalle-container { 
-  min-height: 100vh; 
-  background-color: var(--content-bg); 
-  font-family: 'Nunito', sans-serif; 
+:root {
+  --azul-textos: #2b7de9;
+  --gris-azul: #c2d6ea;
+  --text-color: #0f2d52;
 }
 
-.contenido { 
-  max-width: 900px; 
-  margin: 0 auto; 
+.detalle-container { 
+  min-height: 100vh; 
+  background-color: #e6f0fa;
+  background-image: url('https://sadhost.neocities.org/images/tiles/bk024.gif');
+  font-family: 'Nunito', sans-serif; 
+  padding-bottom: 2rem; 
+}
+
+.centered-content {
+  max-width: 900px;
+  margin: 0 auto;
+  background: rgba(255,255,255,0.7); /* Fondo semitransparente */
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(43,125,233,0.07);
+  padding: 0 0 30px 0;
+}
+
+.contenido-principal { 
   padding: 20px; 
 }
 
@@ -82,7 +107,6 @@ const irAtras = () => router.go(-1)
   margin-bottom: 1rem; 
   font-weight: bold; 
 }
-
 
 .pila-vertical {
   display: flex;
