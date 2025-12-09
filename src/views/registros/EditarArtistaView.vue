@@ -37,18 +37,6 @@ const irAInicio = () => {
   router.push('/')
 }
 
-const seleccionarImagen = () => {
-  referenciaInput.value.click()
-}
-
-const alCambiarArchivo = (evento) => {
-  const archivo = evento.target.files[0]
-  if (archivo) {
-    archivoImagen.value = archivo
-    previsualizacionImagen.value = URL.createObjectURL(archivo)
-  }
-}
-
 const limpiarFormulario = () => {
   formulario.value = {
     nombre: '',
