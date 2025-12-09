@@ -9,35 +9,28 @@ import HeaderComponente from '../../components/HeaderComponente.vue'
 const route = useRoute()
 const router = useRouter()
 
-// Stores
 const artistasStore = useArtistasStore()
 const albumesStore = useAlbumesStore()
 const cancionesStore = useCancionesStore()
 
-// ID del artista desde la URL
 const artistaId = route.params.id
 
 onMounted(async () => {
-  // Asegurarnos de tener la data cargada
   if (artistasStore.listaArtistas.length === 0) await artistasStore.obtenerArtistas()
   if (albumesStore.listaAlbumes.length === 0) await albumesStore.obtenerAlbumes()
   if (cancionesStore.listaCanciones.length === 0) await cancionesStore.obtenerCanciones()
 })
 
-// 1. Encontrar la información del artista
 const artista = computed(() => {
   return artistasStore.listaArtistas.find(a => a.id == artistaId) || {}
 })
 
-// 2. Filtrar álbumes de este artista
-// Nota: Ajusta 'artista_id' o 'nombreArtista' según cómo te lo devuelva tu backend exactamente
 const albumesArtista = computed(() => {
   return albumesStore.listaAlbumes.filter(album => 
     album.artista_id == artistaId || album.nombreArtista === artista.value.nombre
   )
 })
 
-// 3. Filtrar canciones de este artista
 const cancionesArtista = computed(() => {
   return cancionesStore.listaCanciones.filter(cancion => 
     cancion.nombre_artista === artista.value.nombre
@@ -46,7 +39,6 @@ const cancionesArtista = computed(() => {
 
 const irAtras = () => router.go(-1)
 
-// Helper para duración
 const formatearDuracion = (segundos) => {
   if (!segundos) return '--:--'
   const min = Math.floor(segundos / 60)
@@ -57,60 +49,60 @@ const formatearDuracion = (segundos) => {
 
 <template>
   <div class="detalle-container">
-    <div id="headerArea">
-      <HeaderComponente />
-    </div>
-
-    <main class="contenido-principal" v-if="artista.nombre">
-      
-      <div class="hero-artista">
-        <button class="boton-regresar" @click="irAtras">← Regresar</button>
-        <div class="perfil-layout">
-          <div class="imagen-hero">
-            <img :src="artista.foto_url" :alt="artista.nombre" />
-          </div>
-          <div class="info-hero">
-            <h1 class="nombre-artista">{{ artista.nombre }}</h1>
-            <p class="datos-meta">
-              <span v-if="artista.fecha_inicio">Desde {{ artista.fecha_inicio }}</span>
-              <span v-if="artista.nacimiento"> • Nacimiento: {{ artista.nacimiento }}</span>
-            </p>
-            <p class="bio">{{ artista.bibliografia }}</p>
-          </div>
-        </div>
+    <div class="centered-content">
+      <div id="headerArea">
+        <HeaderComponente />
       </div>
 
-      <section class="seccion-detalle">
-        <h2 class="subtitulo">Discografía</h2>
-        <div v-if="albumesArtista.length > 0" class="scroll-horizontal">
-          <div v-for="album in albumesArtista" :key="album.id" class="mini-card-album">
-            <img :src="album.portadaUrl" :alt="album.nombre" />
-            <p class="titulo-album">{{ album.nombre }}</p>
-            <span class="anio-album">{{ album.anio_salida }}</span>
-          </div>
-        </div>
-        <p v-else class="vacio">No hay álbumes registrados.</p>
-      </section>
-
-      <section class="seccion-detalle">
-        <h2 class="subtitulo">Canciones Populares</h2>
-        <div v-if="cancionesArtista.length > 0" class="lista-canciones">
-          <div v-for="(cancion, index) in cancionesArtista" :key="cancion.id" class="fila-cancion">
-            <span class="numero">{{ index + 1 }}</span>
-            <div class="info-cancion">
-              <p class="nombre-cancion">{{ cancion.nombre }}</p>
-              <p class="album-cancion">{{ cancion.nombre_album }}</p>
+      <main class="contenido-principal" v-if="artista.nombre">
+        <div class="hero-artista">
+          <button class="boton-regresar" @click="irAtras">← Regresar</button>
+          <div class="perfil-layout">
+            <div class="imagen-hero">
+              <img :src="artista.foto_url" :alt="artista.nombre" />
             </div>
-            <span class="duracion">{{ formatearDuracion(cancion.duracion_segundos) }}</span>
+            <div class="info-hero">
+              <h1 class="nombre-artista">{{ artista.nombre }}</h1>
+              <p class="datos-meta">
+                <span v-if="artista.fecha_inicio">Desde {{ artista.fecha_inicio }}</span>
+                <span v-if="artista.nacimiento"> • Nacimiento: {{ artista.nacimiento }}</span>
+              </p>
+              <p class="bio">{{ artista.bibliografia }}</p>
+            </div>
           </div>
         </div>
-        <p v-else class="vacio">No hay canciones registradas.</p>
-      </section>
 
-    </main>
+        <section class="seccion-detalle">
+          <h2 class="subtitulo">Discografía</h2>
+          <div v-if="albumesArtista.length > 0" class="scroll-horizontal">
+            <div v-for="album in albumesArtista" :key="album.id" class="mini-card-album">
+              <img :src="album.portadaUrl" :alt="album.nombre" />
+              <p class="titulo-album">{{ album.nombre }}</p>
+              <span class="anio-album">{{ album.anio_salida }}</span>
+            </div>
+          </div>
+          <p v-else class="vacio">No hay álbumes registrados.</p>
+        </section>
 
-    <div v-else class="cargando">
-      <p>Cargando información del artista...</p>
+        <section class="seccion-detalle">
+          <h2 class="subtitulo">Canciones Populares</h2>
+          <div v-if="cancionesArtista.length > 0" class="lista-canciones">
+            <div v-for="(cancion, index) in cancionesArtista" :key="cancion.id" class="fila-cancion">
+              <span class="numero">{{ index + 1 }}</span>
+              <div class="info-cancion">
+                <p class="nombre-cancion">{{ cancion.nombre }}</p>
+                <p class="album-cancion">{{ cancion.nombre_album }}</p>
+              </div>
+              <span class="duracion">{{ formatearDuracion(cancion.duracion_segundos) }}</span>
+            </div>
+          </div>
+          <p v-else class="vacio">No hay canciones registradas.</p>
+        </section>
+      </main>
+
+      <div v-else class="cargando">
+        <p>Cargando información del artista...</p>
+      </div>
     </div>
   </div>
 </template>
@@ -149,11 +141,19 @@ const formatearDuracion = (segundos) => {
   background: none;
   border: none;
   color: var(--azul-textos);
-  font-weight: bold;
-  cursor: pointer;
-  margin-bottom: 10px;
+}
+.centered-content {
+  max-width: 900px;
+  margin: 0 auto;
+  background: rgba(255,255,255,0.7);
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(43,125,233,0.07);
+  padding: 0 0 30px 0;
 }
 
+.contenido-principal {
+  padding: 20px;
+}
 .perfil-layout {
   display: flex;
   gap: 20px;

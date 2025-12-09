@@ -31,6 +31,10 @@ const eliminarArtista = async (id) => {
 const editarArtista = (id) => {
   router.push(`/editar-artista/${id}`)
 }
+
+const verDetalles = (id) => {
+  router.push({ name: 'detalle-artista', params: { id } })
+}
 </script>
 
 <template>
@@ -59,7 +63,7 @@ const editarArtista = (id) => {
 
             <p class="bio">{{ artista.bibliografia }}</p>
 
-            <button class="boton-ver">Ver Detalles</button>
+            <button class="boton-ver" @click="verDetalles(artista.id)">Ver Detalles</button>
             
             <div class="acciones-tarjeta">
               <button class="boton-editar" @click="editarArtista(artista.id)">Editar</button>
