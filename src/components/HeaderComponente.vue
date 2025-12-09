@@ -89,7 +89,6 @@ const store = useAuthStore()
   display: flex;
   align-items: center;
   gap: 8px;
-  text-decoration: none;
 }
 
 .nav-avatar {
