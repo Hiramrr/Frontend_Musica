@@ -69,7 +69,7 @@ export const useAuthStore = defineStore('auth', {
 
     async eliminarUsuario(id) {
       try {
-        await apiClient.delete(`/usuarios/${id}`)
+        await apiClient.delete(`/usuarios/eliminar/${id}`)
 
         this.logout()
 
