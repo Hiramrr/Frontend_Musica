@@ -1,21 +1,59 @@
 <script setup>
-import { ref } from 'vue'
-import { RouterLink, useRouter } from 'vue-router'
+import { onMounted, computed, watch } from 'vue'
+import { useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/authStore'
+import { useUsuariosStore } from '../stores/usuarios'
 import HeaderComponente from '../components/HeaderComponente.vue'
 
-const store = useAuthStore()
+const props = defineProps({
+  id: {
+    type: String,
+    default: null
+  }
+})
 
 const router = useRouter()
+const authStore = useAuthStore()
+const usuariosStore = useUsuariosStore()
+
+const esMiPerfil = computed(() => {
+  return !props.id || (authStore.usuario && props.id === authStore.usuario.id)
+})
+
+
+const usuarioVisualizado = computed(() => {
+  if (esMiPerfil.value) {
+    return authStore.usuario || {}
+  } else {
+    return usuariosStore.usuarioSeleccionado || {}
+  }
+})
+
+const cargarDatos = async () => {
+  if (esMiPerfil.value) {
+    return;
+  } else {
+    await usuariosStore.obtenerUsuarioPorId(props.id)
+  }
+}
+
+onMounted(() => {
+  cargarDatos()
+})
+
+watch(() => props.id, () => {
+  cargarDatos()
+})
 
 function cerrarSesion(){
   router.push("/");
-  store.logout();
+  authStore.logout();
 }
 
 function goToEditar(){
   router.push("/editar-perfil");
 }
+
 </script>
 
 <template>
@@ -26,18 +64,18 @@ function goToEditar(){
 
     <div id="flex">
       <main>
-        <h1>Perfil de {{ store.usuario.nombre }}</h1>
+        <h1>Perfil de {{ usuarioVisualizado.nombre }}</h1>
         <div class="contenido-perfil-layout">
           <div class="sidebar">
             <div class="foto-perfil-contenedor">
-              <img :src="store.usuario?.fotoUrl || 'https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y'" class="foto-perfil"></img>
+              <img :src="usuarioVisualizado?.fotoUrl || 'https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y'" class="foto-perfil"></img>
             </div>
           </div>
 
           <div class="informacion-usuario">
             <ul class="lista">
-              <li><strong>Correo:</strong> {{store.usuario?.correo || 'No tiene' }}</li>
-              <li><strong>Nombre:</strong> {{store.usuario?.nombre || 'No tiene' }}</li>
+              <li><strong>Correo:</strong> {{usuarioVisualizado?.correo || 'No tiene' }}</li>
+              <li><strong>Nombre:</strong> {{usuarioVisualizado?.nombre || 'No tiene' }}</li>
             </ul>
           </div>
         </div>
@@ -84,7 +122,7 @@ function goToEditar(){
               </div>
             </div>
         </div>
-        <div class="boton-container">
+        <div class="boton-container" v-if="esMiPerfil">
           <button @click="goToEditar()" class="editar-datos">Editar datos</button>
           <button @click="cerrarSesion()" class="cerrar-sesion">Cerrar Sesión</button>
         </div>

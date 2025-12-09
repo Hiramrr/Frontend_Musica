@@ -4,7 +4,8 @@ import LoginView from '../views/LoginView.vue'
 import CrearCuentaView from '../views/CrearCuentaView.vue'
 import PerfilView from '../views/PerfilView.vue'
 import EditarPerfilView from '../views/EditarPerfilView.vue'
-import AlbumDetalleView from '../views/catalogo/AlbumDetalleView.vue' 
+import AlbumDetalleView from '../views/catalogo/AlbumDetalleView.vue'
+import ConsultaUsuariosView from '../views/ConsultaUsuariosView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -95,10 +96,24 @@ const router = createRouter({
       },
     },
     {
-      path: '/album/:id', 
+      path: '/album/:id',
       name: 'album-detalle',
       component: () => import('../views/catalogo/AlbumDetalleView.vue'),
-      props: true 
+      props: true,
+    },
+    {
+      path: '/comunidad',
+      name: 'Comunidad',
+      component: ConsultaUsuariosView,
+      meta: {
+        title: 'Comunidad',
+      },
+    },
+    {
+      path: '/usuario/:id',
+      name: 'usuario-detalle',
+      component: PerfilView,
+      props: true,
     },
   ],
 })

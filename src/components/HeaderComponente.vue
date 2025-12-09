@@ -11,6 +11,7 @@ const store = useAuthStore()
       <li><RouterLink to="/artistas">Artistas</RouterLink></li>
       <li><RouterLink to="/albumes">Albumes</RouterLink></li>
       <li><RouterLink to="/musica">Musica</RouterLink></li>
+      <li><RouterLink to="/comunidad">Comunidad</RouterLink></li>
       <li>
         <RouterLink to="/perfil">Hola, {{ store.usuario.nombre }}</RouterLink>
       </li>
@@ -23,6 +24,7 @@ const store = useAuthStore()
       <li><RouterLink to="/artistas">Artistas</RouterLink></li>
       <li><RouterLink to="/albumes">Albumes</RouterLink></li>
       <li><RouterLink to="/musica">Musica</RouterLink></li>
+      <li><RouterLink to="/comunidad">Comunidad</RouterLink></li>
       <li>
         <RouterLink to="/login">Iniciar Sesion</RouterLink>
       </li>
