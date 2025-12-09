@@ -5,7 +5,6 @@ import apiClient from '@/api/axios'
 export const useAlbumesStore = defineStore('albumes', () => {
   const listaAlbumes = ref([])
   const cargando = ref(false)
-
   const obtenerAlbumes = async () => {
     cargando.value = true
     try {
@@ -18,13 +17,11 @@ export const useAlbumesStore = defineStore('albumes', () => {
     }
   }
 
-  // --- NUEVA FUNCIÓN ---
   const guardarAlbum = async (album) => {
     cargando.value = true
     try {
-      // Enviamos el objeto al backend
+
       const response = await apiClient.post('/albums', album)
-      // Agregamos el nuevo álbum a la lista local para no recargar
       listaAlbumes.value.push(response.data)
       return response.data
     } catch (error) {
@@ -39,6 +36,6 @@ export const useAlbumesStore = defineStore('albumes', () => {
     listaAlbumes, 
     cargando, 
     obtenerAlbumes,
-    guardarAlbum // Exportamos la función
+    guardarAlbum
   }
 })

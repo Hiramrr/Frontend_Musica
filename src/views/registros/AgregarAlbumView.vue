@@ -2,7 +2,7 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAlbumesStore } from '@/stores/albums'
-import { useArtistasStore } from '@/stores/artistas' // Necesitamos los artistas reales
+import { useArtistasStore } from '@/stores/artistas'
 
 const router = useRouter()
 const albumesStore = useAlbumesStore()
@@ -14,18 +14,17 @@ onMounted(() => {
 })
 
 const formulario = ref({
-  nombre: '',          // Antes 'titulo'
-  artista_id: '',      // Temporal, luego lo transformamos
-  fechaSalida: '',     // Antes 'anio_salida'
-  duracionTexto: '',   // Nuevo campo temporal para el input (ej: 45:30)
-  totalCanciones: '',  // Antes 'total_canciones'
+  nombre: '',          
+  artista_id: '',      
+  fechaSalida: '',     
+  duracionTexto: '',   
+  totalCanciones: '',  
   descripcion: '',
-  portadaUrl: ''       // Antes 'portada_url'
+  portadaUrl: ''     
 })
 
 const irAInicio = () => router.push('/')
 
-// Función auxiliar para convertir "MM:SS" o minutos simples a segundos totales
 const convertirDuracionASegundos = (tiempo) => {
   if (!tiempo) return 0
   if (tiempo.includes(':')) {
@@ -34,7 +33,6 @@ const convertirDuracionASegundos = (tiempo) => {
     const segundos = parseInt(partes[1]) || 0
     return (minutos * 60) + segundos
   }
-  // Si solo pone un número, asumimos minutos
   return parseInt(tiempo) * 60
 }
 
@@ -51,7 +49,6 @@ const limpiarFormulario = () => {
 }
 
 const guardarAlbum = async () => {
-  // 1. Preparamos el objeto tal como lo espera Java
   const payload = {
     nombre: formulario.value.nombre,
     fechaSalida: parseInt(formulario.value.fechaSalida),
@@ -59,10 +56,8 @@ const guardarAlbum = async () => {
     descripcion: formulario.value.descripcion,
     portadaUrl: formulario.value.portadaUrl,
     
-    // AQUI transformamos el texto a segundos para el backend (int duracion_segundos)
     duracion_segundos: convertirDuracionASegundos(formulario.value.duracionTexto),
     
-    // AQUI transformamos el ID simple a una lista de objetos Artista
     artistas: [
       { id: formulario.value.artista_id }
     ]
@@ -71,7 +66,7 @@ const guardarAlbum = async () => {
   try {
     await albumesStore.guardarAlbum(payload)
     alert("Álbum registrado correctamente")
-    router.push('/albumes') // Redirigir al catálogo de álbumes
+    router.push('/albumes')
   } catch (error) {
     alert("Hubo un error al registrar el álbum")
   }
