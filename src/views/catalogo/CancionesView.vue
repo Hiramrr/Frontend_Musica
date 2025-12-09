@@ -9,6 +9,7 @@ const router = useRouter()
 const route = useRoute()
 const store = useCancionesStore()
 
+// Extraemos los datos del estado global
 const { listaCanciones, cargando } = storeToRefs(store)
 const filtroAlbum = ref(route.query.album || '')
 
@@ -30,9 +31,12 @@ onMounted(() => {
   store.obtenerCanciones()
 })
 
-const irAInicio = () => router.push('/')
-// Cambiamos la función de navegación
 const irAAdmin = () => router.push('/musica-admin')
+
+// Función para navegar al detalle
+const verDetalles = (id) => {
+  router.push({ name: 'detalle-cancion', params: { id } })
+}
 </script>
 
 <template>
@@ -52,32 +56,32 @@ const irAAdmin = () => router.push('/musica-admin')
       <div v-if="cargando" class="mensaje-carga">Cargando repertorio...</div>
 
       <div v-else-if="cancionesFiltradas.length > 0" class="cuadricula-canciones">
-          <div
-            v-for="cancion in cancionesFiltradas"
-            :key="cancion.id"
-            class="tarjeta-cancion"
-            @click="router.push({ name: 'detalle-cancion', params: { id: cancion.id } })"
-            style="cursor: pointer"
-          >
+        <div
+          v-for="cancion in cancionesFiltradas"
+          :key="cancion.id"
+          class="tarjeta-cancion"
+          @click="verDetalles(cancion.id)"
+        >
           <div class="imagen-tarjeta">
             <img :src="cancion.portada_url || 'https://placehold.co/400'" :alt="cancion.nombre" />
           </div>
 
           <div class="info-tarjeta">
             <h2>{{ cancion.nombre }}</h2>
+            
             <p class="texto-artista">
               {{ cancion.nombre_artista }}
             </p>
+            
             <p class="texto-album">
               <span class="etiqueta-gris">Álbum:</span> {{ cancion.nombre_album }}
             </p>
-            <p class="descripcion-cancion">{{ cancion.descripcion }}</p>
-
+            
             <div class="meta-inferior">
               <span class="dato-meta"> ⏱ {{ formatearDuracion(cancion.duracion_segundos) }} </span>
               <span class="dato-meta calificacion"> ★ {{ cancion.calificacion }}/5 </span>
             </div>
-            </div>
+          </div>
         </div>
       </div>
 
@@ -87,9 +91,6 @@ const irAAdmin = () => router.push('/musica-admin')
 </template>
 
 <style scoped>
-/* (Mantén los mismos estilos que tenías originalmente en este archivo) */
-/* Copia y pega los estilos de tu archivo original CancionesView.vue aquí */
-/* O simplemente borra la parte de .boton-eliminar si quieres limpiar el css, pero no es obligatorio */
 :root {
   --header-image: url('https://sadhost.neocities.org/images/layouts/wp.jpeg');
   --body-bg-image: url('https://sadhost.neocities.org/images/tiles/bk024.gif');

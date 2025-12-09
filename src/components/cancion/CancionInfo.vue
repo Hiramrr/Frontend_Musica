@@ -1,9 +1,21 @@
 <script setup>
-defineProps({
+import { computed } from 'vue'
+
+const props = defineProps({
   cancion: {
     type: Object,
     required: true
   }
+})
+
+// Lógica para extraer los nombres de los artistas del array
+const nombresArtistas = computed(() => {
+  // Verificamos si existe el array y tiene elementos
+  if (props.cancion.artistas && props.cancion.artistas.length > 0) {
+    return props.cancion.artistas.map(a => a.nombre).join(', ')
+  }
+  // Fallback por si el backend cambia o viene vacío
+  return props.cancion.nombre_artista || 'Artista Desconocido'
 })
 
 const formatearDuracion = (segundos) => {
@@ -22,10 +34,12 @@ const formatearDuracion = (segundos) => {
     
     <div class="info-container">
       <h1>{{ cancion.nombre }}</h1>
-      <h2 class="artista">{{ cancion.nombre_artista }}</h2>
+      
+      <h2 class="artista">{{ nombresArtistas }}</h2>
       
       <div class="meta">
         <span class="pill" v-if="cancion.nombre_album">{{ cancion.nombre_album }}</span>
+        
         <span class="pill" v-if="cancion.fecha_salida">{{ cancion.fecha_salida }}</span>
         <span class="duracion">⏱ {{ formatearDuracion(cancion.duracion_segundos) }}</span>
       </div>

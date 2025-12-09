@@ -121,6 +121,12 @@ const router = createRouter({
       component: PerfilView,
       props: true,
     },
+{
+      path: '/cancion/:id',
+      name: 'detalle-cancion',
+      component: () => import('../views/catalogo/CancionDetalleView.vue'),
+      props: true
+    },
     {
       path: '/editar-cancion/:id',
       name: 'editar-cancion',

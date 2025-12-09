@@ -108,12 +108,65 @@ const crearResenaAlbum = async (albumId, { texto, puntos }) => {
     }
   }
 
+  const obtenerResenasCancion = async (cancionId) => {
+    cargando.value = true
+    try {
+      const params = {}
+      if (authStore.usuario?.id) {
+        params.usuarioId = authStore.usuario.id
+      }
+      const response = await apiClient.get(`/resenas/cancion/${cancionId}`, { params })
+      listaResenas.value = response.data
+    } catch (error) {
+      console.error('Error al obtener reseñas de la canción:', error)
+      listaResenas.value = []
+    } finally {
+      cargando.value = false
+    }
+  }
+
+  const crearResenaCancion = async (cancionId, { texto, puntos }) => {
+    if (!authStore.usuario?.id) {
+      alert("Debes iniciar sesión")
+      return false
+    }
+
+    try {
+      const payload = {
+        contenido: texto,
+        calificacion: puntos,
+        cancion: { id: cancionId },
+        usuario: { id: authStore.usuario.id }
+      }
+
+      const response = await apiClient.post('/resenas', payload)
+      
+      const nuevaResena = { 
+        ...response.data, 
+        esMia: true, 
+        autor: {
+          id: authStore.usuario.id,
+          nombre: authStore.usuario.nombre, 
+          fotoUrl: authStore.usuario.fotoUrl || 'https://placehold.co/40'
+        }
+      }
+      
+      listaResenas.value.unshift(nuevaResena)
+      return true
+    } catch (error) {
+      console.error('Error al publicar reseña:', error)
+      return false
+    }
+  }
+
   return {
     listaResenas,
     cargando,
     obtenerResenasAlbum,
     crearResenaAlbum,
     eliminarResena,
-    editarResena
+    editarResena, 
+    obtenerResenasCancion, 
+    crearResenaCancion
   }
 })
