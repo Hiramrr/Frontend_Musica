@@ -121,6 +121,17 @@ const router = createRouter({
       component: PerfilView,
       props: true,
     },
+    {
+      path: '/editar-cancion/:id',
+      name: 'editar-cancion',
+      component: () => import('../views/registros/EditarCancionView.vue'),
+      props: true,
+    },
+    {
+      path: '/musica-admin',
+      name: 'musica-admin',
+      component: () => import('../views/catalogo/CancionesAdminView.vue'),
+    },
   ],
 })
 

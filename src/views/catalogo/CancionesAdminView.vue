@@ -31,8 +31,18 @@ onMounted(() => {
 })
 
 const irAInicio = () => router.push('/')
-// Cambiamos la función de navegación
-const irAAdmin = () => router.push('/musica-admin')
+const irAAgregarCancion = () => router.push('/agregar-cancion')
+
+// Funciones CRUD
+const editarCancion = (id) => {
+  router.push(`/editar-cancion/${id}`)
+}
+
+const borrarCancion = async (id) => {
+  if (confirm("¿Estás seguro de eliminar esta canción?")) {
+    await store.eliminarCancion(id)
+  }
+}
 </script>
 
 <template>
@@ -41,11 +51,11 @@ const irAAdmin = () => router.push('/musica-admin')
       <HeaderComponente />
     </div>
     <main class="contenido-principal">
-      <h1 class="titulo-pagina">Catálogo de Música</h1>
+      <h1 class="titulo-pagina">Gestión de Canciones (CRUD)</h1>
 
       <div class="botones-superiores">
-        <button @click="irAAdmin" class="boton-nav boton-resaltado">
-          Gestionar Canciones (CRUD)
+        <button @click="irAAgregarCancion" class="boton-nav boton-resaltado">
+          + Nueva Canción
         </button>
       </div>
 
@@ -76,7 +86,13 @@ const irAAdmin = () => router.push('/musica-admin')
               <span class="dato-meta"> ⏱ {{ formatearDuracion(cancion.duracion_segundos) }} </span>
               <span class="dato-meta calificacion"> ★ {{ cancion.calificacion }}/5 </span>
             </div>
+
+            <div class="acciones-tarjeta" style="margin-top: 15px; display: flex; gap: 10px;">
+                <button @click="editarCancion(cancion.id)" class="boton-ver">Editar</button>
+                <button @click="borrarCancion(cancion.id)" class="boton-eliminar">Eliminar</button>
             </div>
+
+          </div>
         </div>
       </div>
 
@@ -86,9 +102,8 @@ const irAAdmin = () => router.push('/musica-admin')
 </template>
 
 <style scoped>
-/* (Mantén los mismos estilos que tenías originalmente en este archivo) */
-/* Copia y pega los estilos de tu archivo original CancionesView.vue aquí */
-/* O simplemente borra la parte de .boton-eliminar si quieres limpiar el css, pero no es obligatorio */
+@import '../../assets/base.css';
+
 :root {
   --header-image: url('https://sadhost.neocities.org/images/layouts/wp.jpeg');
   --body-bg-image: url('https://sadhost.neocities.org/images/tiles/bk024.gif');
@@ -234,10 +249,37 @@ const irAAdmin = () => router.push('/musica-admin')
   padding-top: 0.8rem;
 }
 
-.texto-duracion {
+.boton-ver {
+  background-color: transparent;
+  border: 1px solid var(--azul-textos);
+  color: var(--azul-textos);
+  padding: 0.3rem 0.8rem;
+  border-radius: 6px;
   font-size: 0.85rem;
-  color: #0f2d52;
+  cursor: pointer;
   font-weight: bold;
+  transition: all 0.2s;
+}
+
+.boton-ver:hover {
+  background-color: var(--azul-textos);
+  color: white;
+}
+
+.boton-eliminar {
+  background-color: transparent;
+  border: 1px solid #d9534f;
+  color: #d9534f;
+  padding: 0.3rem 0.8rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  font-weight: bold;
+  transition: all 0.2s;
+}
+.boton-eliminar:hover {
+  background-color: #d9534f;
+  color: white;
 }
 
 @media (max-width: 600px) {

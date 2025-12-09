@@ -1,211 +1,150 @@
 <script setup>
 import { ref, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { useCancionesStore } from '@/stores/canciones'
 import { useAlbumesStore } from '@/stores/albums'
 
 const router = useRouter()
+const route = useRoute()
 const cancionesStore = useCancionesStore()
 const albumesStore = useAlbumesStore()
 
-// Lista reactiva para los álbumes del selector
+// Obtenemos la lista de álbumes para el select
 const listaAlbumes = ref([])
 
 const formulario = ref({
+  id: null,
   nombre: '',
-  album_id: '', // Aquí guardaremos el ID seleccionado o null
-  anio_salida: '',
-  duracion: '',
-  artista_colaborador: '',
+  album_id: '',
+  fecha_salida: '', // En tu backend es int (año)
+  duracionTexto: '', // Para convertir a segundos
   descripcion: '',
   portada_url: ''
 })
 
-// Cargar álbumes reales al iniciar
-onMounted(async () => {
-  await albumesStore.obtenerAlbumes()
-  
-  // Combinamos la opción "Single" con los álbumes traídos de la BD
-  listaAlbumes.value = [
-    { id: null, nombre: '-- Es un Single (Sin álbum) --' },
-    ...albumesStore.listaAlbumes
-  ]
-})
+// Función auxiliar: Segundos -> MM:SS
+const segundosAFormato = (seg) => {
+  if (!seg) return ''
+  const min = Math.floor(seg / 60)
+  const s = seg % 60
+  return `${min}:${s.toString().padStart(2, '0')}`
+}
 
-const irAInicio = () => router.push('/musica')
-
-// Función auxiliar para convertir "MM:SS" a segundos (int)
-const duracionASegundos = (tiempo) => {
-  if (!tiempo) return 0
-  const partes = tiempo.split(':')
-  if (partes.length !== 2) return 0
+// Función auxiliar: MM:SS -> Segundos
+const formatoASegundos = (texto) => {
+  if (!texto) return 0
+  const partes = texto.split(':')
   const min = parseInt(partes[0]) || 0
   const seg = parseInt(partes[1]) || 0
   return (min * 60) + seg
 }
 
-const limpiarFormulario = () => {
-  formulario.value = { 
-    nombre: '', 
-    album_id: '', 
-    anio_salida: '',
-    duracion: '', 
-    artista_colaborador: '', 
-    descripcion: '',
-    portada_url: ''
-  }
-}
+onMounted(async () => {
+  // 1. Cargar lista de álbumes para el dropdown
+  await albumesStore.obtenerAlbumes()
+  listaAlbumes.value = albumesStore.listaAlbumes
 
-const guardarCancion = async () => {
-  // Validación simple
-  if (!formulario.value.nombre || !formulario.value.duracion) {
-    alert("El nombre y la duración son obligatorios")
-    return
-  }
+  // 2. Cargar datos de la canción
+  const idCancion = route.params.id
+  const cancion = await cancionesStore.obtenerCancionPorId(idCancion)
 
-  // Preparamos el objeto JSON tal como lo espera el Backend (Entity Cancion)
-  const nuevaCancion = {
+  if (cancion) {
+    formulario.value = {
+      id: cancion.id,
+      nombre: cancion.nombre,
+      // El backend devuelve el objeto 'album', necesitamos su ID
+      album_id: cancion.album ? cancion.album.id : '', 
+      fecha_salida: cancion.fecha_salida,
+      duracionTexto: segundosAFormato(cancion.duracion_segundos),
+      descripcion: cancion.descripcion,
+      portada_url: cancion.portada_url
+    }
+  }
+})
+
+const guardarCambios = async () => {
+  // Preparamos el objeto tal como lo espera el backend (Entity Cancion)
+  const payload = {
     nombre: formulario.value.nombre,
-    fecha_salida: parseInt(formulario.value.anio_salida) || 0,
-    duracion_segundos: duracionASegundos(formulario.value.duracion),
+    fecha_salida: parseInt(formulario.value.fecha_salida),
+    duracion_segundos: formatoASegundos(formulario.value.duracionTexto),
     descripcion: formulario.value.descripcion,
     portada_url: formulario.value.portada_url,
-    
-    // Relación con Álbum: El backend espera un objeto { id: ... } o null
-    album: formulario.value.album_id ? { id: formulario.value.album_id } : null
+    // Relación con álbum: backend espera objeto { id: ... }
+    album: { id: formulario.value.album_id } 
   }
 
   try {
-    // Enviamos al store (que llama a la API)
-    await cancionesStore.guardarCancion(nuevaCancion)
-    alert("Canción registrada correctamente")
-    router.push('/musica') // Regresamos al catálogo
-  } catch (error) {
-    console.error(error)
-    alert("Hubo un error al registrar la canción")
+    await cancionesStore.actualizarCancion(formulario.value.id, payload)
+    alert('Canción actualizada correctamente')
+    router.push('/musica')
+  } catch (e) {
+    alert('Error al actualizar')
   }
 }
+
+const irACanciones = () => router.push('/musica')
 </script>
 
 <template>
-  <div class="contenedor-agregar-cancion">
-    <div class="contenido">
+  <div class="contenedor-agregar-cancion"> <div class="contenido">
       <div class="contenedor-formulario">
-        
         <div class="barra-superior">
-          <button class="boton-texto" @click="irAInicio">← Regresar</button>
+          <button class="boton-texto" @click="irACanciones">← Regresar</button>
         </div>
-
         <div class="seccion-titulo">
-          <h1 class="titulo">Agregar Canción</h1>
-          <p class="subtitulo">Añade un nuevo track o sencillo a la base de datos musical</p>
+          <h1 class="titulo">Editar Canción</h1>
         </div>
 
-        <form class="formulario" @submit.prevent="guardarCancion">
+        <form class="formulario" @submit.prevent="guardarCambios">
           <div class="cuadricula-formulario">
-            
             <div class="seccion-datos">
-              
               <div class="grupo-input">
-                <label class="etiqueta">Nombre de la Canción</label>
-                <input
-                  v-model="formulario.nombre"
-                  type="text"
-                  required
-                  class="entrada"
-                  placeholder="Ej: La Incondicional..."
-                />
+                <label class="etiqueta">Nombre</label>
+                <input v-model="formulario.nombre" type="text" required class="entrada" />
               </div>
 
               <div class="grupo-input">
-                <label class="etiqueta">Pertenece al Álbum</label>
-                <select v-model="formulario.album_id" class="entrada selector">
-                  <option 
-                    v-for="album in listaAlbumes" 
-                    :key="album.id" 
-                    :value="album.id"
-                  >
-                    {{ album.nombre }}
+                <label class="etiqueta">Álbum</label>
+                <select v-model="formulario.album_id" required class="entrada selector">
+                  <option value="" disabled>Selecciona un álbum</option>
+                  <option v-for="alb in listaAlbumes" :key="alb.id" :value="alb.id">
+                    {{ alb.nombre }}
                   </option>
                 </select>
-                <span class="pista">Si es un sencillo, selecciona la opción de Single</span>
               </div>
 
               <div class="fila-input">
                 <div class="grupo-input">
-                  <label class="etiqueta">Año de Salida</label>
-                  <input
-                    v-model="formulario.anio_salida"
-                    type="number"
-                    min="1900"
-                    max="2099"
-                    required
-                    class="entrada"
-                    placeholder="Ej: 2020"
-                  />
+                  <label class="etiqueta">Año (Ej: 2020)</label>
+                  <input v-model="formulario.fecha_salida" type="number" required class="entrada" />
                 </div>
-
                 <div class="grupo-input">
                   <label class="etiqueta">Duración (MM:SS)</label>
-                  <input
-                    v-model="formulario.duracion"
-                    type="text"
-                    required
-                    class="entrada"
-                    placeholder="Ej: 03:45"
-                  />
-                </div>
-
-                <div class="grupo-input">
-                  <label class="etiqueta">Artista (Colaboración)</label>
-                  <input
-                    v-model="formulario.artista_colaborador"
-                    type="text"
-                    class="entrada"
-                    placeholder="Ej: Daft Punk (Opcional)"
-                  />
+                  <input v-model="formulario.duracionTexto" type="text" required class="entrada" />
                 </div>
               </div>
 
               <div class="grupo-input">
-                <label class="etiqueta">Descripción / Detalles</label>
-                <textarea
-                  v-model="formulario.descripcion"
-                  rows="4"
-                  class="entrada area-texto"
-                  placeholder="Información adicional..."
-                ></textarea>
+                <label class="etiqueta">Descripción</label>
+                <textarea v-model="formulario.descripcion" rows="3" class="entrada area-texto"></textarea>
               </div>
             </div>
 
             <div class="seccion-imagen">
               <div class="grupo-input">
-                <label class="etiqueta">URL de la Portada</label>
-                <input
-                  v-model="formulario.portada_url"
-                  type="url"
-                  class="entrada"
-                  placeholder="Pega aquí la URL de la imagen"
-                  required
-                />
-                <div v-if="formulario.portada_url" class="previsualizacion" style="margin-top:1rem;">
-                  <img :src="formulario.portada_url" alt="Portada Preview" />
+                <label class="etiqueta">URL Portada</label>
+                <input v-model="formulario.portada_url" type="url" class="entrada" required />
+                <div v-if="formulario.portada_url" style="margin-top:10px">
+                  <img :src="formulario.portada_url" style="width:100%; border-radius:8px; border:1px solid #2b7de9" />
                 </div>
               </div>
             </div>
-
           </div>
 
           <div class="acciones">
-            <button type="button" class="btn btn-secundario" @click="limpiarFormulario">
-              Limpiar
-            </button>
-            <button type="button" class="btn btn-borde" @click="irAInicio">
-              Cancelar
-            </button>
-            <button type="submit" class="btn btn-primario">
-              Guardar Canción →
-            </button>
+            <button type="button" class="btn btn-borde" @click="irACanciones">Cancelar</button>
+            <button type="submit" class="btn btn-primario">Guardar Cambios</button>
           </div>
         </form>
       </div>
