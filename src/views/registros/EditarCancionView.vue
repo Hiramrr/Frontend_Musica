@@ -9,28 +9,28 @@ const route = useRoute()
 const cancionesStore = useCancionesStore()
 const albumesStore = useAlbumesStore()
 
-// Obtenemos la lista de álbumes para el select
 const listaAlbumes = ref([])
 
 const formulario = ref({
   id: null,
   nombre: '',
   album_id: '',
-  fecha_salida: '', // En tu backend es int (año)
-  duracionTexto: '', // Para convertir a segundos
+  anio_salida: '',
+  duracionTexto: '',
+  artista_colaborador: '', // Si tienes este campo en tu BD o lógica extra
   descripcion: '',
   portada_url: ''
 })
 
-// Función auxiliar: Segundos -> MM:SS
-const segundosAFormato = (seg) => {
-  if (!seg) return ''
-  const min = Math.floor(seg / 60)
-  const s = seg % 60
-  return `${min}:${s.toString().padStart(2, '0')}`
+// Convertir segundos (ej: 225) a texto (ej: "03:45")
+const segundosAFormato = (totalSegundos) => {
+  if (!totalSegundos) return ''
+  const minutos = Math.floor(totalSegundos / 60)
+  const segundos = totalSegundos % 60
+  return `${minutos}:${segundos.toString().padStart(2, '0')}`
 }
 
-// Función auxiliar: MM:SS -> Segundos
+// Convertir texto (ej: "03:45") a segundos (ej: 225)
 const formatoASegundos = (texto) => {
   if (!texto) return 0
   const partes = texto.split(':')
@@ -40,11 +40,14 @@ const formatoASegundos = (texto) => {
 }
 
 onMounted(async () => {
-  // 1. Cargar lista de álbumes para el dropdown
+  // 1. Cargar álbumes para el select
   await albumesStore.obtenerAlbumes()
-  listaAlbumes.value = albumesStore.listaAlbumes
+  listaAlbumes.value = [
+    { id: null, nombre: '-- Es un Single (Sin álbum) --' }, // Opción para singles
+    ...albumesStore.listaAlbumes
+  ]
 
-  // 2. Cargar datos de la canción
+  // 2. Cargar datos de la canción a editar
   const idCancion = route.params.id
   const cancion = await cancionesStore.obtenerCancionPorId(idCancion)
 
@@ -52,9 +55,9 @@ onMounted(async () => {
     formulario.value = {
       id: cancion.id,
       nombre: cancion.nombre,
-      // El backend devuelve el objeto 'album', necesitamos su ID
-      album_id: cancion.album ? cancion.album.id : '', 
-      fecha_salida: cancion.fecha_salida,
+      // Usamos idAlbum que viene gracias al getter en tu entidad Java
+      album_id: cancion.idAlbum || null, 
+      anio_salida: cancion.fecha_salida,
       duracionTexto: segundosAFormato(cancion.duracion_segundos),
       descripcion: cancion.descripcion,
       portada_url: cancion.portada_url
@@ -63,41 +66,46 @@ onMounted(async () => {
 })
 
 const guardarCambios = async () => {
-  // Preparamos el objeto tal como lo espera el backend (Entity Cancion)
   const payload = {
     nombre: formulario.value.nombre,
-    fecha_salida: parseInt(formulario.value.fecha_salida),
+    fecha_salida: parseInt(formulario.value.anio_salida),
     duracion_segundos: formatoASegundos(formulario.value.duracionTexto),
     descripcion: formulario.value.descripcion,
     portada_url: formulario.value.portada_url,
-    // Relación con álbum: backend espera objeto { id: ... }
-    album: { id: formulario.value.album_id } 
+    // Enviamos el objeto álbum o null
+    album: formulario.value.album_id ? { id: formulario.value.album_id } : null
   }
 
   try {
     await cancionesStore.actualizarCancion(formulario.value.id, payload)
     alert('Canción actualizada correctamente')
-    router.push('/musica')
-  } catch (e) {
-    alert('Error al actualizar')
+    router.push('/musica-admin') // Regresa a la vista administrativa
+  } catch (error) {
+    console.error(error)
+    alert('Error al actualizar la canción')
   }
 }
 
-const irACanciones = () => router.push('/musica')
+const irAtras = () => router.push('/musica-admin')
 </script>
 
 <template>
-  <div class="contenedor-agregar-cancion"> <div class="contenido">
+  <div class="contenedor-agregar-cancion">
+    <div class="contenido">
       <div class="contenedor-formulario">
+        
         <div class="barra-superior">
-          <button class="boton-texto" @click="irACanciones">← Regresar</button>
+          <button class="boton-texto" @click="irAtras">← Cancelar</button>
         </div>
+
         <div class="seccion-titulo">
           <h1 class="titulo">Editar Canción</h1>
+          <p class="subtitulo">Modifica los detalles de la canción</p>
         </div>
 
         <form class="formulario" @submit.prevent="guardarCambios">
           <div class="cuadricula-formulario">
+            
             <div class="seccion-datos">
               <div class="grupo-input">
                 <label class="etiqueta">Nombre</label>
@@ -106,19 +114,23 @@ const irACanciones = () => router.push('/musica')
 
               <div class="grupo-input">
                 <label class="etiqueta">Álbum</label>
-                <select v-model="formulario.album_id" required class="entrada selector">
-                  <option value="" disabled>Selecciona un álbum</option>
-                  <option v-for="alb in listaAlbumes" :key="alb.id" :value="alb.id">
-                    {{ alb.nombre }}
+                <select v-model="formulario.album_id" class="entrada selector">
+                  <option 
+                    v-for="album in listaAlbumes" 
+                    :key="album.id" 
+                    :value="album.id"
+                  >
+                    {{ album.nombre }}
                   </option>
                 </select>
               </div>
 
               <div class="fila-input">
                 <div class="grupo-input">
-                  <label class="etiqueta">Año (Ej: 2020)</label>
-                  <input v-model="formulario.fecha_salida" type="number" required class="entrada" />
+                  <label class="etiqueta">Año</label>
+                  <input v-model="formulario.anio_salida" type="number" required class="entrada" />
                 </div>
+
                 <div class="grupo-input">
                   <label class="etiqueta">Duración (MM:SS)</label>
                   <input v-model="formulario.duracionTexto" type="text" required class="entrada" />
@@ -127,7 +139,7 @@ const irACanciones = () => router.push('/musica')
 
               <div class="grupo-input">
                 <label class="etiqueta">Descripción</label>
-                <textarea v-model="formulario.descripcion" rows="3" class="entrada area-texto"></textarea>
+                <textarea v-model="formulario.descripcion" rows="4" class="entrada area-texto"></textarea>
               </div>
             </div>
 
@@ -135,15 +147,16 @@ const irACanciones = () => router.push('/musica')
               <div class="grupo-input">
                 <label class="etiqueta">URL Portada</label>
                 <input v-model="formulario.portada_url" type="url" class="entrada" required />
-                <div v-if="formulario.portada_url" style="margin-top:10px">
-                  <img :src="formulario.portada_url" style="width:100%; border-radius:8px; border:1px solid #2b7de9" />
+                <div v-if="formulario.portada_url" class="previsualizacion" style="margin-top:10px">
+                  <img :src="formulario.portada_url" alt="Portada" />
                 </div>
               </div>
             </div>
+
           </div>
 
           <div class="acciones">
-            <button type="button" class="btn btn-borde" @click="irACanciones">Cancelar</button>
+            <button type="button" class="btn btn-borde" @click="irAtras">Cancelar</button>
             <button type="submit" class="btn btn-primario">Guardar Cambios</button>
           </div>
         </form>
@@ -153,23 +166,14 @@ const irACanciones = () => router.push('/musica')
 </template>
 
 <style scoped>
+/* Reutilizamos los mismos estilos para mantener consistencia */
+@import '../../assets/base.css';
+
 :root {
-  --header-image: url('https://sadhost.neocities.org/images/layouts/wp.jpeg');
-  --body-bg-image: url('https://sadhost.neocities.org/images/tiles/bk024.gif');
   --content-bg: #e6f0fa;
   --azul-textos: #2b7de9;
   --gris-azul: #c2d6ea;
   --text-color: #0f2d52;
-}
-
-@font-face {
-  font-family: Nunito;
-  src: url('https://sadhost.neocities.org/fonts/Nunito-Regular.ttf');
-}
-@font-face {
-  font-family: Nunito;
-  src: url('https://sadhost.neocities.org/fonts/Nunito-Bold.ttf');
-  font-weight: bold;
 }
 
 .contenedor-agregar-cancion {
@@ -178,13 +182,9 @@ const irACanciones = () => router.push('/musica')
   color: var(--text-color);
   padding: 2rem;
   font-family: 'Nunito', sans-serif;
-  background-image: var(--body-bg-image);
 }
 
-.contenido {
-  max-width: 1200px;
-  margin: 0 auto;
-}
+.contenido { max-width: 1200px; margin: 0 auto; }
 
 .contenedor-formulario {
   background-color: var(--gris-azul);
@@ -194,236 +194,122 @@ const irACanciones = () => router.push('/musica')
   border: 1px solid var(--azul-textos);
 }
 
-.barra-superior {
-  margin-bottom: 1.5rem;
+.barra-superior { 
+    margin-bottom: 1.5rem; 
 }
 
-.seccion-titulo {
-  margin-bottom: 2.5rem;
-  border-bottom: 1px dashed var(--azul-textos);
-  padding-bottom: 1.5rem;
+.seccion-titulo { 
+    margin-bottom: 2.5rem; 
+    border-bottom: 1px dashed var(--azul-textos); 
+    padding-bottom: 1.5rem; 
 }
 
-.titulo {
-  font-size: 1.8rem;
-  font-weight: 700;
-  color: var(--azul-textos);
-  margin-bottom: 0.5rem;
+.titulo { 
+    font-size: 1.8rem; 
+    font-weight: 700; 
+    color: var(--azul-textos); 
+    margin-bottom: 0.5rem; 
 }
 
-.subtitulo {
-  color: #0f2d52;
-  font-size: 0.95rem;
+.subtitulo { 
+    color: #0f2d52; 
+    font-size: 0.95rem; 
 }
 
-.cuadricula-formulario {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 2rem;
-  margin-bottom: 2rem;
+.cuadricula-formulario { 
+    display: grid; 
+    grid-template-columns: 1fr; 
+    gap: 2rem; 
+    margin-bottom: 2rem; 
 }
 
-@media (min-width: 768px) {
-  .cuadricula-formulario {
-    grid-template-columns: 2fr 1fr;
-  }
+@media (min-width: 768px) { 
+    .cuadricula-formulario { 
+        grid-template-columns: 2fr 1fr; 
+    } 
 }
 
-.grupo-input {
-  margin-bottom: 1.25rem;
-  display: flex;
-  flex-direction: column;
+.grupo-input { 
+    margin-bottom: 1.25rem; 
+    display: flex; 
+    flex-direction: column; 
 }
 
-.fila-input {
-  display: flex;
-  gap: 1rem;
-}
-.fila-input > .grupo-input {
-  flex: 1;
+.fila-input { 
+    display: flex; 
+    gap: 1rem; 
 }
 
-.etiqueta {
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: var(--azul-textos);
-  margin-bottom: 0.5rem;
+.fila-input > .grupo-input { 
+    flex: 1; 
 }
 
-.entrada {
-  background-color: #e6f0fa;
-  border: 1px solid var(--azul-textos);
-  border-radius: 8px;
-  padding: 0.8rem 1rem;
-  color: var(--text-color);
-  font-size: 0.95rem;
-  transition: all 0.2s;
+.etiqueta { 
+    font-size: 0.9rem; 
+    font-weight: 600; 
+    color: var(--azul-textos); 
+    margin-bottom: 0.5rem; 
 }
 
-.entrada:focus {
-  outline: none;
-  border-color: #2b7de9;
-  box-shadow: 0 0 0 3px rgba(43, 125, 233, 0.15);
+.entrada { 
+    background-color: #e6f0fa; 
+    border: 1px solid var(--azul-textos); 
+    border-radius: 8px; 
+    padding: 0.8rem 1rem; 
+    color: var(--text-color); 
+    font-size: 0.95rem; 
 }
 
-.entrada::placeholder {
-  color: #5c6b7f;
+.selector { 
+    cursor: pointer; 
 }
 
-.selector {
-  appearance: none;
-  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%232b7de9' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
-  background-repeat: no-repeat;
-  background-position: right 1rem center;
-  background-size: 1em;
-  cursor: pointer;
-  color: var(--text-color);
+.area-texto { 
+    resize: vertical; 
+    min-height: 120px; 
 }
 
-.area-texto {
-  resize: vertical;
-  min-height: 120px;
+.previsualizacion img { 
+    width: 100%; 
+    height: 250px; 
+    object-fit: cover; 
+    border-radius: 8px; 
+    border: 1px solid var(--azul-textos); 
 }
 
-.pista {
-  font-size: 0.75rem;
-  color: #5c6b7f;
-  margin-top: 0.3rem;
+.acciones { 
+    display: flex; 
+    justify-content: flex-end; 
+    gap: 1rem; padding-top: 1.5rem; 
+    border-top: 1px dashed var(--azul-textos); 
 }
 
-.area-subida-imagen {
-  border: 2px dashed var(--azul-textos);
-  border-radius: 12px;
-  min-height: 250px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  cursor: pointer;
-  background-color: #e6f0fa;
-  transition: all 0.3s;
-  overflow: hidden;
-  position: relative;
+.btn { 
+    padding: 0.75rem 1.5rem; 
+    border-radius: 8px; 
+    font-weight: 600; 
+    cursor: pointer; 
+    border: none; 
 }
 
-.area-subida-imagen:hover {
-  border-color: #345d91;
-  background-color: #c2d6ea;
+.btn-primario { 
+    background-color: var(--azul-textos); 
+    color: white; 
 }
 
-.marcador-posicion {
-  text-align: center;
-  color: #0f2d52;
+.btn-borde { 
+    background-color: transparent; 
+    border: 1px solid var(--azul-textos); 
+    color: var(--text-color); 
 }
 
-.texto-subida {
-  font-weight: 600;
-  margin-top: 1rem;
-}
-
-.pista-subida {
-  font-size: 0.8rem;
-  color: #5c6b7f;
-}
-
-.previsualizacion {
-  width: 100%;
-  height: 100%;
-  position: relative;
-}
-
-.previsualizacion img {
-  width: 100%;
-  height: 250px;
-  object-fit: cover;
-  display: block;
-  border-radius: 8px;
-  border: 1px solid var(--azul-textos);
-}
-
-.capa-superpuesta {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(43, 125, 233, 0.2);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  opacity: 0;
-  transition: opacity 0.2s;
-}
-
-.area-subida-imagen:hover .capa-superpuesta {
-  opacity: 1;
-}
-
-.capa-superpuesta span {
-  color: var(--azul-textos);
-  font-weight: 600;
-  border: 1px solid var(--azul-textos);
-  padding: 0.5rem 1rem;
-  border-radius: 4px;
-  background: #e6f0fa;
-}
-
-.acciones {
-  display: flex;
-  justify-content: flex-end;
-  gap: 1rem;
-  padding-top: 1.5rem;
-  border-top: 1px dashed var(--azul-textos);
-}
-
-.btn {
-  padding: 0.75rem 1.5rem;
-  border-radius: 8px;
-  font-weight: 600;
-  font-size: 0.95rem;
-  cursor: pointer;
-  transition: all 0.2s;
-  border: none;
-}
-
-.btn-primario {
-  background-color: var(--azul-textos);
-  color: white;
-}
-.btn-primario:hover {
-  background-color: #345d91;
-  transform: translateY(-1px);
-}
-
-.btn-secundario {
-  background-color: transparent;
-  color: var(--azul-textos);
-}
-.btn-secundario:hover {
-  color: #345d91;
-  text-decoration: underline;
-}
-
-.btn-borde {
-  background-color: transparent;
-  border: 1px solid var(--azul-textos);
-  color: var(--text-color);
-}
-.btn-borde:hover {
-  border-color: #345d91;
-  background-color: #e6f0fa;
-}
-
-.boton-texto {
-  background: none;
-  border: none;
-  color: var(--azul-textos);
-  cursor: pointer;
-  font-size: 0.9rem;
-  padding: 0;
-}
-.boton-texto:hover {
-  color: #345d91;
+.boton-texto { 
+    background: none; 
+    border: none; 
+    color: var(--azul-textos); 
+    cursor: pointer; 
+    font-size: 0.9rem; 
+    padding: 0; 
 }
 
 @media (max-width: 600px) {
