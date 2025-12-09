@@ -5,6 +5,12 @@ const store = useAuthStore()
 </script>
 
 <template>
+  <div class="logo-header">
+    <RouterLink to="/">
+      <img src="/header.png" alt="Smart Rating Logo" class="logo-img" />
+    </RouterLink>
+  </div>
+
   <nav id="navbar" v-if="store.estaLogeado">
     <ul>
       <li><RouterLink to="/">Inicio</RouterLink></li>
@@ -20,7 +26,6 @@ const store = useAuthStore()
               'https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y'
             "
             class="nav-avatar"
-            alt="Avatar"
           />
           <span>Hola, {{ store.usuario.nombre }}</span>
         </RouterLink>
@@ -52,15 +57,20 @@ const store = useAuthStore()
   --text-color: #0f2d52;
 }
 
-/* Fuentes importadas */
-@font-face {
-  font-family: Nunito;
-  src: url('https://sadhost.neocities.org/fonts/Nunito-Regular.ttf');
+.logo-header {
+  background-color: var(--content-bg);
+  text-align: center;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--azul-textos);
+  height: 100px;
 }
-@font-face {
-  font-family: Nunito;
-  src: url('https://sadhost.neocities.org/fonts/Nunito-Bold.ttf');
-  font-weight: bold;
+
+.logo-img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 0 auto;
+  max-height: 50px;
 }
 
 #navbar {
@@ -89,11 +99,13 @@ const store = useAuthStore()
   display: flex;
   align-items: center;
   gap: 8px;
+  text-decoration: none;
 }
 
 .nav-avatar {
   width: 24px;
   height: 24px;
+  border-radius: 50%;
   object-fit: cover;
   border: 1px solid var(--azul-textos);
 }
