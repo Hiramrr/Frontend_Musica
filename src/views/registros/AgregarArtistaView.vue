@@ -24,17 +24,6 @@ const irAInicio = () => {
   router.push('/')
 }
 
-const seleccionarImagen = () => {
-  referenciaInput.value.click()
-}
-
-const alCambiarArchivo = (evento) => {
-  const archivo = evento.target.files[0]
-  if (archivo) {
-    archivoImagen.value = archivo
-    previsualizacionImagen.value = URL.createObjectURL(archivo)
-  }
-}
 
 const limpiarFormulario = () => {
   formulario.value = {
@@ -48,7 +37,7 @@ const limpiarFormulario = () => {
 }
 
 const guardarArtista = () => {
-  // Enviar los años directamente como enteros
+  
   const artistaPayload = {
     nombre: formulario.value.nombre,
     fecha_inicio: formulario.value.fecha_inicio ? parseInt(formulario.value.fecha_inicio) : null,
