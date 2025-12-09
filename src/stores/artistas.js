@@ -7,7 +7,8 @@ export const useArtistasStore = defineStore('artistas', () => {
   const listaArtistas = ref([])
   const cargando = ref(false)
 
-    
+    // funcion para guardar un nuevo artista, recibe el objeto artista con sus datos, 
+    // lo envia a la base de datos y lo agrega a la lista de artistas
     const guardarArtista = async (artista) => {
       cargando.value = true
       try {
@@ -23,7 +24,7 @@ export const useArtistasStore = defineStore('artistas', () => {
       }
     }
 
-  
+  // Funcion para obetener la lista de artistas desde la base de datos
   const obtenerArtistas = async () => {
     cargando.value = true
     try {
@@ -36,7 +37,7 @@ export const useArtistasStore = defineStore('artistas', () => {
     }
   }
 
-  
+  // Funcion para eliminar un artista por su ID, lo elimina de la base de datos y de la lista de artistas
   const eliminarArtista = async (id) => {
     cargando.value = true
     try {
@@ -51,7 +52,8 @@ export const useArtistasStore = defineStore('artistas', () => {
     }
   }
 
-  
+  // Fucnion para actualizar un artista por id, recibe el artista con los nuevos datos, 
+  // y actualiza la base de datos y la lista de artistas
   const actualizarArtista = async (id, artista) => {
     cargando.value = true
     try {
