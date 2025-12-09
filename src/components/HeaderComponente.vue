@@ -62,7 +62,6 @@ const store = useAuthStore()
   text-align: center;
   padding: 10px 0;
   border-bottom: 1px solid var(--azul-textos);
-  height: 100px;
 }
 
 .logo-img {
@@ -70,7 +69,7 @@ const store = useAuthStore()
   height: auto;
   display: block;
   margin: 0 auto;
-  max-height: 50px;
+  max-height: 100px;
 }
 
 #navbar {
