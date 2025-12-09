@@ -8,26 +8,28 @@ export const useAlbumesStore = defineStore('albumes', () => {
 
   const obtenerAlbumes = async () => {
     cargando.value = true
-    console.log("1. Iniciando petición a backend...") // LOG 1
-
     try {
-      // OJO: Asegúrate de que la ruta inicie con / si tu baseURL no termina en /
       const response = await apiClient.get('/albums') 
-      
-      console.log("2. Respuesta cruda del Backend:", response) // LOG 2
-      console.log("3. Datos (JSON) recibidos:", response.data) // LOG 3
-      
-      // Verificamos el primer elemento para ver sus propiedades
-      if (response.data && response.data.length > 0) {
-        console.log("4. Propiedades del primer álbum:", Object.keys(response.data[0]))
-        console.log("   - ¿Tiene nombreArtista?:", response.data[0].nombreArtista)
-        console.log("   - ¿Tiene nombre_artista?:", response.data[0].nombre_artista)
-      }
-
       listaAlbumes.value = response.data
-
     } catch (error) {
-      console.error('❌ ERROR CRÍTICO cargando álbumes:', error)
+      console.error('Error al cargar álbumes:', error)
+    } finally {
+      cargando.value = false
+    }
+  }
+
+  // --- NUEVA FUNCIÓN ---
+  const guardarAlbum = async (album) => {
+    cargando.value = true
+    try {
+      // Enviamos el objeto al backend
+      const response = await apiClient.post('/albums', album)
+      // Agregamos el nuevo álbum a la lista local para no recargar
+      listaAlbumes.value.push(response.data)
+      return response.data
+    } catch (error) {
+      console.error('Error al guardar el álbum:', error)
+      throw error
     } finally {
       cargando.value = false
     }
@@ -36,6 +38,7 @@ export const useAlbumesStore = defineStore('albumes', () => {
   return { 
     listaAlbumes, 
     cargando, 
-    obtenerAlbumes 
+    obtenerAlbumes,
+    guardarAlbum // Exportamos la función
   }
 })

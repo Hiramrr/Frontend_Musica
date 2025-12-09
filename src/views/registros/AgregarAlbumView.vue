@@ -1,58 +1,80 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { useAlbumesStore } from '@/stores/albums'
+import { useArtistasStore } from '@/stores/artistas' // Necesitamos los artistas reales
 
 const router = useRouter()
+const albumesStore = useAlbumesStore()
+const artistasStore = useArtistasStore()
 
-const referenciaInput = ref(null)
-
-const listaArtistas = ref([
-  { id: 1, nombre: 'Luis Miguel' },
-  { id: 2, nombre: 'Juan Gabriel' },
-  { id: 3, nombre: 'José José' },
-  { id: 4, nombre: 'The Weeknd' }
-])
-
-const formulario = ref({
-  titulo: '',
-  artista_id: '',
-  anio_salida: '',
-  duracion: '',
-  total_canciones: '',
-  descripcion: '',
-  portada_url: '' // Nuevo campo para la URL de la portada
+// Cargamos los artistas reales al montar la vista
+onMounted(() => {
+  artistasStore.obtenerArtistas()
 })
 
-
+const formulario = ref({
+  nombre: '',          // Antes 'titulo'
+  artista_id: '',      // Temporal, luego lo transformamos
+  fechaSalida: '',     // Antes 'anio_salida'
+  duracionTexto: '',   // Nuevo campo temporal para el input (ej: 45:30)
+  totalCanciones: '',  // Antes 'total_canciones'
+  descripcion: '',
+  portadaUrl: ''       // Antes 'portada_url'
+})
 
 const irAInicio = () => router.push('/')
 
-const seleccionarImagen = () => referenciaInput.value.click()
-
-const alCambiarArchivo = (evento) => {
-  const archivo = evento.target.files[0]
-  if (archivo) {
-    archivoImagen.value = archivo
-    previsualizacionImagen.value = URL.createObjectURL(archivo)
+// Función auxiliar para convertir "MM:SS" o minutos simples a segundos totales
+const convertirDuracionASegundos = (tiempo) => {
+  if (!tiempo) return 0
+  if (tiempo.includes(':')) {
+    const partes = tiempo.split(':')
+    const minutos = parseInt(partes[0]) || 0
+    const segundos = parseInt(partes[1]) || 0
+    return (minutos * 60) + segundos
   }
+  // Si solo pone un número, asumimos minutos
+  return parseInt(tiempo) * 60
 }
 
 const limpiarFormulario = () => {
   formulario.value = { 
-    titulo: '', 
+    nombre: '', 
     artista_id: '', 
-    anio_salida: '', 
-    duracion: '', 
-    total_canciones: '', 
+    fechaSalida: '', 
+    duracionTexto: '', 
+    totalCanciones: '', 
     descripcion: '',
-    portada_url: ''
+    portadaUrl: ''
   }
 }
 
-const guardarAlbum = () => {
-  console.log("Registrando Álbum:", { ...formulario.value })
-  alert("Álbum registrado correctamente (Simulación)")
-  router.push('/')
+const guardarAlbum = async () => {
+  // 1. Preparamos el objeto tal como lo espera Java
+  const payload = {
+    nombre: formulario.value.nombre,
+    fechaSalida: parseInt(formulario.value.fechaSalida),
+    totalCanciones: parseInt(formulario.value.totalCanciones),
+    descripcion: formulario.value.descripcion,
+    portadaUrl: formulario.value.portadaUrl,
+    
+    // AQUI transformamos el texto a segundos para el backend (int duracion_segundos)
+    duracion_segundos: convertirDuracionASegundos(formulario.value.duracionTexto),
+    
+    // AQUI transformamos el ID simple a una lista de objetos Artista
+    artistas: [
+      { id: formulario.value.artista_id }
+    ]
+  }
+
+  try {
+    await albumesStore.guardarAlbum(payload)
+    alert("Álbum registrado correctamente")
+    router.push('/albumes') // Redirigir al catálogo de álbumes
+  } catch (error) {
+    alert("Hubo un error al registrar el álbum")
+  }
 }
 </script>
 
@@ -67,7 +89,7 @@ const guardarAlbum = () => {
 
         <div class="seccion-titulo">
           <h1 class="titulo">Agregar Álbum</h1>
-          <p class="subtitulo">Registra un nuevo lanzamiento discográfico en la plataforma</p>
+          <p class="subtitulo">Registra un nuevo lanzamiento discográfico</p>
         </div>
 
         <form class="formulario" @submit.prevent="guardarAlbum">
@@ -78,19 +100,23 @@ const guardarAlbum = () => {
               <div class="grupo-input">
                 <label class="etiqueta">Título del Álbum</label>
                 <input
-                  v-model="formulario.titulo"
+                  v-model="formulario.nombre"
                   type="text"
                   required
                   class="entrada"
-                  placeholder="Ej: Romance, Aries, After Hours..."
+                  placeholder="Ej: Romance..."
                 />
               </div>
 
               <div class="grupo-input">
-                <label class="etiqueta">Artista o artistas (colaboración)</label>
+                <label class="etiqueta">Artista Principal</label>
                 <select v-model="formulario.artista_id" required class="entrada selector">
                   <option value="" disabled>Selecciona un artista</option>
-                  <option v-for="artista in listaArtistas" :key="artista.id" :value="artista.id">
+                  <option 
+                    v-for="artista in artistasStore.listaArtistas" 
+                    :key="artista.id" 
+                    :value="artista.id"
+                  >
                     {{ artista.nombre }}
                   </option>
                 </select>
@@ -100,7 +126,7 @@ const guardarAlbum = () => {
                 <div class="grupo-input">
                   <label class="etiqueta">Año de Lanzamiento</label>
                   <input
-                    v-model="formulario.anio_salida"
+                    v-model="formulario.fechaSalida"
                     type="number"
                     min="1900"
                     max="2099"
@@ -111,19 +137,20 @@ const guardarAlbum = () => {
                 </div>
 
                 <div class="grupo-input">
-                  <label class="etiqueta">Duración Total</label>
+                  <label class="etiqueta">Duración (MM:SS)</label>
                   <input
-                    v-model="formulario.duracion"
+                    v-model="formulario.duracionTexto"
                     type="text"
+                    required
                     class="entrada"
-                    placeholder="Ej: 45:30 min"
+                    placeholder="Ej: 45:30"
                   />
                 </div>
 
                 <div class="grupo-input">
                   <label class="etiqueta">Total de Canciones</label>
                   <input
-                    v-model="formulario.total_canciones"
+                    v-model="formulario.totalCanciones"
                     type="number"
                     min="1"
                     required
@@ -134,29 +161,28 @@ const guardarAlbum = () => {
               </div>
 
               <div class="grupo-input">
-                <label class="etiqueta">Descripción / Reseña Corta</label>
+                <label class="etiqueta">Descripción</label>
                 <textarea
                   v-model="formulario.descripcion"
                   rows="5"
                   class="entrada area-texto"
-                  placeholder="Detalles sobre la producción, estilo musical o contexto del álbum..."
+                  placeholder="Detalles del álbum..."
                 ></textarea>
               </div>
             </div>
 
             <div class="seccion-imagen">
               <div class="grupo-input">
-                <label class="etiqueta">URL de la Portada del Álbum</label>
+                <label class="etiqueta">URL de la Portada</label>
                 <input
-                  v-model="formulario.portada_url"
+                  v-model="formulario.portadaUrl"
                   type="url"
                   class="entrada"
-                  placeholder="Pega aquí la URL de la portada desde imgbb.com"
+                  placeholder="https://i.ibb.co/..."
                   required
                 />
-                <span class="pista">Ejemplo: https://i.ibb.co/xxxxxx/portada.jpg</span>
-                <div v-if="formulario.portada_url" class="previsualizacion" style="margin-top:1rem;">
-                  <img :src="formulario.portada_url" alt="Portada Preview" />
+                <div v-if="formulario.portadaUrl" class="previsualizacion" style="margin-top:1rem;">
+                  <img :src="formulario.portadaUrl" alt="Portada Preview" />
                 </div>
               </div>
             </div>
@@ -170,8 +196,8 @@ const guardarAlbum = () => {
             <button type="button" class="btn btn-borde" @click="irAInicio">
               Cancelar
             </button>
-            <button type="submit" class="btn btn-primario">
-              Guardar Álbum →
+            <button type="submit" class="btn btn-primario" :disabled="albumesStore.cargando">
+              {{ albumesStore.cargando ? 'Guardando...' : 'Guardar Álbum →' }}
             </button>
           </div>
         </form>
@@ -181,6 +207,7 @@ const guardarAlbum = () => {
 </template>
 
 <style scoped>
+/* (Mantén tus estilos CSS originales aquí, no es necesario cambiarlos) */
 :root {
   --header-image: url('https://sadhost.neocities.org/images/layouts/wp.jpeg');
   --body-bg-image: url('https://sadhost.neocities.org/images/tiles/bk024.gif');
