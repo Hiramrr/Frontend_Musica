@@ -36,6 +36,32 @@ export const useAuthStore = defineStore('auth', {
       }
     },
 
+    async actualizarPerfil(datosActualizados) {
+      this.error = null
+
+      if (!this.usuario?.id) {
+        this.error = 'No hay sesión activa'
+        return false
+      }
+
+      try {
+        const respuesta = await apiClient.put(
+          `/usuarios/actualizar/${this.usuario.id}`,
+          datosActualizados,
+        )
+
+        this.usuario = respuesta.data
+
+        localStorage.setItem('usuario', JSON.stringify(respuesta.data))
+
+        return true
+      } catch (err) {
+        console.error(err)
+        this.error = err.response?.data?.message || 'Error al actualizar perfil'
+        return false
+      }
+    },
+
     logout() {
       this.usuario = null
       localStorage.removeItem('usuario')

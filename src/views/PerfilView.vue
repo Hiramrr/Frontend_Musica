@@ -12,6 +12,10 @@ function cerrarSesion(){
   router.push("/");
   store.logout();
 }
+
+function goToEditar(){
+  router.push("/editar-perfil");
+}
 </script>
 
 <template>
@@ -26,7 +30,7 @@ function cerrarSesion(){
         <div class="contenido-perfil-layout">
           <div class="sidebar">
             <div class="foto-perfil-contenedor">
-              <img :src="store.usuario?.foto_url || 'https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y'" class="foto-perfil"></img>
+              <img :src="store.usuario?.fotoUrl || 'https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y'" class="foto-perfil"></img>
             </div>
           </div>
 
@@ -81,7 +85,7 @@ function cerrarSesion(){
             </div>
         </div>
         <div class="boton-container">
-          <button @click="cerrarSesion()" class="editar-datos">Editar datos</button>
+          <button @click="goToEditar()" class="editar-datos">Editar datos</button>
           <button @click="cerrarSesion()" class="cerrar-sesion">Cerrar Sesión</button>
         </div>
       </main>
