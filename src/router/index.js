@@ -52,6 +52,12 @@ const router = createRouter({
       component: () => import('../views/catalogo/AlbumsView.vue'),
     },
     {
+      path: '/editar-album/:id',
+      name: 'editar-album',
+      component: () => import('../views/registros/EditarAlbumView.vue'),
+      props: true
+    },
+    {
       path: '/musica',
       name: 'musica',
       component: () => import('../views/catalogo/CancionesView.vue'),

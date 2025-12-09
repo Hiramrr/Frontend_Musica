@@ -33,7 +33,7 @@ export const useAlbumesStore = defineStore('albumes', () => {
     
     try {
       const response = await apiClient.get(`/albums/${id}`)
-        albumSeleccionado.value = response.data
+      albumSeleccionado.value = response.data
 
       // Mapeamos las canciones que vienen DENTRO del JSON del backend
       if (response.data.canciones) {
@@ -69,7 +69,7 @@ export const useAlbumesStore = defineStore('albumes', () => {
     }
   }
 
-  // 4. NUEVO: Guardar reseña (Simulación Local)
+  // Guardar reseña (Simulación Local)
   const guardarResena = async (albumId, datosResena) => {
     // Aquí iría la llamada al backend: await apiClient.post(...)
     
@@ -78,18 +78,57 @@ export const useAlbumesStore = defineStore('albumes', () => {
     console.log('Reseña guardada localmente:', datosResena)
   }
 
+  const eliminarAlbum = async (id) => {
+    try {
+      await apiClient.delete(`/albums/${id}`)
+      listaAlbumes.value = listaAlbumes.value.filter(album => album.id !== id)
+    } catch (error) {
+      console.error('Error al eliminar el álbum:', error)
+      throw error
+    }
+  }
+
+  const obtenerAlbumPorId = async (id) => {
+    cargando.value = true
+    try {
+      const response = await apiClient.get(`/albums/${id}`)
+      return response.data
+    } catch (error) {
+      console.error('Error al obtener el álbum:', error)
+      throw error
+    } finally {
+      cargando.value = false
+    }
+  }
+
+  const actualizarAlbum = async (album) => {
+    cargando.value = true
+    try {
+      await apiClient.put(`/albums/${album.id}`, album)
+      await obtenerAlbumes() // Recargar la lista de álbumes
+    } catch (error) {
+      console.error('Error al actualizar el álbum:', error)
+      throw error
+    } finally {
+      cargando.value = false
+    }
+  }
+
   return { 
     // State
     listaAlbumes, 
     cargando, 
-    albumSeleccionado, // Exportar
-    cancionesAlbum,    // Exportar
-    reseñasAlbum,      // Exportar
+    albumSeleccionado,
+    cancionesAlbum,
+    reseñasAlbum,
     
     // Actions
     obtenerAlbumes,
     guardarAlbum,
-    obtenerDetalleAlbum, // Exportar
-    guardarResena        // Exportar
+    obtenerDetalleAlbum,
+    guardarResena,
+    eliminarAlbum,
+    obtenerAlbumPorId,
+    actualizarAlbum
   }
 })
