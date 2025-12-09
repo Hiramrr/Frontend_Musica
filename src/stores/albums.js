@@ -3,8 +3,16 @@ import { defineStore } from 'pinia'
 import apiClient from '@/api/axios'
 
 export const useAlbumesStore = defineStore('albumes', () => {
+  //Estados globales
   const listaAlbumes = ref([])
   const cargando = ref(false)
+  
+  //Estados los detalles del album 
+  const albumSeleccionado = ref(null)
+  const cancionesAlbum = ref([])
+  const reseñasAlbum = ref([])
+
+  //Obtener todos los albums 
   const obtenerAlbumes = async () => {
     cargando.value = true
     try {
@@ -17,10 +25,39 @@ export const useAlbumesStore = defineStore('albumes', () => {
     }
   }
 
+  //Obtener por id los detalle de un álbum y su lista de  canciones)
+  const obtenerDetalleAlbum = async (id) => {
+    cargando.value = true
+    albumSeleccionado.value = null
+    cancionesAlbum.value = []
+    
+    try {
+      const response = await apiClient.get(`/albums/${id}`)
+        albumSeleccionado.value = response.data
+
+      // Mapeamos las canciones que vienen DENTRO del JSON del backend
+      if (response.data.canciones) {
+        cancionesAlbum.value = response.data.canciones
+      } else {
+        cancionesAlbum.value = []
+      }
+
+      // Simulamos reseñas iniciales (Ya que el backend aun no las trae)
+      reseñasAlbum.value = [
+        { texto: '¡Un clásico instantáneo!', puntos: 5, fecha: new Date().toLocaleDateString() }
+      ]
+
+    } catch (error) {
+      console.error('Error al cargar el detalle del álbum:', error)
+      // Opcional: Podrías redirigir al usuario o mostrar una alerta
+    } finally {
+      cargando.value = false
+    }
+  }
+
   const guardarAlbum = async (album) => {
     cargando.value = true
     try {
-
       const response = await apiClient.post('/albums', album)
       listaAlbumes.value.push(response.data)
       return response.data
@@ -32,10 +69,27 @@ export const useAlbumesStore = defineStore('albumes', () => {
     }
   }
 
+  // 4. NUEVO: Guardar reseña (Simulación Local)
+  const guardarResena = async (albumId, datosResena) => {
+    // Aquí iría la llamada al backend: await apiClient.post(...)
+    
+    // Por ahora solo actualizamos el estado local para que se vea en pantalla
+    reseñasAlbum.value.push(datosResena)
+    console.log('Reseña guardada localmente:', datosResena)
+  }
+
   return { 
+    // State
     listaAlbumes, 
     cargando, 
+    albumSeleccionado, // Exportar
+    cancionesAlbum,    // Exportar
+    reseñasAlbum,      // Exportar
+    
+    // Actions
     obtenerAlbumes,
-    guardarAlbum
+    guardarAlbum,
+    obtenerDetalleAlbum, // Exportar
+    guardarResena        // Exportar
   }
 })

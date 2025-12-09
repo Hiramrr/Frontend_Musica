@@ -14,6 +14,11 @@ onMounted(() => {
   store.obtenerAlbumes()
 })
 
+//fncion para ver canciones del album
+const verDetalle = (id) => {
+  router.push({ name: 'album-detalle', params: { id: id } })
+}
+
 const irAInicio = () => router.push('/')
 const irAAgregarAlbum = () => router.push('/agregar-album')
 </script>
@@ -49,7 +54,7 @@ const irAAgregarAlbum = () => router.push('/agregar-album')
 
             <p class="descripcion">{{ album.descripcion }}</p>
 
-            <button class="boton-ver">Ver Canciones</button>
+            <button @click="verDetalle(album.id)" class="boton-ver">Ver Canciones</button>
           </div>
         </div>
       </div>

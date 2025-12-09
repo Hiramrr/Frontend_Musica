@@ -3,6 +3,7 @@ import HomeView from '../views/HomeView.vue'
 import LoginView from '../views/LoginView.vue'
 import CrearCuentaView from '../views/CrearCuentaView.vue'
 import PerfilView from '../views/PerfilView.vue'
+import AlbumDetalleView from '../views/catalogo/AlbumDetalleView.vue' 
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -83,6 +84,12 @@ const router = createRouter({
       path: '/artistas-admin',
       name: 'artistas-admin',
       component: () => import('../views/catalogo/ArtistasAdminView.vue'),
+    },
+    {
+      path: '/album/:id', 
+      name: 'album-detalle',
+      component: () => import('../views/catalogo/AlbumDetalleView.vue'),
+      props: true 
     },
   ],
 })
