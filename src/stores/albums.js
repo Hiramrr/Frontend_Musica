@@ -5,6 +5,7 @@ import apiClient from '@/api/axios'
 export const useAlbumesStore = defineStore('albumes', () => {
   //Estados globales
   const listaAlbumes = ref([])
+  const albumsDelArtista = ref([])
   const cargando = ref(false)
   
   //Estados los detalles del album 
@@ -25,7 +26,23 @@ export const useAlbumesStore = defineStore('albumes', () => {
     }
   }
 
-  //Obtener por id los detalle de un álbum y su lista de  canciones)
+  const obtenerAlbumsPorArtista = async (artistaId) => {
+    cargando.value = true
+    albumsDelArtista.value = [] 
+    try {
+      const response = await apiClient.get(`/albums/artista/${artistaId}`)
+      if (response.data) {
+        albumsDelArtista.value = response.data
+      }
+    } catch (error) {
+      console.error('Error al cargar álbumes del artista:', error)
+    } finally {
+      cargando.value = false
+    }
+  }
+
+
+  //Obtener por id los detalle de un álbum y su lista de  canciones
   const obtenerDetalleAlbum = async (id) => {
     cargando.value = true
     albumSeleccionado.value = null
@@ -69,15 +86,6 @@ export const useAlbumesStore = defineStore('albumes', () => {
     }
   }
 
-  // Guardar reseña (Simulación Local)
-  const guardarResena = async (albumId, datosResena) => {
-    // Aquí iría la llamada al backend: await apiClient.post(...)
-    
-    // Por ahora solo actualizamos el estado local para que se vea en pantalla
-    reseñasAlbum.value.push(datosResena)
-    console.log('Reseña guardada localmente:', datosResena)
-  }
-
   const eliminarAlbum = async (id) => {
     try {
       await apiClient.delete(`/albums/${id}`)
@@ -115,20 +123,22 @@ export const useAlbumesStore = defineStore('albumes', () => {
   }
 
   return { 
-    // State
+    // Estados
     listaAlbumes, 
     cargando, 
     albumSeleccionado,
     cancionesAlbum,
     reseñasAlbum,
+    albumsDelArtista,      
     
-    // Actions
+    
+    // Acciones
     obtenerAlbumes,
     guardarAlbum,
     obtenerDetalleAlbum,
-    guardarResena,
     eliminarAlbum,
     obtenerAlbumPorId,
-    actualizarAlbum
+    actualizarAlbum,
+    obtenerAlbumsPorArtista,
   }
 })

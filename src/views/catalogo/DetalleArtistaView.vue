@@ -4,6 +4,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { useArtistasStore } from '@/stores/artistas'
 import { useAlbumesStore } from '@/stores/albums'
 import { useCancionesStore } from '@/stores/canciones'
+import { storeToRefs } from 'pinia'
 import HeaderComponente from '../../components/HeaderComponente.vue'
 
 const route = useRoute()
@@ -13,11 +14,18 @@ const artistasStore = useArtistasStore()
 const albumesStore = useAlbumesStore()
 const cancionesStore = useCancionesStore()
 
+const { albumsDelArtista } = storeToRefs(albumesStore)
+
 const artistaId = route.params.id
 
 onMounted(async () => {
+  //Cargamos info del artista si no existe
   if (artistasStore.listaArtistas.length === 0) await artistasStore.obtenerArtistas()
-  if (albumesStore.listaAlbumes.length === 0) await albumesStore.obtenerAlbumes()
+  
+  //Cargamos los álbumes específicos de este artista
+  await albumesStore.obtenerAlbumsPorArtista(artistaId)
+
+  //Cargamos las canciones para filtrar las populares
   if (cancionesStore.listaCanciones.length === 0) await cancionesStore.obtenerCanciones()
 })
 
@@ -26,15 +34,17 @@ const artista = computed(() => {
 })
 
 const albumesArtista = computed(() => {
-  return albumesStore.listaAlbumes.filter(album => 
-    album.artista_id == artistaId || album.nombreArtista === artista.value.nombre
-  )
+  return albumsDelArtista.value
 })
 
+// Filtramos las canciones del store global por el nombre del artista
 const cancionesArtista = computed(() => {
-  return cancionesStore.listaCanciones.filter(cancion => 
-    cancion.nombre_artista === artista.value.nombre
-  )
+  if (!artista.value.nombre) return []
+  
+  return cancionesStore.listaCanciones.filter(cancion => {
+    const nombreEnCancion = cancion.nombreArtista || cancion.nombre_artista
+    return nombreEnCancion === artista.value.nombre
+  })
 })
 
 const irAtras = () => router.go(-1)
@@ -55,11 +65,12 @@ const formatearDuracion = (segundos) => {
       </div>
 
       <main class="contenido-principal" v-if="artista.nombre">
+        
         <div class="hero-artista">
-          <button class="boton-regresar" @click="irAtras">← Regresar</button>
-          <div class="perfil-layout">
+           <button class="boton-regresar" @click="irAtras">← Regresar</button>
+           <div class="perfil-layout">
             <div class="imagen-hero">
-              <img :src="artista.foto_url" :alt="artista.nombre" />
+              <img :src="artista.foto_url || artista.fotoUrl" :alt="artista.nombre" />
             </div>
             <div class="info-hero">
               <h1 class="nombre-artista">{{ artista.nombre }}</h1>
@@ -74,11 +85,11 @@ const formatearDuracion = (segundos) => {
 
         <section class="seccion-detalle">
           <h2 class="subtitulo">Discografía</h2>
-          <div v-if="albumesArtista.length > 0" class="scroll-horizontal">
+          <div v-if="albumesArtista && albumesArtista.length > 0" class="scroll-horizontal">
             <div v-for="album in albumesArtista" :key="album.id" class="mini-card-album">
-              <img :src="album.portadaUrl" :alt="album.nombre" />
+              <img :src="album.portadaUrl || 'https://placehold.co/150'" :alt="album.nombre" />
               <p class="titulo-album">{{ album.nombre }}</p>
-              <span class="anio-album">{{ album.anio_salida }}</span>
+              <span class="anio-album">{{ album.fechaSalida || album.anio_salida }}</span>
             </div>
           </div>
           <p v-else class="vacio">No hay álbumes registrados.</p>
@@ -86,18 +97,19 @@ const formatearDuracion = (segundos) => {
 
         <section class="seccion-detalle">
           <h2 class="subtitulo">Canciones Populares</h2>
-          <div v-if="cancionesArtista.length > 0" class="lista-canciones">
+          <div v-if="cancionesArtista && cancionesArtista.length > 0" class="lista-canciones">
             <div v-for="(cancion, index) in cancionesArtista" :key="cancion.id" class="fila-cancion">
               <span class="numero">{{ index + 1 }}</span>
               <div class="info-cancion">
                 <p class="nombre-cancion">{{ cancion.nombre }}</p>
-                <p class="album-cancion">{{ cancion.nombre_album }}</p>
+                <p class="album-cancion">{{ cancion.nombreAlbum || cancion.nombre_album }}</p>
               </div>
               <span class="duracion">{{ formatearDuracion(cancion.duracion_segundos) }}</span>
             </div>
           </div>
           <p v-else class="vacio">No hay canciones registradas.</p>
         </section>
+
       </main>
 
       <div v-else class="cargando">
@@ -141,7 +153,11 @@ const formatearDuracion = (segundos) => {
   background: none;
   border: none;
   color: var(--azul-textos);
+  cursor: pointer;
+  margin-bottom: 10px;
+  font-weight: bold;
 }
+
 .centered-content {
   max-width: 900px;
   margin: 0 auto;
@@ -151,12 +167,10 @@ const formatearDuracion = (segundos) => {
   padding: 0 0 30px 0;
 }
 
-.contenido-principal {
-  padding: 20px;
-}
 .perfil-layout {
   display: flex;
   gap: 20px;
+  align-items: center;
 }
 
 .imagen-hero img {
@@ -232,6 +246,11 @@ const formatearDuracion = (segundos) => {
   text-overflow: ellipsis;
 }
 
+.anio-album {
+  font-size: 0.8rem;
+  color: #666;
+}
+
 /* CANCIONES LISTA */
 .fila-cancion {
   display: flex;
@@ -276,6 +295,7 @@ const formatearDuracion = (segundos) => {
   text-align: center;
   color: #5c6b7f;
   font-style: italic;
+  padding: 20px;
 }
 
 @media (max-width: 600px) {
