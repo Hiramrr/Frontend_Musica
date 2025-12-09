@@ -3,16 +3,17 @@ import { defineStore } from 'pinia'
 import apiClient from '@/api/axios'
 
 export const useArtistasStore = defineStore('artistas', () => {
-  // Estados globales 
+   
   const listaArtistas = ref([])
   const cargando = ref(false)
 
-    // Guardar artista en la base de datos
+    // funcion para guardar un nuevo artista, recibe el objeto artista con sus datos, 
+    // lo envia a la base de datos y lo agrega a la lista de artistas
     const guardarArtista = async (artista) => {
       cargando.value = true
       try {
         const response = await apiClient.post('/artistas', artista)
-        // Opcional: agregar el artista a la lista local si la API responde con el nuevo artista
+        
         listaArtistas.value.push(response.data)
         return response.data
       } catch (error) {
@@ -23,7 +24,7 @@ export const useArtistasStore = defineStore('artistas', () => {
       }
     }
 
-  // Obtenemos todos los artistas desde la api
+  // Funcion para obetener la lista de artistas desde la base de datos
   const obtenerArtistas = async () => {
     cargando.value = true
     try {
@@ -36,12 +37,12 @@ export const useArtistasStore = defineStore('artistas', () => {
     }
   }
 
-  // Eliminar artista por id
+  // Funcion para eliminar un artista por su ID, lo elimina de la base de datos y de la lista de artistas
   const eliminarArtista = async (id) => {
     cargando.value = true
     try {
       await apiClient.delete(`/artistas/${id}`)
-      // Quitar artista de la lista local
+      
       listaArtistas.value = listaArtistas.value.filter(a => a.id !== id)
     } catch (error) {
       console.error('Error al eliminar el artista:', error)
@@ -51,12 +52,13 @@ export const useArtistasStore = defineStore('artistas', () => {
     }
   }
 
-  // Actualizar artista por id
+  // Fucnion para actualizar un artista por id, recibe el artista con los nuevos datos, 
+  // y actualiza la base de datos y la lista de artistas
   const actualizarArtista = async (id, artista) => {
     cargando.value = true
     try {
       const response = await apiClient.put(`/artistas/${id}`, artista)
-      // Actualizar artista en la lista local
+      
       listaArtistas.value = listaArtistas.value.map(a => a.id === id ? response.data : a)
       return response.data
     } catch (error) {

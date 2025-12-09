@@ -31,42 +31,53 @@ onMounted(() => {
 })
 
 const irAInicio = () => router.push('/')
-// Cambiamos la función de navegación
-const irAAdmin = () => router.push('/musica-admin')
+const irAAgregarCancion = () => router.push('/agregar-cancion')
+
+// Funciones CRUD
+const editarCancion = (id) => {
+  router.push(`/editar-cancion/${id}`)
+}
+
+const borrarCancion = async (id) => {
+  // Confirmación simple del navegador
+  if (confirm("¿Estás seguro de que deseas eliminar esta canción permanentemente?")) {
+    await store.eliminarCancion(id)
+    // No hace falta recargar la página porque el store actualiza la lista reactiva
+  }
+}
 </script>
 
 <template>
-  <div class="catalogo-container">
+  <div class="contenedor-catalogo">
     <div id="headerArea">
       <HeaderComponente />
     </div>
     <main class="contenido-principal">
-      <h1 class="titulo-pagina">Catálogo de Música</h1>
+      <h1 class="titulo-pagina">Gestión de Canciones (CRUD)</h1>
 
       <div class="botones-superiores">
-        <button @click="irAAdmin" class="boton-nav boton-resaltado">
-          Gestionar Canciones (CRUD)
+        <button @click="irAAgregarCancion" class="boton-nav boton-resaltado">
+          + Nueva Canción
         </button>
       </div>
 
       <div v-if="cargando" class="mensaje-carga">Cargando repertorio...</div>
 
       <div v-else-if="cancionesFiltradas.length > 0" class="cuadricula-canciones">
-          <div
-            v-for="cancion in cancionesFiltradas"
-            :key="cancion.id"
-            class="tarjeta-cancion"
-            @click="router.push({ name: 'detalle-cancion', params: { id: cancion.id } })"
-            style="cursor: pointer"
-          >
+        <div
+          v-for="cancion in cancionesFiltradas"
+          :key="cancion.id || cancion.nombre"
+          class="tarjeta-cancion"
+        >
           <div class="imagen-tarjeta">
-            <img :src="cancion.portada_url || 'https://placehold.co/400'" :alt="cancion.nombre" />
+            <img :src="cancion.portada_url" :alt="cancion.nombre" />
           </div>
 
           <div class="info-tarjeta">
             <h2>{{ cancion.nombre }}</h2>
             <p class="texto-artista">
               {{ cancion.nombre_artista }}
+              <span class="texto-anio">({{ cancion.fecha_salida }})</span>
             </p>
             <p class="texto-album">
               <span class="etiqueta-gris">Álbum:</span> {{ cancion.nombre_album }}
@@ -77,7 +88,13 @@ const irAAdmin = () => router.push('/musica-admin')
               <span class="dato-meta"> ⏱ {{ formatearDuracion(cancion.duracion_segundos) }} </span>
               <span class="dato-meta calificacion"> ★ {{ cancion.calificacion }}/5 </span>
             </div>
+
+            <div class="acciones-tarjeta" style="margin-top: 15px; display: flex; gap: 10px;">
+                <button @click="editarCancion(cancion.id)" class="boton-ver">Editar</button>
+                <button @click="borrarCancion(cancion.id)" class="boton-eliminar">Eliminar</button>
             </div>
+
+          </div>
         </div>
       </div>
 
@@ -87,9 +104,8 @@ const irAAdmin = () => router.push('/musica-admin')
 </template>
 
 <style scoped>
-/* (Mantén los mismos estilos que tenías originalmente en este archivo) */
-/* Copia y pega los estilos de tu archivo original CancionesView.vue aquí */
-/* O simplemente borra la parte de .boton-eliminar si quieres limpiar el css, pero no es obligatorio */
+@import '../../assets/base.css';
+
 :root {
   --header-image: url('https://sadhost.neocities.org/images/layouts/wp.jpeg');
   --body-bg-image: url('https://sadhost.neocities.org/images/tiles/bk024.gif');
@@ -99,7 +115,7 @@ const irAAdmin = () => router.push('/musica-admin')
   --text-color: #0f2d52;
 }
 
-.catalogo-container {
+.contenedor-catalogo {
   min-height: 100vh;
   background-color: var(--content-bg);
   background-image: var(--body-bg-image);
@@ -153,11 +169,10 @@ const irAAdmin = () => router.push('/musica-admin')
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
-
 .cuadricula-canciones {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); 
-  gap: 30px;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 25px;
 }
 
 .tarjeta-cancion {
@@ -166,18 +181,18 @@ const irAAdmin = () => router.push('/musica-admin')
   overflow: hidden;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
   border: 1px solid var(--azul-textos);
-  transition: transform 0.3s ease, border-color 0.3s;
+  transition: transform 0.2s;
   display: flex;
   flex-direction: column;
 }
 
 .tarjeta-cancion:hover {
-  transform: translateY(-5px);
+  transform: translateY(-3px);
   border-color: #345d91;
 }
 
 .imagen-tarjeta {
-  height: 200px; 
+  height: 180px;
   overflow: hidden;
   background: #e6f0fa;
   position: relative;
@@ -188,7 +203,6 @@ const irAAdmin = () => router.push('/musica-admin')
   height: 100%;
   object-fit: cover;
   transition: transform 0.3s;
-  border-bottom: 1px solid var(--azul-textos);
 }
 
 .tarjeta-cancion:hover .imagen-tarjeta img {
@@ -196,8 +210,7 @@ const irAAdmin = () => router.push('/musica-admin')
 }
 
 .info-tarjeta {
-  padding: 1.5rem;
-  text-align: center; 
+  padding: 1rem;
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -205,16 +218,16 @@ const irAAdmin = () => router.push('/musica-admin')
 
 .info-tarjeta h2 {
   color: var(--azul-textos);
-  font-size: 1.2rem;
-  margin-bottom: 0.5rem;
+  font-size: 1.1rem;
+  margin-bottom: 0.2rem;
   font-weight: bold;
 }
 
 .texto-artista {
-  font-size: 1rem;
+  font-size: 0.95rem;
   color: #0f2d52;
   font-weight: 600;
-  margin-bottom: 0.2rem;
+  margin-bottom: 0.5rem;
 }
 
 .texto-album {
@@ -224,26 +237,51 @@ const irAAdmin = () => router.push('/musica-admin')
   font-style: italic;
 }
 
+.etiqueta-gris {
+  font-weight: bold;
+  color: #5c6b7f;
+}
+
 .meta-inferior {
   margin-top: auto;
   display: flex;
-  justify-content: center; 
-  gap: 15px;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid rgba(43, 125, 233, 0.2);
   padding-top: 0.8rem;
-  border-top: 1px dashed rgba(43, 125, 233, 0.3);
 }
 
-.dato-meta {
-  font-size: 0.9rem;
-  color: #0f2d52;
+.boton-ver {
+  background-color: transparent;
+  border: 1px solid var(--azul-textos);
+  color: var(--azul-textos);
+  padding: 0.3rem 0.8rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  cursor: pointer;
   font-weight: bold;
-  background: rgba(255,255,255,0.4);
-  padding: 2px 8px;
-  border-radius: 4px;
+  transition: all 0.2s;
 }
 
-.calificacion {
-  color: #d35400;
+.boton-ver:hover {
+  background-color: var(--azul-textos);
+  color: white;
+}
+
+.boton-eliminar {
+  background-color: transparent;
+  border: 1px solid #d9534f;
+  color: #d9534f;
+  padding: 0.3rem 0.8rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  font-weight: bold;
+  transition: all 0.2s;
+}
+.boton-eliminar:hover {
+  background-color: #d9534f;
+  color: white;
 }
 
 @media (max-width: 600px) {
@@ -252,10 +290,6 @@ const irAAdmin = () => router.push('/musica-admin')
   }
   .cuadricula-canciones {
     grid-template-columns: 1fr;
-    gap: 15px;
-  }
-  .info-tarjeta {
-    padding: 1rem;
   }
 }
 </style>

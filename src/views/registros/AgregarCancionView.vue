@@ -1,40 +1,47 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { useCancionesStore } from '@/stores/canciones'
+import { useAlbumesStore } from '@/stores/albums'
 
 const router = useRouter()
-const referenciaInput = ref(null)
+const cancionesStore = useCancionesStore()
+const albumesStore = useAlbumesStore()
 
-const listaAlbumes = ref([
-  { id: 1, nombre: 'Romance - Luis Miguel' },
-  { id: 2, nombre: 'Aries - Luis Miguel' },
-  { id: 3, nombre: 'Recuerdos, Vol. II - Juan Gabriel' },
-  { id: 4, nombre: 'Dawn FM - The Weeknd' },
-  { id: 0, nombre: '-- Es un Single (Sin álbum) --' }
-])
+// Lista reactiva para los álbumes del selector
+const listaAlbumes = ref([])
 
 const formulario = ref({
   nombre: '',
-  album_id: '',
+  album_id: '', // Aquí guardaremos el ID seleccionado o null
   anio_salida: '',
   duracion: '',
   artista_colaborador: '',
   descripcion: '',
-  portada_url: '' // Nuevo campo para la URL de la portada
+  portada_url: ''
 })
 
+// Cargar álbumes reales al iniciar
+onMounted(async () => {
+  await albumesStore.obtenerAlbumes()
+  
+  // Combinamos la opción "Single" con los álbumes traídos de la BD
+  listaAlbumes.value = [
+    { id: null, nombre: '-- Es un Single (Sin álbum) --' },
+    ...albumesStore.listaAlbumes
+  ]
+})
 
+const irAInicio = () => router.push('/musica')
 
-const irAInicio = () => router.push('/')
-
-const seleccionarImagen = () => referenciaInput.value.click()
-
-const alCambiarArchivo = (evento) => {
-  const archivo = evento.target.files[0]
-  if (archivo) {
-    archivoImagen.value = archivo
-    previsualizacionImagen.value = URL.createObjectURL(archivo)
-  }
+// Función auxiliar para convertir "MM:SS" a segundos (int)
+const duracionASegundos = (tiempo) => {
+  if (!tiempo) return 0
+  const partes = tiempo.split(':')
+  if (partes.length !== 2) return 0
+  const min = parseInt(partes[0]) || 0
+  const seg = parseInt(partes[1]) || 0
+  return (min * 60) + seg
 }
 
 const limpiarFormulario = () => {
@@ -49,10 +56,34 @@ const limpiarFormulario = () => {
   }
 }
 
-const guardarCancion = () => {
-  console.log("Registrando Canción:", { ...formulario.value })
-  alert("Canción registrada correctamente (Simulación)")
-  router.push('/')
+const guardarCancion = async () => {
+  // Validación simple
+  if (!formulario.value.nombre || !formulario.value.duracion) {
+    alert("El nombre y la duración son obligatorios")
+    return
+  }
+
+  // Preparamos el objeto JSON tal como lo espera el Backend (Entity Cancion)
+  const nuevaCancion = {
+    nombre: formulario.value.nombre,
+    fecha_salida: parseInt(formulario.value.anio_salida) || 0,
+    duracion_segundos: duracionASegundos(formulario.value.duracion),
+    descripcion: formulario.value.descripcion,
+    portada_url: formulario.value.portada_url,
+    
+    // Relación con Álbum: El backend espera un objeto { id: ... } o null
+    album: formulario.value.album_id ? { id: formulario.value.album_id } : null
+  }
+
+  try {
+    // Enviamos al store (que llama a la API)
+    await cancionesStore.guardarCancion(nuevaCancion)
+    alert("Canción registrada correctamente")
+    router.push('/musica') // Regresamos al catálogo
+  } catch (error) {
+    console.error(error)
+    alert("Hubo un error al registrar la canción")
+  }
 }
 </script>
 
@@ -82,15 +113,18 @@ const guardarCancion = () => {
                   type="text"
                   required
                   class="entrada"
-                  placeholder="Ej: La Incondicional, Blinding Lights..."
+                  placeholder="Ej: La Incondicional..."
                 />
               </div>
 
               <div class="grupo-input">
                 <label class="etiqueta">Pertenece al Álbum</label>
-                <select v-model="formulario.album_id" required class="entrada selector">
-                  <option value="" disabled>Selecciona un álbum</option>
-                  <option v-for="album in listaAlbumes" :key="album.id" :value="album.id">
+                <select v-model="formulario.album_id" class="entrada selector">
+                  <option 
+                    v-for="album in listaAlbumes" 
+                    :key="album.id" 
+                    :value="album.id"
+                  >
                     {{ album.nombre }}
                   </option>
                 </select>
@@ -112,7 +146,7 @@ const guardarCancion = () => {
                 </div>
 
                 <div class="grupo-input">
-                  <label class="etiqueta">Duración</label>
+                  <label class="etiqueta">Duración (MM:SS)</label>
                   <input
                     v-model="formulario.duracion"
                     type="text"
@@ -123,7 +157,7 @@ const guardarCancion = () => {
                 </div>
 
                 <div class="grupo-input">
-                  <label class="etiqueta">Artista o artistas (colaboración) </label>
+                  <label class="etiqueta">Artista (Colaboración)</label>
                   <input
                     v-model="formulario.artista_colaborador"
                     type="text"
@@ -134,27 +168,26 @@ const guardarCancion = () => {
               </div>
 
               <div class="grupo-input">
-                <label class="etiqueta">Detalles / Compositores</label>
+                <label class="etiqueta">Descripción / Detalles</label>
                 <textarea
                   v-model="formulario.descripcion"
                   rows="4"
                   class="entrada area-texto"
-                  placeholder="Información adicional sobre la composición, letra o producción..."
+                  placeholder="Información adicional..."
                 ></textarea>
               </div>
             </div>
 
             <div class="seccion-imagen">
               <div class="grupo-input">
-                <label class="etiqueta">URL de la Portada del Sencillo</label>
+                <label class="etiqueta">URL de la Portada</label>
                 <input
                   v-model="formulario.portada_url"
                   type="url"
                   class="entrada"
-                  placeholder="Pega aquí la URL de la portada desde imgbb.com"
+                  placeholder="Pega aquí la URL de la imagen"
                   required
                 />
-                <span class="pista">Ejemplo: https://i.ibb.co/xxxxxx/portada.jpg</span>
                 <div v-if="formulario.portada_url" class="previsualizacion" style="margin-top:1rem;">
                   <img :src="formulario.portada_url" alt="Portada Preview" />
                 </div>
