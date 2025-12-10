@@ -17,10 +17,14 @@ const resenasStore = useResenasStore() // <--- USAR
 
 const tabActiva = ref('todo')
 
+//checa si el usuario que esta viendo la pagina es el duueño del perfil
+//true si lo es, false si no
 const esMiPerfil = computed(() => {
   return !props.id || (authStore.usuario && props.id === authStore.usuario.id)
 })
 
+//define que usuario debe mostrarse en la pagina, si es mi perfil lo saca del store
+// y si no lo pide del backend
 const usuarioVisualizado = computed(() => {
   if (esMiPerfil.value) return authStore.usuario || {}
   return usuariosStore.usuarioSeleccionado || {}
