@@ -1,4 +1,11 @@
 <script setup>
+/**
+ * 1. Obtiene el ID de la canción desde la URL.
+ * 2. Carga la lista de álbumes (para el selector).
+ * 3. Carga los datos actuales de la canción desde el Backend.
+ * 4. Rellena el formulario con esos datos (transformando la duración).
+ * 5. Envía los cambios al Backend cuando el usuario guarda.
+ */
 import { ref, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useCancionesStore } from '@/stores/canciones'
@@ -44,6 +51,7 @@ onMounted(async () => {
   ]
 
   const idCancion = route.params.id
+  //Pedir al backend los datos de esa canción
   const cancion = await cancionesStore.obtenerCancionPorId(idCancion)
 
   if (cancion) {
@@ -59,6 +67,7 @@ onMounted(async () => {
   }
 })
 
+//Prepara el objeto y lo envía al store para actualizar.
 const guardarCambios = async () => {
   const payload = {
     nombre: formulario.value.nombre,
