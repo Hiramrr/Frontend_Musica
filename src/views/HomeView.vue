@@ -1,68 +1,19 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { RouterLink } from 'vue-router'
+import { storeToRefs } from 'pinia'
 import { useAuthStore } from '../stores/authStore'
+import { useAlbumesStore } from '../stores/albums'
 import HeaderComponente from '../components/HeaderComponente.vue'
 
-const store = useAuthStore()
-const nuevosLanzamientos = ref([
-  {
-    id: 1,
-    titulo: 'Navidades',
-    artista: 'Luis Miguel',
-    fecha: '14 de Noviembre de 2006',
-    generos: ['Villancicos', 'Jazz Pop'],
-    promedio: '4.20',
-    votos: '15,600',
-    deseados: '4,100',
-    imagen: 'https://placehold.co/100x100/c0392b/FFF?text=LM',
-  },
-  {
-    id: 2,
-    titulo: 'Recuerdos, Vol. II',
-    artista: 'Juan Gabriel',
-    fecha: '20 de Julio de 1984',
-    generos: ['Balada', 'Mariachi'],
-    promedio: '4.90',
-    votos: '30,150',
-    deseados: '5,000',
-    imagen: 'https://placehold.co/100x100/8e44ad/FFF?text=JG',
-  },
-  {
-    id: 3,
-    titulo: 'Romance',
-    artista: 'Luis Miguel',
-    fecha: '19 de Noviembre de 1991',
-    generos: ['Bolero', 'Pop Latino'],
-    promedio: '4.85',
-    votos: '25,420',
-    deseados: '3,200',
-    imagen: 'https://placehold.co/100x100/2c3e50/FFF?text=Romance',
-  },
-  {
-    id: 4,
-    titulo: 'En el Palacio de Bellas Artes',
-    artista: 'Juan Gabriel',
-    fecha: '20 de Diciembre de 1990',
-    generos: ['En Vivo', 'Ranchera'],
-    promedio: '5.00',
-    votos: '45,000',
-    deseados: '8,500',
-    imagen: 'https://placehold.co/100x100/d35400/FFF?text=Bellas+Artes',
-  },
-  {
-    id: 5,
-    titulo: 'Aries',
-    artista: 'Luis Miguel',
-    fecha: '22 de Junio de 1993',
-    generos: ['Pop', 'R&B'],
-    promedio: '4.75',
-    votos: '18,300',
-    deseados: '2,100',
-    imagen: 'https://placehold.co/100x100/f39c12/FFF?text=Aries',
-  },
-])
+const authStore = useAuthStore()
+const albumesStore = useAlbumesStore()
 
+// Referencias reactivas a los datos del store
+const { listaAlbumes, cargando } = storeToRefs(albumesStore)
+
+// Datos de prueba para mostrar mientras carga la información
+const nuevosLanzamientos = ref([])
 const masEscuchados = ref([
   { id: 1, titulo: 'Santa Claus Llegó a La Ciudad', artista: 'Luis Miguel', oyentes: 1500 },
   { id: 2, titulo: 'Querida', artista: 'Juan Gabriel', oyentes: 1450 },
@@ -70,6 +21,26 @@ const masEscuchados = ref([
   { id: 4, titulo: 'Amor Eterno (En Vivo)', artista: 'Juan Gabriel', oyentes: 1280 },
   { id: 5, titulo: 'Suave', artista: 'Luis Miguel', oyentes: 1100 },
 ])
+
+// Al cargar la vista, obtiene los álbumes de la base de datos
+onMounted(async () => {
+  await albumesStore.obtenerAlbumes()
+  
+  // Transforma los datos de álbumes para mostrarlos en el formato esperado
+  if (listaAlbumes.value && listaAlbumes.value.length > 0) {
+    nuevosLanzamientos.value = listaAlbumes.value.map(album => ({
+      id: album.id,
+      titulo: album.nombre,
+      artista: album.nombreArtista || 'Artista desconocido',
+      fecha: album.fechaSalida ? `${album.fechaSalida}` : 'Fecha desconocida',
+      generos: ['Música'], // El backend aún no proporciona géneros
+      promedio: '4.50',
+      votos: '10,000',
+      deseados: '2,500',
+      imagen: album.portadaUrl || 'https://placehold.co/100x100/2c3e50/FFF?text=Album',
+    }))
+  }
+})
 </script>
 
 <template>
@@ -92,37 +63,50 @@ const masEscuchados = ref([
           <strong>Canciones más populares</strong>
         </p>
 
-        <div v-for="album in nuevosLanzamientos" :key="album.id" class="box fila-album">
-          <div class="portada-album">
-            <img :src="album.imagen" :alt="album.titulo" />
-          </div>
+        <!-- Muestra mensaje de carga mientras se obtienen datos -->
+        <div v-if="cargando" class="mensaje-carga">
+          Cargando álbumes de la base de datos...
+        </div>
 
-          <div class="detalles-album">
-            <h2>
-              <a href="#">{{ album.titulo }}</a>
-            </h2>
-            <div class="artista-album">
-              de <strong>{{ album.artista }}</strong>
+        <!-- Muestra los álbumes una vez cargados -->
+        <div v-else-if="nuevosLanzamientos.length > 0">
+          <div v-for="album in nuevosLanzamientos" :key="album.id" class="box fila-album">
+            <div class="portada-album">
+              <img :src="album.imagen" :alt="album.titulo" />
             </div>
-            <div class="meta-album">Lanzado: {{ album.fecha }}</div>
 
-            <div class="generos-album">
-              <span v-for="(genero, indice) in album.generos" :key="indice">
-                [{{ genero }}]{{ indice < album.generos.length - 1 ? ' ' : '' }}
-              </span>
+            <div class="detalles-album">
+              <h2>
+                <a href="#">{{ album.titulo }}</a>
+              </h2>
+              <div class="artista-album">
+                de <strong>{{ album.artista }}</strong>
+              </div>
+              <div class="meta-album">Lanzado: {{ album.fecha }}</div>
+
+              <div class="generos-album">
+                <span v-for="(genero, indice) in album.generos" :key="indice">
+                  [{{ genero }}]{{ indice < album.generos.length - 1 ? ' ' : '' }}
+                </span>
+              </div>
+            </div>
+
+            <div class="estadisticas-album">
+              <div class="stat-group">
+                <span class="stat-label">Promedio</span>
+                <span class="stat-value">{{ album.promedio }}</span>
+              </div>
+              <div class="stat-group">
+                <span class="stat-label">Numero de votos</span>
+                <span class="stat-value">{{ album.votos }}</span>
+              </div>
             </div>
           </div>
+        </div>
 
-          <div class="estadisticas-album">
-            <div class="stat-group">
-              <span class="stat-label">Promedio</span>
-              <span class="stat-value">{{ album.promedio }}</span>
-            </div>
-            <div class="stat-group">
-              <span class="stat-label">Numero de votos</span>
-              <span class="stat-value">{{ album.votos }}</span>
-            </div>
-          </div>
+        <!-- Muestra mensaje si no hay álbumes disponibles -->
+        <div v-else class="mensaje-vacio">
+          No se encontraron álbumes disponibles en la base de datos.
         </div>
       </main>
 
@@ -350,6 +334,27 @@ h2 {
 .stat-value {
   color: #345d91;
   font-weight: bold;
+}
+
+/* Mensajes de estado */
+.mensaje-carga {
+  text-align: center;
+  padding: 3rem;
+  font-size: 1.1rem;
+  color: #2b7de9;
+  background-color: rgba(43, 125, 233, 0.1);
+  border-radius: 8px;
+  border: 1px solid #2b7de9;
+}
+
+.mensaje-vacio {
+  text-align: center;
+  padding: 3rem;
+  font-size: 1.1rem;
+  color: #666;
+  background-color: #f5f5f5;
+  border-radius: 8px;
+  border: 1px dashed #ccc;
 }
 
 /* Lista del Sidebar */
