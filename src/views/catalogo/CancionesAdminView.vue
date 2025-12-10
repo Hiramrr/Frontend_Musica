@@ -12,6 +12,7 @@ const store = useCancionesStore()
 const { listaCanciones, cargando } = storeToRefs(store)
 const filtroAlbum = ref(route.query.album || '')
 
+//Determina qué canciones mostrar en la cuadrícula.
 const cancionesFiltradas = computed(() => {
   if (filtroAlbum.value) {
     return listaCanciones.value.filter((c) => c.nombre_album === filtroAlbum.value)
@@ -37,6 +38,10 @@ const editarCancion = (id) => {
   router.push(`/editar-cancion/${id}`)
 }
 
+/**
+ * 1. Pide confirmación al usuario.
+ * 2. Llama a la acción del store para eliminar en BD y en local.
+ */
 const borrarCancion = async (id) => {
   if (confirm("¿Estás seguro de que deseas eliminar esta canción permanentemente?")) {
     await store.eliminarCancion(id)
