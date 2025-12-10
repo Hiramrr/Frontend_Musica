@@ -8,7 +8,7 @@ import AlbumDetalleView from '../views/catalogo/AlbumDetalleView.vue'
 import ConsultaUsuariosView from '../views/ConsultaUsuariosView.vue'
 
 const router = createRouter({
-  history: createWebHistory(import.meta.env.BASE_URL),
+  history: createWebHashHistory(import.meta.env.BASE_URL),
   routes: [
     {
       path: '/',
