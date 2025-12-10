@@ -89,10 +89,19 @@ export const useAlbumesStore = defineStore('albumes', () => {
   const eliminarAlbum = async (id) => {
     try {
       await apiClient.delete(`/albums/${id}`)
-      listaAlbumes.value = listaAlbumes.value.filter(album => album.id !== id)
+      // Si tiene éxito, se filtra el álbum de la lista local
+      listaAlbumes.value = listaAlbumes.value.filter((album) => album.id !== id)
     } catch (error) {
-      console.error('Error al eliminar el álbum:', error)
-      throw error
+      // Si el error es 404, significa que ya fue borrado. Lo quitamos de la lista.
+      if (error.response && error.response.status === 404) {
+        console.warn(`Intento de eliminar álbum (ID: ${id}) no encontrado en el servidor. Actualizando UI.`)
+        listaAlbumes.value = listaAlbumes.value.filter((album) => album.id !== id)
+        // No se relanza el error, se considera una eliminación "exitosa" para el frontend
+      } else {
+        // Para cualquier otro error (500, etc.), se loguea y relanza para que el componente lo maneje
+        console.error('Error al eliminar el álbum:', error)
+        throw error
+      }
     }
   }
 

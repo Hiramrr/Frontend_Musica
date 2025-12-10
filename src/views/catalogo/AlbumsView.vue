@@ -28,7 +28,14 @@ const editarAlbum = (id) => {
 
 const eliminarAlbum = async (id) => {
   if (confirm('¿Estás seguro de que quieres eliminar este álbum?')) {
-    await store.eliminarAlbum(id)
+    try {
+      await store.eliminarAlbum(id)
+    } catch (error) {
+      console.error('Error desde el componente al eliminar:', error)
+      alert(
+        'No se pudo eliminar el álbum. Es posible que tenga canciones asociadas. Por favor, elimine las canciones del álbum antes de intentarlo de nuevo.'
+      )
+    }
   }
 }
 </script>
