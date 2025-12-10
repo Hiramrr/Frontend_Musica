@@ -14,7 +14,7 @@ const props = defineProps({
 const router = useRouter()
 const authStore = useAuthStore()
 const usuariosStore = useUsuariosStore()
-const resenasStore = useResenasStore() // <--- USAR
+const resenasStore = useResenasStore()
 
 //inicia en la pestaña de todas las reseñas
 const tabActiva = ref('todo')
