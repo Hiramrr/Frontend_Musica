@@ -8,12 +8,11 @@ const router = useRouter()
 const cancionesStore = useCancionesStore()
 const albumesStore = useAlbumesStore()
 
-// Lista reactiva para los álbumes del selector
 const listaAlbumes = ref([])
 
 const formulario = ref({
   nombre: '',
-  album_id: '', // Aquí guardaremos el ID seleccionado o null
+  album_id: '', 
   anio_salida: '',
   duracion: '',
   artista_colaborador: '',
@@ -21,11 +20,9 @@ const formulario = ref({
   portada_url: ''
 })
 
-// Cargar álbumes reales al iniciar
 onMounted(async () => {
   await albumesStore.obtenerAlbumes()
   
-  // Combinamos la opción "Single" con los álbumes traídos de la BD
   listaAlbumes.value = [
     { id: null, nombre: '-- Es un Single (Sin álbum) --' },
     ...albumesStore.listaAlbumes
@@ -34,7 +31,6 @@ onMounted(async () => {
 
 const irAInicio = () => router.push('/musica')
 
-// Función auxiliar para convertir "MM:SS" a segundos (int)
 const duracionASegundos = (tiempo) => {
   if (!tiempo) return 0
   const partes = tiempo.split(':')
@@ -57,13 +53,11 @@ const limpiarFormulario = () => {
 }
 
 const guardarCancion = async () => {
-  // Validación simple
   if (!formulario.value.nombre || !formulario.value.duracion) {
     alert("El nombre y la duración son obligatorios")
     return
   }
 
-  // Preparamos el objeto JSON tal como lo espera el Backend (Entity Cancion)
   const nuevaCancion = {
     nombre: formulario.value.nombre,
     fecha_salida: parseInt(formulario.value.anio_salida) || 0,
@@ -71,15 +65,13 @@ const guardarCancion = async () => {
     descripcion: formulario.value.descripcion,
     portada_url: formulario.value.portada_url,
     
-    // Relación con Álbum: El backend espera un objeto { id: ... } o null
     album: formulario.value.album_id ? { id: formulario.value.album_id } : null
   }
 
   try {
-    // Enviamos al store (que llama a la API)
     await cancionesStore.guardarCancion(nuevaCancion)
     alert("Canción registrada correctamente")
-    router.push('/musica') // Regresamos al catálogo
+    router.push('/musica') 
   } catch (error) {
     console.error(error)
     alert("Hubo un error al registrar la canción")

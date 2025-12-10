@@ -33,16 +33,13 @@ onMounted(() => {
 const irAInicio = () => router.push('/')
 const irAAgregarCancion = () => router.push('/agregar-cancion')
 
-// Funciones CRUD
 const editarCancion = (id) => {
   router.push(`/editar-cancion/${id}`)
 }
 
 const borrarCancion = async (id) => {
-  // Confirmación simple del navegador
   if (confirm("¿Estás seguro de que deseas eliminar esta canción permanentemente?")) {
     await store.eliminarCancion(id)
-    // No hace falta recargar la página porque el store actualiza la lista reactiva
   }
 }
 </script>

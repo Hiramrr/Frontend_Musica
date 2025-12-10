@@ -9,7 +9,6 @@ const router = useRouter()
 const route = useRoute()
 const store = useCancionesStore()
 
-// Extraemos los datos del estado global
 const { listaCanciones, cargando } = storeToRefs(store)
 const filtroAlbum = ref(route.query.album || '')
 
@@ -33,7 +32,6 @@ onMounted(() => {
 
 const irAAdmin = () => router.push('/musica-admin')
 
-// Función para navegar al detalle
 const verDetalles = (id) => {
   router.push({ name: 'detalle-cancion', params: { id } })
 }

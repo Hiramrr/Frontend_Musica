@@ -17,12 +17,10 @@ const formulario = ref({
   album_id: '',
   anio_salida: '',
   duracionTexto: '',
-  artista_colaborador: '', // Si tienes este campo en tu BD o lógica extra
-  descripcion: '',
+  artista_colaborador: '', 
   portada_url: ''
 })
 
-// Convertir segundos (ej: 225) a texto (ej: "03:45")
 const segundosAFormato = (totalSegundos) => {
   if (!totalSegundos) return ''
   const minutos = Math.floor(totalSegundos / 60)
@@ -30,7 +28,6 @@ const segundosAFormato = (totalSegundos) => {
   return `${minutos}:${segundos.toString().padStart(2, '0')}`
 }
 
-// Convertir texto (ej: "03:45") a segundos (ej: 225)
 const formatoASegundos = (texto) => {
   if (!texto) return 0
   const partes = texto.split(':')
@@ -40,14 +37,12 @@ const formatoASegundos = (texto) => {
 }
 
 onMounted(async () => {
-  // 1. Cargar álbumes para el select
   await albumesStore.obtenerAlbumes()
   listaAlbumes.value = [
-    { id: null, nombre: '-- Es un Single (Sin álbum) --' }, // Opción para singles
+    { id: null, nombre: '-- Es un Single (Sin álbum) --' }, 
     ...albumesStore.listaAlbumes
   ]
 
-  // 2. Cargar datos de la canción a editar
   const idCancion = route.params.id
   const cancion = await cancionesStore.obtenerCancionPorId(idCancion)
 
@@ -55,7 +50,6 @@ onMounted(async () => {
     formulario.value = {
       id: cancion.id,
       nombre: cancion.nombre,
-      // Usamos idAlbum que viene gracias al getter en tu entidad Java
       album_id: cancion.idAlbum || null, 
       anio_salida: cancion.fecha_salida,
       duracionTexto: segundosAFormato(cancion.duracion_segundos),
@@ -72,14 +66,13 @@ const guardarCambios = async () => {
     duracion_segundos: formatoASegundos(formulario.value.duracionTexto),
     descripcion: formulario.value.descripcion,
     portada_url: formulario.value.portada_url,
-    // Enviamos el objeto álbum o null
     album: formulario.value.album_id ? { id: formulario.value.album_id } : null
   }
 
   try {
     await cancionesStore.actualizarCancion(formulario.value.id, payload)
     alert('Canción actualizada correctamente')
-    router.push('/musica-admin') // Regresa a la vista administrativa
+    router.push('/musica-admin') 
   } catch (error) {
     console.error(error)
     alert('Error al actualizar la canción')
@@ -166,7 +159,6 @@ const irAtras = () => router.push('/musica-admin')
 </template>
 
 <style scoped>
-/* Reutilizamos los mismos estilos para mantener consistencia */
 @import '../../assets/base.css';
 
 :root {
