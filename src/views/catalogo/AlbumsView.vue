@@ -2,7 +2,7 @@
 // Vista de catálogo que muestra todos los álbumes disponibles en el sistema
 // Permite ver detalles, crear nuevos álbumes, editar y eliminar existentes
 
-import { onMounted } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAlbumesStore } from '@/stores/albums'
 import { storeToRefs } from 'pinia'
@@ -13,6 +13,9 @@ const store = useAlbumesStore()
 
 // Referencias reactivas del store para acceder a la lista de álbumes y estado de carga
 const { listaAlbumes, cargando } = storeToRefs(store)
+
+// Control para mostrar/ocultar la vista CRUD
+const mostrarCRUD = ref(false)
 
 // Al cargar la vista, obtiene la lista completa de álbumes desde el backend
 onMounted(() => {
@@ -49,6 +52,11 @@ const eliminarAlbum = async (id) => {
     }
   }
 }
+
+// Alterna la visibilidad de la sección CRUD
+const toggleCRUD = () => {
+  mostrarCRUD.value = !mostrarCRUD.value
+}
 </script>
 
 <template>
@@ -62,12 +70,38 @@ const eliminarAlbum = async (id) => {
 
       <div class="botones-superiores">
         <button @click="irAInicio" class="boton-nav">Inicio</button>
-        <button @click="irAAgregarAlbum" class="boton-nav boton-resaltado">+ Nuevo Álbum</button>
+        <!-- Botón de agregar solo aparece en vista CRUD -->
+        <button v-if="mostrarCRUD" @click="irAAgregarAlbum" class="boton-nav boton-resaltado">+ Nuevo Álbum</button>
+        <button @click="toggleCRUD" :class="['boton-nav', 'boton-crud', { activo: mostrarCRUD }]">
+           Álbumes CRUD
+        </button>
       </div>
 
       <div v-if="cargando" class="mensaje-carga">Cargando discografía...</div>
 
-      <div v-else-if="listaAlbumes.length > 0" class="cuadricula-albumes">
+      <!-- Vista normal de catálogo (sin botones de editar/eliminar) -->
+      <div v-else-if="!mostrarCRUD && listaAlbumes.length > 0" class="cuadricula-albumes">
+        <div v-for="album in listaAlbumes" :key="album.id" class="tarjeta-album">
+          <div class="imagen-tarjeta">
+            <img :src="album.portadaUrl" :alt="album.nombre" />
+          </div>
+
+          <div class="info-tarjeta">
+            <h2>{{ album.nombre }}</h2>
+
+            <span class="etiqueta-artista">
+              {{ album.nombreArtista }} ({{ album.fechaSalida }})
+            </span>
+
+            <p class="descripcion">{{ album.descripcion }}</p>
+
+            <button @click="verDetalle(album.id)" class="boton-ver">Ver Canciones</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Vista CRUD (con botones de editar/eliminar) -->
+      <div v-else-if="mostrarCRUD && listaAlbumes.length > 0" class="cuadricula-albumes">
         <div v-for="album in listaAlbumes" :key="album.id" class="tarjeta-album">
           <div class="imagen-tarjeta">
             <img :src="album.portadaUrl" :alt="album.nombre" />
@@ -153,6 +187,17 @@ const eliminarAlbum = async (id) => {
 .boton-resaltado {
   background-color: var(--azul-textos);
   color: white;
+}
+
+.boton-crud {
+  background-color: #95a5a6;
+  color: white;
+  transition: all 0.3s ease;
+}
+
+.boton-crud.activo {
+  background-color: #e74c3c;
+  border-color: #c0392b;
 }
 
 .boton-nav:hover {
