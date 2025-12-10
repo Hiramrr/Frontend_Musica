@@ -547,6 +547,6 @@ h2 {
 }
 
 .stars {
-    color: #f39c12;
+    color: black;
 }
 </style>
