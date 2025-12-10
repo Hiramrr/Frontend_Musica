@@ -6,6 +6,7 @@ import HeaderComponente from '../components/HeaderComponente.vue'
 
 const usuariosStore = useUsuariosStore()
 
+//cuando se carga la pagina manda a llamar la funcion obtener todos del store de usuarios
 onMounted(() => {
   usuariosStore.obtenerTodos()
 })

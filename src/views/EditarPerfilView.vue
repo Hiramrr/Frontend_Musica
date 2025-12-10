@@ -7,12 +7,16 @@ import HeaderComponente from '../components/HeaderComponente.vue'
 const store = useAuthStore()
 const router = useRouter()
 
+//carga los datos del usuario en el store en el formulario de edicion
 const formulario = reactive({
   nombre: store.usuario?.nombre || '',
   correo: store.usuario?.correo || '',
   fotoUrl: store.usuario?.fotoUrl || '',
 })
 
+//manda a llamar el metodo del store que se encarga de actualizar los datos del usuario
+// le manda un arreglo con el nombre, correo y url de la foto
+// true si es exitoso, false si fallo
 async function guardarCambios() {
   const datosParaEnviar = {
     nombre: formulario.nombre,
@@ -34,6 +38,9 @@ function cancelar() {
   router.push('/perfil')
 }
 
+// elimina la cuenta del usuario, primero pide confirmacion de si el usuario quiere hacer eso
+// si el usuario dice que si se manda a llamar el metodo del store que se encarga de eso
+// le pasa la id del usuario
 async function eliminarCuenta() {
   const confirmacion = window.confirm('Estas seguro? esto no se puede revertir btw')
 

@@ -6,6 +6,7 @@ import { useUsuariosStore } from '../stores/usuarios'
 import { useResenasStore } from '../stores/resenas'
 import HeaderComponente from '../components/HeaderComponente.vue'
 
+//indicamos que la id solo fuede ser de tipo string, su default es null
 const props = defineProps({
   id: { type: String, default: null }
 })
@@ -15,6 +16,7 @@ const authStore = useAuthStore()
 const usuariosStore = useUsuariosStore()
 const resenasStore = useResenasStore() // <--- USAR
 
+//inicia en la pestaña de todas las reseñas
 const tabActiva = ref('todo')
 
 //checa si el usuario que esta viendo la pagina es el duueño del perfil

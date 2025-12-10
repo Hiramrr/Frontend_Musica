@@ -7,6 +7,7 @@ import HeaderComponente from '../components/HeaderComponente.vue'
 const router = useRouter()
 const authStore = useAuthStore()
 
+//estados reactivos del formulario
 const credenciales = ref({
   correo: '',
   password: '',

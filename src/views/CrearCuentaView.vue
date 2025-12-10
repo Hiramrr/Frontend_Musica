@@ -8,6 +8,7 @@ import HeaderComponente from '../components/HeaderComponente.vue'
 const authStore = useAuthStore()
 const router = useRouter()
 
+//estados del formulario
 const formulario = ref({
   nombre: '',
   correo: '',
