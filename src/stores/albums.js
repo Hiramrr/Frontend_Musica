@@ -109,11 +109,35 @@ export const useAlbumesStore = defineStore('albumes', () => {
     }
   }
 
-  const actualizarAlbum = async (album) => {
+const actualizarAlbum = async (arg1, arg2) => {
     cargando.value = true
     try {
-      await apiClient.put(`/albums/${album.id}`, album)
-      await obtenerAlbumes() // Recargar la lista de álbumes
+      let id, data;
+
+      // Lógica para detectar si mandaste (id, data) o solo (data)
+      if (typeof arg1 === 'string' || typeof arg1 === 'number') {
+        // Caso: actualizarAlbum('123', { nombre: ... })
+        id = arg1
+        data = arg2
+      } else {
+        // Caso: actualizarAlbum({ id: '123', nombre: ... })
+        id = arg1.id
+        data = arg1
+      }
+
+      // Validación de seguridad
+      if (!id) throw new Error("ID de álbum no definido para actualizar")
+
+      // Llamada al endpoint correcto: PUT /albums/{id}
+      const response = await apiClient.put(`/albums/${id}`, data)
+      
+      // Actualizamos la lista localmente para reflejar cambios
+      const index = listaAlbumes.value.findIndex(a => a.id === id)
+      if (index !== -1) {
+        listaAlbumes.value[index] = response.data
+      }
+      return response.data
+
     } catch (error) {
       console.error('Error al actualizar el álbum:', error)
       throw error

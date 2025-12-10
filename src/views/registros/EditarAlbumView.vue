@@ -20,7 +20,7 @@ const formulario = ref({
   duracionTexto: ''
 })
 
-// Función para convertir segundos a formato MM:SS
+// Función para convertir segundos a formato minutos y segundos
 const segundosAFormatoMMSS = (totalSegundos) => {
   if (isNaN(totalSegundos) || totalSegundos === null) return ''
   const minutos = Math.floor(totalSegundos / 60)
@@ -28,30 +28,7 @@ const segundosAFormatoMMSS = (totalSegundos) => {
   return `${String(minutos).padStart(2, '0')}:${String(segundos).padStart(2, '0')}`
 }
 
-onMounted(async () => {
-  await artistasStore.obtenerArtistas()
-  
-  const albumId = route.params.id
-  // Usar obtenerAlbumPorId para obtener todos los detalles del álbum
-  const album = await albumesStore.obtenerAlbumPorId(albumId)
-
-  if (album) {
-    console.log('Datos del álbum recibidos:', album); // Para depuración
-    formulario.value = {
-      id: album.id,
-      nombre: album.nombre,
-      artista_id: album.artistas && album.artistas.length > 0 ? album.artistas[0].id : '',
-      fechaSalida: album.fechaSalida,
-      descripcion: album.descripcion,
-      portadaUrl: album.portadaUrl,
-      totalCanciones: album.totalCanciones, // Este campo debería venir del backend
-      duracionTexto: segundosAFormatoMMSS(album.duracion_segundos) // y este también
-    }
-  }
-})
-
-const irAAlbumes = () => router.push('/albumes')
-
+// Función para convertir MM:SS a segundos para su envio al back para enviar al back
 const convertirDuracionASegundos = (tiempo) => {
   if (!tiempo || !tiempo.includes(':')) return 0
   const partes = tiempo.split(':')
@@ -60,25 +37,76 @@ const convertirDuracionASegundos = (tiempo) => {
   return (minutos * 60) + segundos
 }
 
+onMounted(async () => {
+  await artistasStore.obtenerArtistas()
+  
+  //Cargar datos del álbum a editar
+  const albumId = route.params.id
+  const album = await albumesStore.obtenerAlbumPorId(albumId)
+
+  if (album) {
+    let idArtista = ''
+    if (album.artistas && album.artistas.length > 0) {
+      idArtista = album.artistas[0].id
+    }
+
+    // Llenar formulario
+    formulario.value = {
+      id: album.id,
+      nombre: album.nombre,
+      artista_id: idArtista,
+      fechaSalida: album.fechaSalida,
+      descripcion: album.descripcion,
+      portadaUrl: album.portadaUrl,
+      totalCanciones: album.totalCanciones,
+      duracionTexto: segundosAFormatoMMSS(album.duracion_segundos) 
+    }
+  }
+})
+
+const irAAlbumes = () => router.push('/albumes')
+
 const guardarCambios = async () => {
+  // Validaciones para no dejar campos vacios
+  if (!formulario.value.artista_id) {
+    alert("Por favor selecciona un artista")
+    return
+  }
+
+  const anio = parseInt(formulario.value.fechaSalida)
+  const total = parseInt(formulario.value.totalCanciones)
+  const segundos = convertirDuracionASegundos(formulario.value.duracionTexto)
+
+  if (isNaN(anio) || isNaN(total) || isNaN(segundos)) {
+    alert("Por favor verifica que los campos numéricos sean correctos")
+    return
+  }
+
+  // Construcción del objeto que se va a enviar al backend
   const payload = {
     id: formulario.value.id,
     nombre: formulario.value.nombre,
-    fechaSalida: parseInt(formulario.value.fechaSalida),
-    totalCanciones: parseInt(formulario.value.totalCanciones),
+    fechaSalida: anio,
+    totalCanciones: total,
     descripcion: formulario.value.descripcion,
     portadaUrl: formulario.value.portadaUrl,
-    duracion_segundos: convertirDuracionASegundos(formulario.value.duracionTexto),
-    artistas: [{ id: formulario.value.artista_id }]
+    duracion_segundos: segundos,
+    
+    // Enviamos el artista como array de objetos con su id 
+    artistas: [
+      { id: formulario.value.artista_id }
+    ]
+    
   }
 
   try {
-    await albumesStore.actualizarAlbum(payload)
+    //enviamos los datos al store para que haga la actualización
+    await albumesStore.actualizarAlbum(formulario.value.id, payload)
     alert('Álbum actualizado correctamente')
     router.push('/albumes')
   } catch (error) {
-    alert('Hubo un error al actualizar el álbum')
-    console.error(error)
+    console.error("Error al actualizar:", error)
+    alert('Hubo un error al actualizar el álbum. Verifica la consola.')
   }
 }
 </script>
@@ -99,15 +127,10 @@ const guardarCambios = async () => {
         <form class="formulario" @submit.prevent="guardarCambios">
           <div class="cuadricula-formulario">
             <div class="seccion-datos">
+              
               <div class="grupo-input">
                 <label class="etiqueta">Título del Álbum</label>
-                <input
-                  v-model="formulario.nombre"
-                  type="text"
-                  required
-                  class="entrada"
-                  placeholder="Ej: Romance..."
-                />
+                <input v-model="formulario.nombre" type="text" required class="entrada" placeholder="Ej: Romance..." />
               </div>
 
               <div class="grupo-input">
@@ -126,63 +149,31 @@ const guardarCambios = async () => {
 
               <div class="fila-input">
                 <div class="grupo-input">
-                  <label class="etiqueta">Año de Lanzamiento</label>
-                  <input
-                    v-model="formulario.fechaSalida"
-                    type="number"
-                    min="1900"
-                    max="2099"
-                    required
-                    class="entrada"
-                    placeholder="Ej: 1991"
-                  />
+                  <label class="etiqueta">Año</label>
+                  <input v-model="formulario.fechaSalida" type="number" required class="entrada" />
                 </div>
 
                 <div class="grupo-input">
                   <label class="etiqueta">Duración (MM:SS)</label>
-                  <input
-                    v-model="formulario.duracionTexto"
-                    type="text"
-                    required
-                    class="entrada"
-                    placeholder="Ej: 45:30"
-                  />
+                  <input v-model="formulario.duracionTexto" type="text" required class="entrada" placeholder="45:30" />
                 </div>
 
                 <div class="grupo-input">
-                  <label class="etiqueta">Total de Canciones</label>
-                  <input
-                    v-model="formulario.totalCanciones"
-                    type="number"
-                    min="1"
-                    required
-                    class="entrada"
-                    placeholder="Ej: 10"
-                  />
+                  <label class="etiqueta">Total Canciones</label>
+                  <input v-model="formulario.totalCanciones" type="number" required class="entrada" />
                 </div>
               </div>
 
               <div class="grupo-input">
                 <label class="etiqueta">Descripción</label>
-                <textarea
-                  v-model="formulario.descripcion"
-                  rows="5"
-                  class="entrada area-texto"
-                  placeholder="Detalles del álbum..."
-                ></textarea>
+                <textarea v-model="formulario.descripcion" rows="5" class="entrada area-texto"></textarea>
               </div>
             </div>
 
             <div class="seccion-imagen">
               <div class="grupo-input">
                 <label class="etiqueta">URL de la Portada</label>
-                <input
-                  v-model="formulario.portadaUrl"
-                  type="url"
-                  class="entrada"
-                  placeholder="https://i.ibb.co/..."
-                  required
-                />
+                <input v-model="formulario.portadaUrl" type="url" class="entrada" required />
                 <div v-if="formulario.portadaUrl" class="previsualizacion" style="margin-top:1rem;">
                   <img :src="formulario.portadaUrl" alt="Portada Preview" />
                 </div>
@@ -191,9 +182,7 @@ const guardarCambios = async () => {
           </div>
 
           <div class="acciones">
-            <button type="button" class="btn btn-borde" @click="irAAlbumes">
-              Cancelar
-            </button>
+            <button type="button" class="btn btn-borde" @click="irAAlbumes">Cancelar</button>
             <button type="submit" class="btn btn-primario" :disabled="albumesStore.cargando">
               {{ albumesStore.cargando ? 'Guardando...' : 'Guardar Cambios →' }}
             </button>
