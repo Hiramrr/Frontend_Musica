@@ -17,7 +17,8 @@ export const useCancionesStore = defineStore('canciones', () => {
     /**
    * Obtiene el listado completo de canciones desde el backend.
    * Método: GET /api/canciones
-   */  const obtenerCanciones = async () => {
+   */  
+  const obtenerCanciones = async () => {
     cargando.value = true
     try {
       const response = await apiClient.get('/canciones')
