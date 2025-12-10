@@ -12,6 +12,8 @@ const credenciales = ref({
   password: '',
 })
 
+//llama la funcion de login en authSotre, si es exitosa inicia sesion y te regresa a la pagina principal
+//si no te da un error
 const handeLogin = async () => {
   const exito = await authStore.login(credenciales.value)
 

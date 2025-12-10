@@ -1,39 +1,58 @@
 <script setup>
-import { onMounted, computed, watch } from 'vue'
+import { onMounted, computed, watch, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/authStore'
 import { useUsuariosStore } from '../stores/usuarios'
+import { useResenasStore } from '../stores/resenas'
 import HeaderComponente from '../components/HeaderComponente.vue'
 
 const props = defineProps({
-  id: {
-    type: String,
-    default: null
-  }
+  id: { type: String, default: null }
 })
 
 const router = useRouter()
 const authStore = useAuthStore()
 const usuariosStore = useUsuariosStore()
+const resenasStore = useResenasStore() // <--- USAR
 
+const tabActiva = ref('todo')
+
+//checa si el usuario que esta viendo la pagina es el duueño del perfil
+//true si lo es, false si no
 const esMiPerfil = computed(() => {
   return !props.id || (authStore.usuario && props.id === authStore.usuario.id)
 })
 
-
+//define que usuario debe mostrarse en la pagina, si es mi perfil lo saca del store
+// y si no lo pide del backend
 const usuarioVisualizado = computed(() => {
-  if (esMiPerfil.value) {
-    return authStore.usuario || {}
-  } else {
-    return usuariosStore.usuarioSeleccionado || {}
+  if (esMiPerfil.value) return authStore.usuario || {}
+  return usuariosStore.usuarioSeleccionado || {}
+})
+
+// filtro de reseñas segun la pestaña, general, albums o canciones
+const resenasFiltradas = computed(() => {
+  const todas = resenasStore.resenasUsuario || []
+
+  if (tabActiva.value === 'albums') {
+    return todas.filter(r => r.album && !r.cancion)
+  } else if (tabActiva.value === 'canciones') {
+    return todas.filter(r => r.cancion)
   }
+  //si no es ninguno de esos 2 significa que esta en general y devuelve todas
+  return todas
 })
 
 const cargarDatos = async () => {
-  if (esMiPerfil.value) {
-    return;
-  } else {
-    await usuariosStore.obtenerUsuarioPorId(props.id)
+  const idACargar = props.id ? props.id : authStore.usuario?.id
+
+  if (idACargar) {
+    //carga la id del usuario seleccionado en comunidad
+    if (!esMiPerfil.value) {
+      await usuariosStore.obtenerUsuarioPorId(idACargar)
+    }
+    // Cargar las reseñas del usuario que se tiene la id, ya sea yo o el seleccionado
+    await resenasStore.obtenerResenasPorUsuario(idACargar)
   }
 }
 
@@ -54,6 +73,31 @@ function goToEditar(){
   router.push("/editar-perfil");
 }
 
+// Manda a la cancion o album, depende al que se le de click en su reseña
+const irAlItem = (resena) => {
+  if (resena.album) {
+    router.push({ name: 'album-detalle', params: { id: resena.album.id } })
+  } else if (resena.cancion) {
+    router.push({ name: 'detalle-cancion', params: { id: resena.cancion.id } })
+  }
+}
+
+// Funcion para obtener la imagen ya sea album o cancion
+const obtenerImagen = (item) => {
+  if (item.album) {
+    // Intenta con portadaUrl, si no existe devuelve null
+    return item.album.portadaUrl || null;
+  }
+  if (item.cancion) {
+    return item.cancion.imagen || null;
+  }
+  return null;
+}
+
+// Funcion para que si la cancion o album no tiene imagen le ponga una de placeholder
+const imagenError = (e) => {
+  e.target.src = "https://placehold.co/80?text=No+Tiene";
+}
 </script>
 
 <template>
@@ -65,6 +109,7 @@ function goToEditar(){
     <div id="flex">
       <main>
         <h1>Perfil de {{ usuarioVisualizado.nombre }}</h1>
+
         <div class="contenido-perfil-layout">
           <div class="sidebar">
             <div class="foto-perfil-contenedor">
@@ -76,52 +121,92 @@ function goToEditar(){
             <ul class="lista">
               <li><strong>Correo:</strong> {{usuarioVisualizado?.correo || 'No tiene' }}</li>
               <li><strong>Nombre:</strong> {{usuarioVisualizado?.nombre || 'No tiene' }}</li>
+              <li><strong>Reseñas:</strong> {{ resenasStore.resenasUsuario.length }}</li>
             </ul>
           </div>
         </div>
 
-          <div class="pestanas">
-            <span class="pestana activa">General</span>
-            <span class="pestana">Reseñas de albums</span>
-            <span class="pestana">Reseñas de canciones</span>
-          </div>
+        <div class="pestanas">
+          <span
+            class="pestana"
+            :class="{ active: tabActiva === 'todo' }"
+            @click="tabActiva = 'todo'">
+            General
+          </span>
+          <span
+            class="pestana"
+            :class="{ active: tabActiva === 'albums' }"
+            @click="tabActiva = 'albums'">
+            Reseñas de álbums
+          </span>
+          <span
+            class="pestana"
+            :class="{ active: tabActiva === 'canciones' }"
+            @click="tabActiva = 'canciones'">
+            Reseñas de canciones
+          </span>
+        </div>
 
-          <p class="intro-text">
-            <strong>Reseñas recientes</strong>
-          </p>
+        <p class="intro-text">
+          <strong>
+            {{ tabActiva === 'todo' ? 'Actividad Reciente' :
+               tabActiva === 'albums' ? 'Álbumes Reseñados' : 'Canciones Reseñadas' }}
+          </strong>
+        </p>
 
-          <div v-for="album in nuevosLanzamientos" :key="album.id" class="box fila-album">
-            <div class="portada-album">
-              <img :src="album.imagen" :alt="album.titulo" />
+        <div v-if="resenasStore.cargando" style="text-align:center; padding: 20px;">
+            Cargando reseñas...
+        </div>
+
+        <div v-else-if="resenasFiltradas.length > 0">
+
+          <div v-for="resena in resenasFiltradas" :key="resena.id" class="box fila-album">
+
+            <div class="portada-album" style="cursor: pointer;" @click="irAlItem(resena)">
+              <img
+              :src="obtenerImagen(resena) || 'https://placehold.co/80?text=Sin+Foto'"
+              @error="imagenError"
+              alt="Portada"
+              class="portada-img"
+              />
             </div>
 
             <div class="detalles-album">
               <h2>
-                <a href="#">{{ album.titulo }}</a>
-              </h2>
-              <div class="artista-album">
-                de <strong>{{ album.artista }}</strong>
-              </div>
-              <div class="meta-album">Lanzado: {{ album.fecha }}</div>
+                <a href="#" @click.prevent="irAlItem(resena)">
+                  {{ resena.album ? resena.album.nombre : resena.cancion?.titulo }}
+                </a>
 
-              <div class="generos-album">
-                <span v-for="(genero, indice) in album.generos" :key="indice">
-                  [{{ genero }}]{{ indice < album.generos.length - 1 ? ' ' : '' }}
+                <span v-if="tabActiva === 'todo'" class="badge-tipo">
+                  {{ resena.album ? '(Álbum)' : '(Canción)' }}
                 </span>
+              </h2>
+
+              <div class="artista-album">
+                de <strong>{{ resena.album ? resena.album.artista : resena.cancion?.artista }}</strong>
+              </div>
+
+              <div class="meta-album">
+                Reseñado el: {{ resena.fechaCreacion || 'Fecha desconocida' }}
+              </div>
+
+              <div class="resena-texto-preview">
+                 "{{ resena.contenido }}"
               </div>
             </div>
 
             <div class="estadisticas-album">
               <div class="stat-group">
-                <span class="stat-label">Promedio</span>
-                <span class="stat-value">{{ album.promedio }}</span>
-              </div>
-              <div class="stat-group">
-                <span class="stat-label">Numero de votos</span>
-                <span class="stat-value">{{ album.votos }}</span>
+                <span class="stat-label">Calificación</span>
+                <span class="stat-value stars">★ {{ resena.calificacion }}/5</span>
               </div>
             </div>
+
+          </div>
         </div>
+
+        <p v-else class="vacio">No hay reseñas en esta categoría.</p>
+
         <div class="boton-container" v-if="esMiPerfil">
           <button @click="goToEditar()" class="editar-datos">Editar datos</button>
           <button @click="cerrarSesion()" class="cerrar-sesion">Cerrar Sesión</button>
@@ -279,6 +364,7 @@ h2 {
 .portada-album img {
   width: 80px;
   height: 80px;
+  object-fit: cover;
   border: 1px solid var(--azul-textos);
   display: block;
 }
@@ -440,5 +526,31 @@ h2 {
     gap: 20px;
     text-align: center;
   }
+}
+.active {
+    font-weight: bold;
+    border-bottom: 2px solid var(--azul-textos);
+    color: var(--azul-textos);
+}
+
+.resena-texto-preview {
+    margin-top: 8px;
+    font-size: 0.9rem;
+    font-style: italic;
+    color: #444;
+    background: rgba(255,255,255,0.5);
+    padding: 5px;
+    border-radius: 4px;
+}
+
+.badge-tipo {
+    font-size: 0.7rem;
+    color: #666;
+    font-weight: normal;
+    margin-left: 5px;
+}
+
+.stars {
+    color: black;
 }
 </style>
