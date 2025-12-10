@@ -1,10 +1,14 @@
 <script setup>
+// Vista de detalle de álbum que muestra información completa, pista de canciones y reseñas
+// Se encarga de cargar los datos del álbum seleccionado y gestionar las reseñas asociadas
+
 import { onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import { useAlbumesStore } from '@/stores/albums'
 import { useResenasStore } from '@/stores/resenas' 
-// componentes utilizados
+
+// Componentes para mostrar distintas secciones del detalle del álbum
 import HeaderComponente from '../../components/HeaderComponente.vue'
 import AlbumInfo from '@/components/album/AlbumInfo.vue'
 import AlbumTracklist from '@/components/album/AlbumTracklist.vue'
@@ -13,14 +17,16 @@ import AlbumReviews from '@/components/album/AlbumReviews.vue'
 const route = useRoute()
 const router = useRouter()
 
+// Instancias de los stores para acceder a datos de álbumes y reseñas
 const store = useAlbumesStore()
-const resenasStore = useResenasStore() // Instanciamos
+const resenasStore = useResenasStore()
 
-// Estados globales
+// Referencias reactivas a los datos del store
 const { albumSeleccionado, cancionesAlbum, cargando } = storeToRefs(store)
 const { listaResenas } = storeToRefs(resenasStore)
 
-// Cargamos en paralelo los albums y las reseñas
+// Al cargar la vista, obtiene el ID del álbum de los parámetros de ruta
+// y carga simultáneamente los detalles del álbum y sus reseñas
 onMounted(async () => {
   const id = route.params.id
   await Promise.all([
@@ -29,18 +35,23 @@ onMounted(async () => {
   ])
 })
 
+// Manejadores de eventos para gestionar las reseñas del álbum
+// Crea una nueva reseña para el álbum actual
 const manejarNuevaResena = async (datos) => {
   await resenasStore.crearResenaAlbum(route.params.id, datos)
 }
 
+// Elimina una reseña existente por su ID
 const manejarEliminarResena = async (idResena) => {
   await resenasStore.eliminarResena(idResena)
 }
 
+// Edita una reseña existente con nuevo texto y puntuación
 const manejarEditarResena = async ({ id, texto, puntos }) => {
   await resenasStore.editarResena(id, { texto, puntos })
 }
 
+// Navega a la página anterior en el historial del navegador
 const irAtras = () => router.go(-1)
 </script>
 

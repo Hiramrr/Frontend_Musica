@@ -1,4 +1,7 @@
 <script setup>
+// Vista para crear un nuevo álbum en el sistema
+// Permite ingresar todos los datos requeridos y asignar un artista existente
+
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAlbumesStore } from '@/stores/albums'
@@ -8,11 +11,12 @@ const router = useRouter()
 const albumesStore = useAlbumesStore()
 const artistasStore = useArtistasStore()
 
-// Cargamos los artistas reales al montar la vista
+// Al cargar la vista, obtiene la lista actualizada de artistas para el selector
 onMounted(() => {
   artistasStore.obtenerArtistas()
 })
 
+// Objeto reactivo con los campos del formulario para crear un nuevo álbum
 const formulario = ref({
   nombre: '',          
   artista_id: '',      
@@ -23,8 +27,11 @@ const formulario = ref({
   portadaUrl: ''     
 })
 
+// Navega hacia la página de inicio
 const irAInicio = () => router.push('/')
 
+// Convierte un tiempo en formato MM:SS a segundos totales
+// Si solo se proporciona un número, lo trata como minutos
 const convertirDuracionASegundos = (tiempo) => {
   if (!tiempo) return 0
   if (tiempo.includes(':')) {
@@ -36,6 +43,7 @@ const convertirDuracionASegundos = (tiempo) => {
   return parseInt(tiempo) * 60
 }
 
+// Reinicia el formulario a sus valores vacíos
 const limpiarFormulario = () => {
   formulario.value = { 
     nombre: '', 
@@ -48,7 +56,9 @@ const limpiarFormulario = () => {
   }
 }
 
+// Valida y envía los datos del nuevo álbum al backend
 const guardarAlbum = async () => {
+  // Prepara el objeto con los datos a enviar, convertiendo tipos de datos según sea necesario
   const payload = {
     nombre: formulario.value.nombre,
     fechaSalida: parseInt(formulario.value.fechaSalida),
@@ -56,14 +66,17 @@ const guardarAlbum = async () => {
     descripcion: formulario.value.descripcion,
     portadaUrl: formulario.value.portadaUrl,
     
+    // Convierte la duración a segundos para almacenamiento en backend
     duracion_segundos: convertirDuracionASegundos(formulario.value.duracionTexto),
     
+    // El artista se envía como array de objetos con su ID
     artistas: [
       { id: formulario.value.artista_id }
     ]
   }
 
   try {
+    // Envía los datos al store para que haga la petición POST al backend
     await albumesStore.guardarAlbum(payload)
     alert("Álbum registrado correctamente")
     router.push('/albumes')

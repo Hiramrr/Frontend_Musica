@@ -2,18 +2,20 @@ import { ref } from 'vue'
 import { defineStore } from 'pinia'
 import apiClient from '@/api/axios'
 
+// Store centralizado para gestionar todos los datos relacionados con álbumes
+// Maneja tanto la lista de álbumes como los detalles individuales
 export const useAlbumesStore = defineStore('albumes', () => {
-  //Estados globales
+  // Estados reactivos para la lista general de álbumes
   const listaAlbumes = ref([])
   const albumsDelArtista = ref([])
   const cargando = ref(false)
   
-  //Estados los detalles del album 
+  // Estados para el detalle específico de un álbum
   const albumSeleccionado = ref(null)
   const cancionesAlbum = ref([])
   const reseñasAlbum = ref([])
 
-  //Obtener todos los albums 
+  // Obtiene la lista completa de álbumes desde el backend
   const obtenerAlbumes = async () => {
     cargando.value = true
     try {
@@ -26,6 +28,7 @@ export const useAlbumesStore = defineStore('albumes', () => {
     }
   }
 
+  // Obtiene solo los álbumes asociados a un artista específico
   const obtenerAlbumsPorArtista = async (artistaId) => {
     cargando.value = true
     albumsDelArtista.value = [] 
@@ -41,8 +44,7 @@ export const useAlbumesStore = defineStore('albumes', () => {
     }
   }
 
-
-  //Obtener por id los detalle de un álbum y su lista de  canciones
+  // Obtiene los detalles completos de un álbum por su ID, incluyendo sus canciones
   const obtenerDetalleAlbum = async (id) => {
     cargando.value = true
     albumSeleccionado.value = null
@@ -52,26 +54,26 @@ export const useAlbumesStore = defineStore('albumes', () => {
       const response = await apiClient.get(`/albums/${id}`)
       albumSeleccionado.value = response.data
 
-      // Mapeamos las canciones que vienen DENTRO del JSON del backend
+      // Extrae las canciones del objeto del álbum si existen
       if (response.data.canciones) {
         cancionesAlbum.value = response.data.canciones
       } else {
         cancionesAlbum.value = []
       }
 
-      // Simulamos reseñas iniciales (Ya que el backend aun no las trae)
+      // Inicializa con una reseña simulada (el backend aún no las proporciona)
       reseñasAlbum.value = [
         { texto: '¡Un clásico instantáneo!', puntos: 5, fecha: new Date().toLocaleDateString() }
       ]
 
     } catch (error) {
       console.error('Error al cargar el detalle del álbum:', error)
-      // Opcional: Podrías redirigir al usuario o mostrar una alerta
     } finally {
       cargando.value = false
     }
   }
 
+  // Crea un nuevo álbum en el backend y lo agrega a la lista local
   const guardarAlbum = async (album) => {
     cargando.value = true
     try {
@@ -86,25 +88,24 @@ export const useAlbumesStore = defineStore('albumes', () => {
     }
   }
 
+  // Elimina un álbum del backend y actualiza la lista local
+  // Si el álbum no existe en el servidor, lo elimina de la UI de todas formas
   const eliminarAlbum = async (id) => {
     try {
       await apiClient.delete(`/albums/${id}`)
-      // Si tiene éxito, se filtra el álbum de la lista local
       listaAlbumes.value = listaAlbumes.value.filter((album) => album.id !== id)
     } catch (error) {
-      // Si el error es 404, significa que ya fue borrado. Lo quitamos de la lista.
       if (error.response && error.response.status === 404) {
         console.warn(`Intento de eliminar álbum (ID: ${id}) no encontrado en el servidor. Actualizando UI.`)
         listaAlbumes.value = listaAlbumes.value.filter((album) => album.id !== id)
-        // No se relanza el error, se considera una eliminación "exitosa" para el frontend
       } else {
-        // Para cualquier otro error (500, etc.), se loguea y relanza para que el componente lo maneje
         console.error('Error al eliminar el álbum:', error)
         throw error
       }
     }
   }
 
+  // Obtiene un álbum específico por su ID sin marcar todo el detalle
   const obtenerAlbumPorId = async (id) => {
     cargando.value = true
     try {
@@ -118,29 +119,29 @@ export const useAlbumesStore = defineStore('albumes', () => {
     }
   }
 
-const actualizarAlbum = async (arg1, arg2) => {
+  // Actualiza un álbum existente en el backend
+  // Soporta dos formas de llamada: (id, data) o (data con id incluido)
+  const actualizarAlbum = async (arg1, arg2) => {
     cargando.value = true
     try {
       let id, data;
 
-      // Lógica para detectar si mandaste (id, data) o solo (data)
+      // Detecta el formato de los argumentos
       if (typeof arg1 === 'string' || typeof arg1 === 'number') {
-        // Caso: actualizarAlbum('123', { nombre: ... })
         id = arg1
         data = arg2
       } else {
-        // Caso: actualizarAlbum({ id: '123', nombre: ... })
         id = arg1.id
         data = arg1
       }
 
-      // Validación de seguridad
+      // Valida que se haya proporcionado un ID
       if (!id) throw new Error("ID de álbum no definido para actualizar")
 
-      // Llamada al endpoint correcto: PUT /albums/{id}
+      // Envía la actualización al backend
       const response = await apiClient.put(`/albums/${id}`, data)
       
-      // Actualizamos la lista localmente para reflejar cambios
+      // Actualiza la lista local con los datos nuevos
       const index = listaAlbumes.value.findIndex(a => a.id === id)
       if (index !== -1) {
         listaAlbumes.value[index] = response.data
@@ -156,7 +157,7 @@ const actualizarAlbum = async (arg1, arg2) => {
   }
 
   return { 
-    // Estados
+    // Estados reactivos
     listaAlbumes, 
     cargando, 
     albumSeleccionado,
@@ -164,8 +165,7 @@ const actualizarAlbum = async (arg1, arg2) => {
     reseñasAlbum,
     albumsDelArtista,      
     
-    
-    // Acciones
+    // Métodos de acceso a datos
     obtenerAlbumes,
     guardarAlbum,
     obtenerDetalleAlbum,

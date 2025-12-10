@@ -1,4 +1,7 @@
 <script setup>
+// Vista de catálogo que muestra todos los álbumes disponibles en el sistema
+// Permite ver detalles, crear nuevos álbumes, editar y eliminar existentes
+
 import { onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAlbumesStore } from '@/stores/albums'
@@ -8,24 +11,32 @@ import HeaderComponente from '../../components/HeaderComponente.vue'
 const router = useRouter()
 const store = useAlbumesStore()
 
+// Referencias reactivas del store para acceder a la lista de álbumes y estado de carga
 const { listaAlbumes, cargando } = storeToRefs(store)
 
+// Al cargar la vista, obtiene la lista completa de álbumes desde el backend
 onMounted(() => {
   store.obtenerAlbumes()
 })
 
-//fncion para ver canciones del album
+// Navega al detalle de un álbum específico usando su ID
 const verDetalle = (id) => {
   router.push({ name: 'album-detalle', params: { id: id } })
 }
 
+// Navega a la página de inicio
 const irAInicio = () => router.push('/')
+
+// Navega a la vista de agregar un nuevo álbum
 const irAAgregarAlbum = () => router.push('/agregar-album')
 
+// Navega a la vista de edición del álbum seleccionado
 const editarAlbum = (id) => {
   router.push(`/editar-album/${id}`)
 }
 
+// Elimina un álbum tras pedir confirmación al usuario
+// Muestra un error si el álbum tiene canciones asociadas
 const eliminarAlbum = async (id) => {
   if (confirm('¿Estás seguro de que quieres eliminar este álbum?')) {
     try {

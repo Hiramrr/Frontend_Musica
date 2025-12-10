@@ -1,4 +1,7 @@
 <script setup>
+// Vista para editar información de un álbum existente
+// Carga los datos del álbum por su ID y permite modificarlos antes de enviarlos al backend
+
 import { ref, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useAlbumesStore } from '@/stores/albums'
@@ -9,6 +12,7 @@ const route = useRoute()
 const albumesStore = useAlbumesStore()
 const artistasStore = useArtistasStore()
 
+// Objeto reactivo que contiene los datos del formulario de edición
 const formulario = ref({
   id: null,
   nombre: '',
@@ -20,7 +24,7 @@ const formulario = ref({
   duracionTexto: ''
 })
 
-// Función para convertir segundos a formato minutos y segundos
+// Convierte segundos a formato legible MM:SS (ej: 45:30 para 45 minutos 30 segundos)
 const segundosAFormatoMMSS = (totalSegundos) => {
   if (isNaN(totalSegundos) || totalSegundos === null) return ''
   const minutos = Math.floor(totalSegundos / 60)
@@ -28,7 +32,7 @@ const segundosAFormatoMMSS = (totalSegundos) => {
   return `${String(minutos).padStart(2, '0')}:${String(segundos).padStart(2, '0')}`
 }
 
-// Función para convertir MM:SS a segundos para su envio al back para enviar al back
+// Convierte formato MM:SS a segundos totales para enviar al backend
 const convertirDuracionASegundos = (tiempo) => {
   if (!tiempo || !tiempo.includes(':')) return 0
   const partes = tiempo.split(':')
@@ -37,10 +41,11 @@ const convertirDuracionASegundos = (tiempo) => {
   return (minutos * 60) + segundos
 }
 
+// Al cargar la vista, obtiene la lista de artistas y carga los datos del álbum a editar
 onMounted(async () => {
   await artistasStore.obtenerArtistas()
   
-  //Cargar datos del álbum a editar
+  // Obtiene el ID del álbum desde los parámetros de la ruta
   const albumId = route.params.id
   const album = await albumesStore.obtenerAlbumPorId(albumId)
 
@@ -50,7 +55,7 @@ onMounted(async () => {
       idArtista = album.artistas[0].id
     }
 
-    // Llenar formulario
+    // Rellena el formulario con los datos actuales del álbum
     formulario.value = {
       id: album.id,
       nombre: album.nombre,
@@ -64,25 +69,29 @@ onMounted(async () => {
   }
 })
 
+// Navega hacia la vista de lista de álbumes
 const irAAlbumes = () => router.push('/albumes')
 
+// Valida y envía los cambios del álbum al backend
 const guardarCambios = async () => {
-  // Validaciones para no dejar campos vacios
+  // Verifica que se haya seleccionado un artista
   if (!formulario.value.artista_id) {
     alert("Por favor selecciona un artista")
     return
   }
 
+  // Convierte los campos de texto a números
   const anio = parseInt(formulario.value.fechaSalida)
   const total = parseInt(formulario.value.totalCanciones)
   const segundos = convertirDuracionASegundos(formulario.value.duracionTexto)
 
+  // Valida que todos los campos numéricos sean válidos
   if (isNaN(anio) || isNaN(total) || isNaN(segundos)) {
     alert("Por favor verifica que los campos numéricos sean correctos")
     return
   }
 
-  // Construcción del objeto que se va a enviar al backend
+  // Prepara el objeto con los datos a enviar al backend
   const payload = {
     id: formulario.value.id,
     nombre: formulario.value.nombre,
@@ -92,15 +101,14 @@ const guardarCambios = async () => {
     portadaUrl: formulario.value.portadaUrl,
     duracion_segundos: segundos,
     
-    // Enviamos el artista como array de objetos con su id 
+    // El artista se envía como array de objetos con su ID
     artistas: [
       { id: formulario.value.artista_id }
     ]
-    
   }
 
   try {
-    //enviamos los datos al store para que haga la actualización
+    // Envía los datos actualizados al store para que haga la petición al backend
     await albumesStore.actualizarAlbum(formulario.value.id, payload)
     alert('Álbum actualizado correctamente')
     router.push('/albumes')
