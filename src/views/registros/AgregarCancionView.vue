@@ -52,12 +52,18 @@ const limpiarFormulario = () => {
   }
 }
 
+/**
+ * 1. Valida campos requeridos.
+ * 2. Transforma los datos del formulario al formato que exige el Backend (Payload).
+ * 3. Llama al Store para hacer el POST.
+ */
 const guardarCancion = async () => {
   if (!formulario.value.nombre || !formulario.value.duracion) {
     alert("El nombre y la duración son obligatorios")
     return
   }
 
+  //Construcción del Objeto para el Backend
   const nuevaCancion = {
     nombre: formulario.value.nombre,
     fecha_salida: parseInt(formulario.value.anio_salida) || 0,
@@ -65,6 +71,8 @@ const guardarCancion = async () => {
     descripcion: formulario.value.descripcion,
     portada_url: formulario.value.portada_url,
     
+    // Si hay un ID seleccionado, enviamos un objeto.
+    // Si no, enviamos null.
     album: formulario.value.album_id ? { id: formulario.value.album_id } : null
   }
 
