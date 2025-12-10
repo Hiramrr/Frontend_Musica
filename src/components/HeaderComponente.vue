@@ -1,6 +1,7 @@
 <script setup>
 import { RouterLink } from 'vue-router'
 import { useAuthStore } from '../stores/authStore'
+//checa si hay alguien logeado con authStore
 const store = useAuthStore()
 </script>
 

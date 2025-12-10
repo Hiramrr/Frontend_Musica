@@ -3,13 +3,15 @@ import apiClient from '@/api/axios'
 
 export const useUsuariosStore = defineStore('usuarios', {
   state: () => ({
-    listaUsuarios: [],
-    usuarioSeleccionado: null,
-    cargando: false,
-    error: null,
+    listaUsuarios: [], //lista que contendra todos los usuarios
+    usuarioSeleccionado: null, //para ver el usuario que se selecciono
+    cargando: false, //control de la ui de carga, como unos circulos de carga jaja
+    error: null, //fallosss
   }),
 
   actions: {
+    //Primero pone cargando true para que por si tarda el usuario tenga una retroalimentacion en la gui
+    // despues hace una peticion get a /usuarios para que le regrese la lista de todos los usuarios
     async obtenerTodos() {
       this.cargando = true
       this.error = null
@@ -24,6 +26,8 @@ export const useUsuariosStore = defineStore('usuarios', {
       }
     },
 
+    // pone el usuario seleccionado en null para que no haya mas de uno,
+    // despues hace una peticion get a /usuarios/${id} que le regresa los datos de ese usuario en especifico
     async obtenerUsuarioPorId(id) {
       this.cargando = true
       this.usuarioSeleccionado = null
