@@ -1,17 +1,39 @@
 <script setup>
+/**
+ * IMPORTACIONES
+ * - Vue: Herramientas base para reactividad y ciclo de vida.
+ * - Vue Router: Para navegar entre páginas y leer parámetros de la URL.
+ * - Pinia: Para acceder al estado global (lista de canciones).
+ * - Componentes: Importamos el Header para reutilizarlo.
+ */
 import { onMounted, ref, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useCancionesStore } from '@/stores/canciones'
 import { storeToRefs } from 'pinia'
 import HeaderComponente from '../../components/HeaderComponente.vue'
 
+// Inicialización de herramientas de enrutamiento
+// Para hacer acciones (navegar)
 const router = useRouter()
+// Para leer datos de la URL actual
 const route = useRoute()
+// Inicialización del Store (Estado Global)
 const store = useCancionesStore()
 
+// Desestructuración reactiva:
+// Usamos storeToRefs para extraer 'listaCanciones' y 'cargando' sin perder
+// la reactividad. Si el store se actualiza, estas variables también.
 const { listaCanciones, cargando } = storeToRefs(store)
+// Filtro Reactivo:
+// Lee si hay un parámetro '?album=...' en la URL. Si no hay, inicia vacío.
 const filtroAlbum = ref(route.query.album || '')
 
+/**
+ * PROPIEDAD COMPUTADA: cancionesFiltradas
+ * Esta función se ejecuta automáticamente cuando cambian las dependencias.
+ * Si 'filtroAlbum' tiene texto, devuelve solo las canciones de ese álbum.
+ * Si no, devuelve la lista completa.
+ */
 const cancionesFiltradas = computed(() => {
   if (filtroAlbum.value) {
     return listaCanciones.value.filter((c) => c.nombre_album === filtroAlbum.value)
@@ -19,6 +41,10 @@ const cancionesFiltradas = computed(() => {
   return listaCanciones.value
 })
 
+/**
+ * Convierte segundos (ej. 125) a formato legible (ej. "2:05").
+ * Usa padStart para asegurar que los segundos siempre tengan 2 dígitos.
+ */
 const formatearDuracion = (segundos) => {
   if (!segundos) return '--:--'
   const min = Math.floor(segundos / 60)
@@ -26,6 +52,11 @@ const formatearDuracion = (segundos) => {
   return `${min}:${sec.toString().padStart(2, '0')}`
 }
 
+/**
+ * CICLO DE VIDA: onMounted
+ * Se ejecuta cuando el componente se carga en el navegador.
+ * Llama a la acción del store para traer los datos desde el Backend API.
+ */
 onMounted(() => {
   store.obtenerCanciones()
 })
