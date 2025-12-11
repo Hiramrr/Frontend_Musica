@@ -6,7 +6,7 @@ import { useArtistasStore } from '@/stores/artistas'
 // usamos el router y route para navegar entre paginas y obtener el id del artista a editar
 const router = useRouter()
 const route = useRoute()
-const referenciaInput = ref(null)
+
 const artistasStore = useArtistasStore()
 
 const formulario = ref({

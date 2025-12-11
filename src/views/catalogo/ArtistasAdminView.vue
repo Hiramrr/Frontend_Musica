@@ -8,15 +8,17 @@ import HeaderComponente from '../../components/HeaderComponente.vue'
 const router = useRouter()
 const store = useArtistasStore()
 
+// obtenemos las referencias reactivas del store
 const { listaArtistas, cargando } = storeToRefs(store)
 
+// cargamos los artistas al montar el componente
 onMounted(() => {
   store.obtenerArtistas()
 })
 
-const irAInicio = () => router.push('/')
 const irAAgregarArtista = () => router.push('/agregar-artista')
 
+// funcion para eliminar un artista
 const eliminarArtista = async (id) => {
   if (confirm('¿Seguro que deseas eliminar este artista?')) {
     try {
@@ -28,6 +30,7 @@ const eliminarArtista = async (id) => {
   }
 }
 
+// redireccionar a la pagina de editar artista pasando el id del artista a editar
 const editarArtista = (id) => {
   router.push(`/editar-artista/${id}`)
 }

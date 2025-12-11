@@ -5,7 +5,7 @@ import { useArtistasStore } from '@/stores/artistas'
 
 // Inicializamos el router para poder cambiar de página y la store de artistas
 const router = useRouter()
-const referenciaInput = ref(null)
+
 
 const artistasStore = useArtistasStore()
 
