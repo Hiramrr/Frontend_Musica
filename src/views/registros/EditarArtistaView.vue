@@ -3,6 +3,7 @@ import { ref, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useArtistasStore } from '@/stores/artistas'
 
+// usamos el router y route para navegar entre paginas y obtener el id del artista a editar
 const router = useRouter()
 const route = useRoute()
 const referenciaInput = ref(null)
@@ -17,8 +18,11 @@ const formulario = ref({
   foto_url: ''
 })
 
+// cargamos los datos del artista a editar cuando se monta el componente,
+// usamos el id de la ruta para buscar el artista en la store y si se 
+// encuentra rellena los datos del formulario con el artista que se va a editar
 onMounted(() => {
-  // Buscar el artista por id en la lista del store
+  
   const artistaId = route.params.id
   const artista = artistasStore.listaArtistas.find(a => a.id === artistaId)
   if (artista) {
@@ -48,6 +52,8 @@ const limpiarFormulario = () => {
   }
 }
 
+// funcion para guardar el artista, preparamos el obejeto para eviarlo al backend
+// y llamamos al metodo de la store para guardarlo
 const guardarArtista = () => {
   const artistaId = route.params.id
   const artistaPayload = {
