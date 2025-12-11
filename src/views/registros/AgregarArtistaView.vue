@@ -3,12 +3,13 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useArtistasStore } from '@/stores/artistas'
 
+// Inicializamos el router para poder cambiar de página y la store de artistas
 const router = useRouter()
 const referenciaInput = ref(null)
 
 const artistasStore = useArtistasStore()
 
-
+// guardamos el estado del formulario
 const formulario = ref({
   nombre: '',
   fecha_inicio: '', 
@@ -19,12 +20,12 @@ const formulario = ref({
 })
 
 
-
+// funcion para regresar a la pagina de inicio
 const irAInicio = () => {
   router.push('/')
 }
 
-
+// funcion para limpiar el formulario
 const limpiarFormulario = () => {
   formulario.value = {
     nombre: '',
@@ -36,6 +37,8 @@ const limpiarFormulario = () => {
   }
 }
 
+// funcion para guardar el artista, preparamos el obejeto para eviarlo al backend
+// y llamamos al metodo de la store para guardarlo
 const guardarArtista = () => {
   
   const artistaPayload = {
