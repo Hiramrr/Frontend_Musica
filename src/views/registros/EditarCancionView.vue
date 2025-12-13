@@ -28,6 +28,8 @@ const formulario = ref({
   portada_url: ''
 })
 
+const artistasOriginales = ref([])
+
 const segundosAFormato = (totalSegundos) => {
   if (!totalSegundos) return ''
   const minutos = Math.floor(totalSegundos / 60)
@@ -64,7 +66,8 @@ onMounted(async () => {
       descripcion: cancion.descripcion,
       portada_url: cancion.portada_url
     }
-  }
+artistasOriginales.value = cancion.artistas || []  
+}
 })
 
 //Prepara el objeto y lo envía al store para actualizar.
@@ -75,7 +78,8 @@ const guardarCambios = async () => {
     duracion_segundos: formatoASegundos(formulario.value.duracionTexto),
     descripcion: formulario.value.descripcion,
     portada_url: formulario.value.portada_url,
-    album: formulario.value.album_id ? { id: formulario.value.album_id } : null
+    album: formulario.value.album_id ? { id: formulario.value.album_id } : null,
+    artistas: artistasOriginales.value
   }
 
   try {
