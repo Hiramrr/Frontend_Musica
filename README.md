@@ -49,6 +49,42 @@ Para generar los archivos estáticos optimizados (HTML, CSS, JS) listos para sub
 npm run build
 ```
 
-## Despliegue
+##  Despliegue en Producción con Vercel
 
-El proyecto incluye configuración para Vercel (vercel.json) para manejar las redirecciones de la SPA, pero la carpeta /dist generada puede desplegarse en cualquier servidor estático (Nginx, Apache, Netlify).
+Para el Frontend utilizaremos **Vercel**, ya que está optimizado para proyectos construidos con **Vite** y Vue 3, ofreciendo un despliegue casi instantáneo.
+
+> **Nota:** Recuerda que: para que funcione debes tener el despliegue de 
+* **Backend:** Railway (Spring Boot)
+* **Base de Datos:** Railway (PostgreSQL)
+
+### 1. Preparar el Repositorio
+Asegúrate de tu archivo `vercel.json` esté en la raíz del proyecto.
+> **Nota:** El archivo `vercel.json` es vital para las aplicaciones SPA (Single Page Applications). Le dice al servidor que, sin importar qué ruta visite el usuario (ej: `/perfil`), siempre debe servir el `index.html` para que Vue Router maneje la navegación.
+
+### 2. Importar Proyecto en Vercel
+1. Crea una cuenta en [Vercel](https://vercel.com/) y vincula tu GitHub.
+2. En el Dashboard, haz clic en **"Add New..."** -> **"Project"**.
+3. Busca tu repositorio `Frontend_Musica` y haz clic en **Import**.
+
+### 3. Configurar el Proyecto (Build & Settings)
+Vercel detectará automáticamente que usas **Vite**.
+* **Framework Preset:** Vite
+* **Root Directory:** Si tu proyecto está en una subcarpeta, selecciona la carpeta donde está el `package.json` (por ejemplo `src/frontend` o similar). Si está en la raíz, déjalo así.
+
+### 4. Configurar Variables de Entorno
+Para que tu Frontend sepa a qué Backend conectarse (el de Railway), debemos configurar la variable de entorno.
+
+Despliega la sección **Environment Variables** y agrega:
+
+| Variable | Valor |
+| :--- | :--- |
+| `VITE_API_BASE_URL` | Tu URL de Railway (ej: `https://backend-musica-production.up.railway.app/api`) |
+
+> **Importante:** No olvides poner el `/api` al final si así lo configuraste en tu backend, y asegúrate de usar `https`.
+
+### 5. Desplegar
+1. Haz clic en **Deploy**.
+2. Espera a que termine el proceso de "Building".
+3. Al finalizar, verás una captura de tu web y un botón **"Visit"**.
+
+---
